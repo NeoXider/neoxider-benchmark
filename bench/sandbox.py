@@ -65,8 +65,14 @@ def run_solution(code, cases, timeout=60):
     try:
         with open(sol, 'w', encoding='utf-8') as fh:
             fh.write(code)
+        # В файл уходят ТОЛЬКО входные данные. Эталонные ответы остаются в
+        # процессе бенчмарка: раньше сюда клался весь case вместе с полем
+        # 'best', и решение из четырёх строк, читающее cases.json, проходило
+        # проверку за 0.01 секунды — то есть выглядело как идеально
+        # оптимизированный алгоритм.
         with open(dat, 'w', encoding='utf-8') as fh:
-            json.dump(cases, fh)
+            json.dump([{'grid': c['grid'], 'start': c['start'], 'goal': c['goal']}
+                       for c in cases], fh)
         with open(har, 'w', encoding='utf-8') as fh:
             fh.write(_HARNESS)
 

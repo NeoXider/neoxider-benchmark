@@ -135,6 +135,35 @@ def measure_baseline(model_id, timeout, cwd=None):
             'error': r.error, 'sample': (r.text or '')[:80]}
 
 
+BENCH_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Что считается подглядыванием: обращение к самому бенчмарку или к рабочим
+# папкам соседних прогонов.
+_PEEK_MARKERS = ('neoxider-benchmark', os.path.basename(BENCH_ROOT),
+                 'nxb_ws_', 'cases.json', 'results/index.json')
+
+
+def detect_peeking(calls):
+    """Ищет в аргументах вызовов инструментов обращения к бенчмарку.
+
+    Предотвратить чтение чужих файлов на одной машине без контейнера нельзя —
+    проверено: агент поднимается из выданной временной папки в родительский
+    каталог и видит и репозиторий, и папки соседних прогонов. Поэтому здесь
+    не защита, а честная отметка: уровень, на котором модель лезла в бенчмарк,
+    помечается недостоверным и не должен попадать в сравнение.
+    """
+    hits = []
+    root_low = BENCH_ROOT.lower().replace('\\', '/')
+    for c in calls or []:
+        blob = ('%s %s' % (c.get('tool', ''), c.get('input', ''))).lower().replace('\\', '/')
+        if root_low and root_low in blob:
+            hits.append(c)
+            continue
+        if any(m.lower() in blob for m in _PEEK_MARKERS if m):
+            hits.append(c)
+    return hits
+
+
 def _fresh_workspace():
     """Пустой каталог для агента, вне репозитория бенчмарка.
 
@@ -154,7 +183,7 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
 
     rec = {'task': task.NAME, 'level': level, 'attempts': [],
            'score': SCORE_FAIL, 'fixed': False, 'passed': False,
-           'fabricated': 0, 'seconds': 0.0,
+           'fabricated': 0, 'seconds': 0.0, 'peeked': False, 'peek_calls': [],
            'ts': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
 
     tokens_acc = models._zero_tokens()
@@ -185,6 +214,11 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
         # выдумки считаем по ПОСЛЕДНЕЙ попытке: одумалась — не штрафуем
         rec['fabricated'] = extra.get('fabricated', 0)
 
+        peek = detect_peeking(getattr(res, 'calls', None))
+        if peek:
+            rec['peeked'] = True
+            rec['peek_calls'] = (rec['peek_calls'] + peek)[:6]
+
         rec['attempts'].append({
             'n': attempt, 'ok': bool(ok), 'detail': detail,
             'seconds': round(res.seconds, 2), 'error': res.error,
@@ -212,6 +246,12 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
     # Врать хуже, чем молчать: выдумала и не исправилась — уходит в минус.
     if rec['fabricated'] and not rec['passed']:
         rec['score'] = PENALTY_FABRICATION
+
+    # Заглянула в бенчмарк — результат уровня недостоверен. Не штрафуем, но и
+    # не засчитываем: балл обнуляется, а факт остаётся в записи.
+    if rec['peeked']:
+        rec['score_before_peek'] = rec['score']
+        rec['score'] = 0.0
 
     if owns_workspace:
         shutil.rmtree(workspace, ignore_errors=True)
@@ -324,6 +364,7 @@ def summarize(run):
         'fixed': sum(1 for r in lv if r['fixed']),
         'failed': sum(1 for r in lv if not r['passed']),
         'fabricated': sum(r['fabricated'] for r in lv),
+        'peeked': sum(1 for r in lv if r.get('peeked')),
         'seconds': round(sum(r['seconds'] for r in lv), 1),
         'tokens_total': _tok_total(tok) if have else None,
         'tokens_net': net_sum if have else None,

@@ -15,7 +15,7 @@ import time
 
 class Result(object):
     def __init__(self, text='', tokens=None, cost=None, seconds=0.0,
-                 error=None, raw_meta=None, tools=None):
+                 error=None, raw_meta=None, tools=None, calls=None):
         self.text = text or ''
         self.tokens = tokens          # dict или None
         self.cost = cost              # float или None
@@ -27,6 +27,7 @@ class Result(object):
         # задача toolchoice в таком случае не делает вывода, а помечает
         # результат как неизмеримый.
         self.tools = tools
+        self.calls = calls or []
 
     def as_dict(self):
         return {'tokens': self.tokens, 'cost': self.cost,
@@ -126,6 +127,7 @@ def run_opencode(model, prompt, timeout=900, cwd=None):
     cost = 0.0
     chunks = []
     tools = []
+    calls = []
     seen_any = False
     for line in out.splitlines():
         line = line.strip()
@@ -143,6 +145,13 @@ def run_opencode(model, prompt, timeout=900, cwd=None):
             name = part.get('tool') or part.get('name')
             if name:
                 tools.append(name)
+                # Аргументы вызова нужны, чтобы поймать подглядывание в сам
+                # бенчмарк: предотвратить чтение чужих файлов мы не можем,
+                # но зафиксировать факт — можем, и такой прогон помечается
+                # недостоверным вместо того, чтобы попасть в лидерборд.
+                st = part.get('state') or {}
+                calls.append({'tool': name,
+                              'input': json.dumps(st.get('input'), ensure_ascii=False)[:400]})
         elif typ == 'step_finish':
             seen_any = True
             t = part.get('tokens') or {}
@@ -161,7 +170,8 @@ def run_opencode(model, prompt, timeout=900, cwd=None):
         error = error or err.strip()[-300:]
     return Result(text=text, tokens=tokens if seen_any else None,
                   cost=cost if seen_any else None, seconds=secs, error=error,
-                  tools=tools if seen_any else None)
+                  tools=tools if seen_any else None,
+                  calls=calls if seen_any else None)
 
 
 # -------------------------------------------------------------------- claude
