@@ -208,7 +208,16 @@ def run_claude(model, prompt, timeout=900, cwd=None):
 # --------------------------------------------------------------------- codex
 
 def run_codex(model, prompt, timeout=900, cwd=None):
-    cmd = ['codex', 'exec', '--model', model, '--json', prompt]
+    """codex exec --json: события построчно, ответ приходит агентским сообщением.
+
+    --skip-git-repo-check обязателен. Задачи специально решаются в свежей
+    временной папке, чтобы агент не видел ни бенчмарка, ни чужих результатов, а
+    codex вне доверенного каталога отказывается работать вовсе — и отказ занимал
+    считанные секунды, так что в отчёт он ложился неотличимо от «модель не
+    справилась». Прогон целиком выглядел как ноль у GPT-5.6, чего на самом деле
+    не было.
+    """
+    cmd = ['codex', 'exec', '--model', model, '--skip-git-repo-check', '--json', prompt]
     out, err, secs, error = _run(cmd, timeout, cwd)
     if error:
         return Result(seconds=secs, error=error)
@@ -230,6 +239,16 @@ def run_codex(model, prompt, timeout=900, cwd=None):
             tokens['output'] += u.get('output_tokens', 0) or 0
             tokens['reasoning'] += (u.get('reasoning_output_tokens', 0) or 0)
             tokens['cache_read'] += u.get('cached_input_tokens', 0) or 0
+            tokens['cache_write'] += u.get('cache_write_input_tokens', 0) or 0
+        # Ответ лежит в item.completed с type=agent_message. Плоских ключей
+        # хватало прежним сборкам codex, но в нынешней текст вложен, и без
+        # разбора item ответ терялся целиком, а уровень падал на разборе формата.
+        item = ev.get('item')
+        if isinstance(item, dict) and item.get('type') == 'agent_message':
+            v = item.get('text')
+            if isinstance(v, str) and v:
+                chunks.append(v)
+                continue
         for key in ('text', 'message', 'last_agent_message'):
             v = ev.get(key) or (ev.get('msg') or {}).get(key)
             if isinstance(v, str) and v:
