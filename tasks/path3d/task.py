@@ -232,22 +232,22 @@ def score(output, expected):
     if 'def solve' not in code:
         return False, 'функция solve не определена'
 
-    ns = {}
-    try:
-        exec(compile(code, '<solution>', 'exec'), ns)
-    except Exception as e:
-        return False, 'код не исполняется: %s: %s' % (type(e).__name__, e)
+    # Исполняем в отдельном процессе, а не exec в процессе бенчмарка:
+    # чужой код мог добраться до кадра проверяльщика и вытащить эталоны, а
+    # бесконечный цикл вешал весь прогон навсегда.
+    from bench import sandbox
+    run = sandbox.run_solution(code, expected['cases'], timeout=60)
+    if not run['ok']:
+        if run.get('timeout'):
+            return False, 'превышен лимит времени', {
+                'hint': 'Решение работает слишком долго.'}
+        return False, run['error'], {'hint': 'Код не запускается либо падает с ошибкой.'}
 
-    fn = ns.get('solve')
-    if not callable(fn):
-        return False, 'solve не является функцией'
-
-    for i, c in enumerate(expected['cases'], 1):
-        try:
-            got = fn([[list(col) for col in plane] for plane in c['grid']],
-                     list(c['start']), list(c['goal']))
-        except Exception as e:
-            return False, 'карта %d: исключение %s: %s' % (i, type(e).__name__, e)
-        if got != c['best']:
-            return False, 'карта %d: вернула %r, эталон %r' % (i, got, c['best'])
+    for i, (got, c) in enumerate(zip(run['results'], expected['cases']), 1):
+        if got['error']:
+            return False, 'карта %d: %s' % (i, got['error']), {
+                'hint': 'Функция падает с ошибкой на проверочных данных.'}
+        if got['value'] != c['best']:
+            return False, 'карта %d: ответ неверный' % i, {
+                'hint': 'Ответ неверный хотя бы на одной карте.'}
     return True, 'все %d карт пройдены' % len(expected['cases'])

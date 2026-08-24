@@ -164,16 +164,36 @@ def detect_peeking(calls):
     return hits
 
 
-def _fresh_workspace():
-    """Пустой каталог для агента, вне репозитория бенчмарка.
+_SESSION_ROOT = None
 
-    Обязательно: при запуске с cwd внутри репозитория агент уходит читать сам
-    бенчмарк. Это не гипотеза — в первом живом прогоне модель вместо счёта
-    открыла docs/results.json и начала пересказывать чужие результаты, а на
-    втором заходе прямо написала, что «ищет задачу calc в структуре проекта».
-    Такие цифры не значат ничего, поэтому каждый уровень получает чистую папку.
+
+def _session_root():
+    """Общий корень для рабочих папок одного запуска, с нейтральным именем.
+
+    Не в общем каталоге временных файлов напрямую: там агент видит соседей.
+    Проверено живьём — модель перечислила рабочие папки других прогонов по
+    префиксу и заодно весь репозиторий бенчмарка.
     """
-    return tempfile.mkdtemp(prefix='nxb_ws_')
+    global _SESSION_ROOT
+    if _SESSION_ROOT is None:
+        base = os.environ.get('NXB_WORKROOT') or tempfile.gettempdir()
+        _SESSION_ROOT = tempfile.mkdtemp(prefix='', suffix='', dir=base)
+    return _SESSION_ROOT
+
+
+def _fresh_workspace():
+    """Пустой каталог для агента, вне репозитория и с неговорящим именем.
+
+    Три причины именно так:
+      - при cwd внутри репозитория агент уходит читать сам бенчмарк: в первом
+        живом прогоне модель вместо счёта открыла docs/results.json и стала
+        пересказывать чужие результаты;
+      - говорящий префикс в имени папки подсказывал, что идёт замер, и позволял
+        найти соседние прогоны простым перечислением каталога;
+      - общий корень на запуск позволяет унести весь замер на другой диск через
+        переменную NXB_WORKROOT — например, туда, где репозитория нет вовсе.
+    """
+    return tempfile.mkdtemp(prefix='', dir=_session_root())
 
 
 def run_level(model_id, task, level, rng, timeout, cwd, baseline):
@@ -301,7 +321,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     if not todo:
         out['finished_utc'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
         out['summary'] = summarize(out)
-        save(out, results_dir)
+        save(out, results_dir, final=True)
         return out
 
     # базовую линию меряем один раз на модель и переиспользуем при докатывании
@@ -319,12 +339,14 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
             progress(rec)
         if save_every:
             out['summary'] = summarize(out)
-            save(out, results_dir)
+            save(out, results_dir)          # черновик вне репозитория
 
     out['levels'].sort(key=lambda r: (r['task'], r['level']))
     out['finished_utc'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     out['summary'] = summarize(out)
-    save(out, results_dir)
+    # Перенос готового результата в репозиторий — уже после того, как агент
+    # отработал: во время замера рядом с ним не должно быть ничего опознаваемого.
+    save(out, results_dir, final=True)
     return out
 
 
@@ -377,14 +399,33 @@ def summarize(run):
     }
 
 
-def save(run, results_dir='results'):
-    os.makedirs(results_dir, exist_ok=True)
-    path = result_path(results_dir, run['model'], run['seed'])
+def staging_path(run):
+    """Куда пишется прогон, пока он идёт: вне репозитория, рядом не с чем.
+
+    Промежуточные результаты нельзя держать в самом репозитории: в первом живом
+    прогоне модель нашла results/ и прочитала оттуда чужие цифры вместо решения
+    задачи. Поэтому во время замера файл лежит в изолированном корне запуска, а
+    в repo переносится готовым — уже после того, как агент отработал.
+    """
+    return os.path.join(_session_root(), 'run_%s_%s.json'
+                        % (run['model'].replace('/', '_').replace(':', '_'),
+                           run['seed']))
+
+
+def _write_json(path, data):
     tmp = path + '.tmp'
     with open(tmp, 'w', encoding='utf-8') as fh:
-        json.dump(run, fh, ensure_ascii=False, indent=1)
+        json.dump(data, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)     # атомарно: прерванный прогон не портит файл
     return path
+
+
+def save(run, results_dir='results', final=False):
+    """final=False — черновик в изолированный корень, True — перенос в репозиторий."""
+    if not final:
+        return _write_json(staging_path(run), run)
+    os.makedirs(results_dir, exist_ok=True)
+    return _write_json(result_path(results_dir, run['model'], run['seed']), run)
 
 
 def status(model_id, seed, results_dir='results', profile=None,
