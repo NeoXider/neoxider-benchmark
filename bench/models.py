@@ -271,7 +271,11 @@ def run_codex(model, prompt, timeout=900, cwd=None):
 ENGINE_TOOLS = {
     'opencode': {'browser', 'network', 'shell'},
     'claude':   {'browser', 'network', 'shell'},
-    'codex':    {'network', 'shell'},
+    # браузер появился после того, как web-search-neo прописали в
+    # ~/.codex/config.toml: раньше webform у codex падал на всех уровнях
+    # и мерил отсутствие инструмента. Проверено вызовом:
+    # инструмент виден как mcp__web_search_neo__web_action.
+    'codex':    {'browser', 'network', 'shell'},
     'chat':     set(),
 }
 
