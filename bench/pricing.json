@@ -54,8 +54,14 @@
     "price_ref": "openrouter:qwen/qwen3.8-27b", "price_date": "2026-08-24",
     "weights_ref": "hf:Qwen/Qwen3.8-27B"},
 
-  "lmstudio/ornith1.5":                     {"weights": "open", "local": true, "weights_ref": "hf:ornith-ai/Ornith-1.5-35B-A3B", "input_per_mtok": null, "output_per_mtok": null},
-  "lmstudio/qwen4-2":                       {"weights": "open", "local": true, "input_per_mtok": null, "output_per_mtok": null},
-  "lmstudio/ling-3.0-tiny":                 {"weights": "open", "local": true, "weights_ref": "hf:inclusionAI/Ling-3.0-tiny", "input_per_mtok": null, "output_per_mtok": null},
-  "lmstudio/qwen3.8-27b":                   {"weights": "open", "local": true, "weights_ref": "hf:Qwen/Qwen3.8-27B", "input_per_mtok": null, "output_per_mtok": null}
+  "lmstudio-local/ornith-1.5-35b-a3b-uncensored-i1": {"weights": "open", "local": true,
+    "weights_ref": "hf:ornith-ai/Ornith-1.5-35B-A3B", "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio-local/ling-3.0-tiny":           {"weights": "open", "local": true,
+    "weights_ref": "hf:inclusionAI/Ling-3.0-tiny", "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio-local/qwen3.5-4b-mtp":          {"weights": "open", "local": true,
+    "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio-local/qwen_qwen3.5-2b":         {"weights": "open", "local": true,
+    "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio-local/qwen3.8-27b-uncensored":  {"weights": "open", "local": true,
+    "weights_ref": "hf:Qwen/Qwen3.8-27B", "input_per_mtok": null, "output_per_mtok": null}
 }

@@ -1,3 +1,192 @@
 {
- "runs": []
+ "runs": [
+  {
+   "model": "opencode/x-preview-f-free",
+   "engine": "opencode",
+   "weights": "unknown",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 18.0,
+   "max_score": 24.0,
+   "stability_score": 18.0,
+   "stability_max": 24.0,
+   "stability_failed": 3,
+   "passed": 21,
+   "first_try": 21,
+   "fixed": 0,
+   "failed": 3,
+   "fabricated": 0,
+   "seconds": 4144.7,
+   "tokens_total": 831279,
+   "tokens_net": 337293,
+   "baseline_tokens": 33732,
+   "cost": null,
+   "cost_source": null,
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 232.8
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 457.3
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 503.6
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 219.9
+    },
+    "pathperf": {
+     "score": 2.0,
+     "passed": 2,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 840.2
+    },
+    "spatial": {
+     "score": 1.0,
+     "passed": 1,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 667.0
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 463.9
+    },
+    "webform": {
+     "score": 0.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 759.9
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 0.895,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 0.487,
+    "agentic": 0.433
+   },
+   "levels_done": 24,
+   "card": "cards/opencode_x-preview-f-free.svg"
+  },
+  {
+   "model": "opencode/hy3-free",
+   "engine": "opencode",
+   "weights": "open",
+   "local": false,
+   "weights_ref": "hf:tencent/Hy3",
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 17.5,
+   "max_score": 24.0,
+   "stability_score": 17.5,
+   "stability_max": 24.0,
+   "stability_failed": 3,
+   "passed": 21,
+   "first_try": 20,
+   "fixed": 1,
+   "failed": 3,
+   "fabricated": 0,
+   "seconds": 4436.9,
+   "tokens_total": 641153,
+   "tokens_net": 170000,
+   "baseline_tokens": 36753,
+   "cost": 0.088127,
+   "cost_source": "estimated",
+   "price_ref": "openrouter:tencent/hy3",
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 252.8
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 729.7
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 417.7
+    },
+    "path3d": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 1096.4
+    },
+    "pathperf": {
+     "score": 2.5,
+     "passed": 3,
+     "fixed": 1,
+     "total": 3,
+     "seconds": 903.2
+    },
+    "spatial": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 559.0
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 226.2
+    },
+    "webform": {
+     "score": 0.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 252.1
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 0.579,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 0.769,
+    "agentic": 0.467
+   },
+   "levels_done": 24,
+   "card": "cards/opencode_hy3-free.svg"
+  }
+ ]
 }

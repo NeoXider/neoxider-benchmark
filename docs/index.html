@@ -369,7 +369,13 @@ function cellText(r, key){
       if (r.stability_score==null || !r.stability_max) return '<td class="num">—</td>';
       const full = r.stability_score >= r.stability_max - 1e-9;
       const t = `${r.stability_score.toFixed(1)} / ${r.stability_max}`;
-      return `<td class="num" title="Lower levels of every task - the floor a working agent is expected to clear in full">`
+      // На прогоне профиля minimal минимальный набор и есть весь прогон, так что
+      // числа совпадают по определению. Это не дубль по ошибке, и подпись это говорит.
+      const same = r.stability_max === r.max_score;
+      const why = same
+        ? 'This run covered only the minimal set, so the floor is the whole run'
+        : 'Lower levels of every task - the floor a working agent is expected to clear in full';
+      return `<td class="num" title="${why}">`
            + `<span class="${full?'ok':'bad'}">${full?'✓':'✗'}</span> ${t}</td>`;
     }
     case 'cost':   return `<td class="num${r.cost_source==='estimated'?' dim':''}">${fmtCost(r.cost, r.cost_source)}</td>`;
@@ -382,9 +388,17 @@ function cellText(r, key){
              ` · <a href="${esc(r.card)}" download>download</a></td>`;
     case 'fabricated':
       return `<td class="num${r.fabricated>0?' fab-hot':''}" title="${r.fabricated>0?'Fabricated answers instead of an honest &quot;not found&quot;':'Admitted when it did not know'}">${r.fabricated>0?'⚠ '+r.fabricated:'0'}</td>`;
-    default:
+    default: {
+      // Текстовые колонки (engine, date) шли сюда же и попадали в fmtInt,
+      // который на строке возвращает прочерк: заполненные поля выглядели
+      // отсутствующими данными. Тип колонки объявлен в COLS — по нему и решаем.
       const v = r[key];
-      return `<td class="num">${v==null?'—':fmtInt(v)}</td>`;
+      const col = COLS.find(c => c.key === key);
+      if (v == null || v === '') return `<td class="${col && col.num ? 'num' : ''}">—</td>`;
+      return col && col.num === false
+        ? `<td>${esc(v)}</td>`
+        : `<td class="num">${fmtInt(v)}</td>`;
+    }
   }
 }
 function filteredRuns(){
