@@ -1,0 +1,35 @@
+{
+  "_comment": "Профили чат-сайтов для макроса bench-chat-ask. Селекторы проверены живьём 24.08.2026.",
+
+  "_selector_policy": [
+    "Опираемся на placeholder и семантику, а не на классы: у DeepSeek класс поля ввода обфусцирован (_27c9245) и переживёт максимум одну пересборку фронтенда.",
+    "Отправка — клавишей Enter, а не поиском кнопки: кнопки отправки в обоих чатах появляются только после ввода текста и не имеют устойчивых атрибутов.",
+    "Ответ снимается ПОСЛЕ паузы: оба чата стримят текст, и снимок сразу после отправки даёт обрывок."
+  ],
+
+  "qwen": {
+    "chat_url": "https://chat.qwen.ai/",
+    "input_selector": "textarea.message-input-textarea",
+    "input_hint": "placeholder «Спросить Qwen»",
+    "send_key": "ENTER",
+    "answer_selector": "[class*=\"markdown\"], [class*=\"message-content\"]",
+    "settle_seconds": 8,
+    "verified": "2026-08-24"
+  },
+
+  "deepseek": {
+    "chat_url": "https://chat.deepseek.com/",
+    "input_selector": "textarea[placeholder*=\"Message DeepSeek\"]",
+    "input_hint": "placeholder «Message DeepSeek»",
+    "send_key": "ENTER",
+    "answer_selector": "[class*=\"markdown\"], [class*=\"ds-markdown\"]",
+    "settle_seconds": 8,
+    "verified": "2026-08-24"
+  },
+
+  "_notes": [
+    "Оба сайта требуют, чтобы пользователь был залогинен: макрос работает в его профиле Chrome (profile_mode=current) и НЕ вводит пароли и коды.",
+    "Модель в интерфейсе (Qwen3.8 Max, DeepSeek Pro или Flash) выбирается вручную ДО прогона — переключатель модели у обоих сайтов свой и меняется чаще, чем поле ввода.",
+    "Результат такого прогона помечается channel=chat: одна попытка, без телеметрии инструментов и токенов. С CLI-прогонами напрямую не сравнивать."
+  ]
+}

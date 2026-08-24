@@ -99,6 +99,10 @@ def main():
     ap.add_argument('--status', action='store_true', help='показать, что осталось')
     ap.add_argument('--list', action='store_true')
     ap.add_argument('--report', action='store_true', help='пересобрать лидерборд')
+    ap.add_argument('--export-prompts', action='store_true',
+                    help='выгрузить промпты для модели без CLI (чат-канал)')
+    ap.add_argument('--import-answers', metavar='FILE',
+                    help='оценить ответы, собранные в чате')
     ap.add_argument('--quiet', action='store_true')
     args = ap.parse_args()
 
@@ -112,8 +116,31 @@ def main():
         print('лидерборд: %s, прогонов: %d' % (path, n))
         return 0
 
+    if args.import_answers:
+        from bench import chat_io
+        run = chat_io.import_answers(args.import_answers, args.results)
+        s = run['summary']
+        print('модель %s (чат-канал)' % run['model'])
+        print('балл %.1f из %.0f, неизмеримых уровней: %d'
+              % (s['score'], s['max_score'], run['unmeasurable']))
+        from bench import report
+        report.write()
+        return 0
+
     if not args.model:
         ap.error('нужен --model (или --list / --report)')
+
+    if args.export_prompts:
+        from bench import chat_io
+        tsk = [t.strip() for t in args.tasks.split(',')] if args.tasks else None
+        path, n = chat_io.export_prompts(args.model, args.seed, tsk,
+                                         parse_levels(args.levels), args.profile,
+                                         args.results)
+        print('выгружено промптов: %d' % n)
+        print('файл: %s' % path)
+        print('Заполните поле answer у каждого пункта и запустите:')
+        print('  python run.py --import-answers %s' % path)
+        return 0
 
     tasks = [t.strip() for t in args.tasks.split(',')] if args.tasks else None
     if tasks:

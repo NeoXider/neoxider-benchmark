@@ -1,0 +1,116 @@
+{
+  "name": "bench-chat-ask",
+  "description": "Отправляет один промпт бенчмарка в веб-чат и забирает ответ. Повторяемый: подставляются chat_url, селекторы и текст промпта.",
+  "variables": {
+    "chat_url": "https://chat.qwen.ai/",
+    "input_selector": "textarea.message-input-textarea",
+    "answer_selector": "[class*=\"markdown\"], [class*=\"message-content\"]",
+    "prompt": "",
+    "settle_seconds": "8",
+    "session": "bench-chat"
+  },
+  "notes": [
+    "Профили сайтов и проверенные селекторы — рядом в bench-chat-sites.json.",
+    "Зачем макрос, а не адаптер: у Qwen Max и DeepSeek нет CLI, они живут только в чате.",
+    "Текст вставляется через буфер обмена, а не fill: в чатах поле ввода живёт на своём фреймворке, и прямая запись в DOM не доходит до состояния приложения. На этом уже обжигались с Telegram и Gmail.",
+    "Отправка — Enter, а не поиск кнопки: кнопка появляется только после ввода и не имеет устойчивых атрибутов.",
+    "Ответ снимается ПОСЛЕ паузы settle_seconds: чаты стримят текст, снимок сразу после отправки даёт обрывок.",
+    "Макрос делает ОДИН промпт. Цикл по списку — снаружи, чтобы падение на одном пункте не роняло весь прогон.",
+    "Модель (Qwen3.8 Max, DeepSeek Pro/Flash) выбирается в интерфейсе ВРУЧНУЮ до прогона."
+  ],
+  "steps": [
+    {
+      "action": "open",
+      "url": "{{chat_url}}",
+      "session_id": "{{session}}",
+      "profile_mode": "current"
+    },
+    {
+      "action": "wait",
+      "selector": "{{input_selector}}",
+      "session_id": "{{session}}",
+      "timeout_seconds": 40
+    },
+    {
+      "action": "run_script",
+      "session_id": "{{session}}",
+      "user_gesture": true,
+      "await_promise": true,
+      "args": [
+        "{{prompt}}"
+      ],
+      "script": "return navigator.clipboard.writeText(String(arguments[0]||'')).then(function(){return {clipboard:true, chars:String(arguments[0]||'').length};});"
+    },
+    {
+      "action": "click",
+      "selector": "{{input_selector}}",
+      "session_id": "{{session}}",
+      "trusted": true,
+      "wait_seconds": 1
+    },
+    {
+      "action": "input",
+      "session_id": "{{session}}",
+      "key_actions": [
+        {
+          "key": "CONTROL",
+          "action": "hold"
+        },
+        {
+          "key": "A",
+          "action": "tap"
+        },
+        {
+          "key": "V",
+          "action": "tap"
+        },
+        {
+          "key": "CONTROL",
+          "action": "release"
+        }
+      ]
+    },
+    {
+      "action": "run_script",
+      "session_id": "{{session}}",
+      "args": [
+        "{{input_selector}}"
+      ],
+      "script": "var el=document.querySelector(arguments[0]); var v=el?(el.value!==undefined?el.value:el.innerText):''; if(!v||v.trim().length<20){throw new Error('промпт не попал в поле ввода: '+(v||'').length+' символов');} return {ok:true, chars:v.length};"
+    },
+    {
+      "action": "input",
+      "session_id": "{{session}}",
+      "key_actions": [
+        {
+          "key": "ENTER",
+          "action": "tap"
+        }
+      ],
+      "wait_seconds": 2
+    },
+    {
+      "action": "wait",
+      "selector": "{{answer_selector}}",
+      "session_id": "{{session}}",
+      "timeout_seconds": 180
+    },
+    {
+      "action": "run_script",
+      "session_id": "{{session}}",
+      "args": [
+        "{{settle_seconds}}"
+      ],
+      "await_promise": true,
+      "script": "var ms=parseFloat(arguments[0]||'6')*1000; return new Promise(function(r){setTimeout(function(){r({waited_ms:ms});},ms);});"
+    },
+    {
+      "action": "run_script",
+      "session_id": "{{session}}",
+      "args": [
+        "{{answer_selector}}"
+      ],
+      "script": "var n=document.querySelectorAll(arguments[0]); if(!n.length){throw new Error('ответ не найден по селектору');} var last=n[n.length-1]; var text=(last.innerText||'').trim(); if(text.length<2){throw new Error('ответ пустой');} return {answer:text, length:text.length, blocks:n.length};"
+    }
+  ]
+}
