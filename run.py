@@ -82,6 +82,51 @@ def cmd_list():
         print('  ' + m)
 
 
+def cmd_progress():
+    """Что сейчас считается и насколько продвинулось.
+
+    Прогоны идут параллельно и часами, каждый в своём процессе, и до сих пор
+    единственным способом узнать, жив ли какой-то из них, было читать его лог.
+    Отметки пишет сам runner после каждого уровня, поэтому «молчит десять минут»
+    видно сразу, а не после того, как прогон окажется зря потрачен.
+    """
+    import time as _t
+    from bench import runner
+    rows = runner.read_progress()
+    if not rows:
+        print('nothing in flight (progress notes live in %s)' % runner.progress_dir())
+        return
+
+    def _age(stamp):
+        try:
+            then = _t.mktime(_t.strptime(stamp, '%Y-%m-%dT%H:%M:%SZ'))
+            return max(0, _t.mktime(_t.gmtime()) - then)
+        except (TypeError, ValueError):
+            return None
+
+    rows.sort(key=lambda r: (r.get('finished'), -(r.get('done') or 0)))
+    print('%-42s %8s %7s %7s %-14s %9s %s'
+          % ('model', 'progress', 'score', 'failed', 'current', 'elapsed', 'state'))
+    for r in rows:
+        done, planned = r.get('done') or 0, r.get('planned') or 0
+        idle = _age(r.get('updated_utc'))
+        if r.get('finished'):
+            state = 'done'
+        elif idle is not None and idle > 900:
+            # Не «упал» — этого отсюда не видно, — а именно «давно молчит».
+            state = 'silent %d min' % (idle // 60)
+        else:
+            state = 'running'
+        secs = r.get('seconds') or 0
+        print('%-42s %4d/%-3d %7.1f %7d %-14s %5.0f min %s'
+              % (r.get('model', '?'), done, planned, r.get('score') or 0,
+                 r.get('failed') or 0, (r.get('current') or '-')[:14],
+                 secs / 60.0, state))
+    live = [r for r in rows if not r.get('finished')]
+    print()
+    print('%d in flight, %d finished' % (len(live), len(rows) - len(live)))
+
+
 def main():
     ap = argparse.ArgumentParser(description='Neoxider Benchmark')
     ap.add_argument('--model')
@@ -98,6 +143,8 @@ def main():
                     help='recompute failed levels only')
     ap.add_argument('--status', action='store_true', help='show what remains')
     ap.add_argument('--list', action='store_true')
+    ap.add_argument('--progress', action='store_true',
+                    help='live view of every run in flight')
     ap.add_argument('--report', action='store_true', help='rebuild the leaderboard')
     ap.add_argument('--export-prompts', action='store_true',
                     help='export prompts for a model without a CLI (chat channel)')
@@ -108,6 +155,10 @@ def main():
 
     if args.list:
         cmd_list()
+        return 0
+
+    if args.progress:
+        cmd_progress()
         return 0
 
     if args.report and not args.model:

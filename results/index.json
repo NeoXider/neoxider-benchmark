@@ -1,6 +1,382 @@
 {
  "runs": [
   {
+   "model": "claude/claude-haiku-4-5-20251001",
+   "engine": "claude",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 24.0,
+   "max_score": 24.0,
+   "stability_score": 24.0,
+   "stability_max": 24.0,
+   "stability_failed": 0,
+   "passed": 24,
+   "first_try": 24,
+   "fixed": 0,
+   "failed": 0,
+   "fabricated": 0,
+   "seconds": 622.8,
+   "tokens_total": 1776361,
+   "tokens_net": 1163449,
+   "baseline_tokens": 25581,
+   "cost": 0.827988,
+   "cost_source": "reported",
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 17.1
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 30.9
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 62.4
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 39.7
+    },
+    "pathperf": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 54.1
+    },
+    "spatial": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 30.7
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 160.1
+    },
+    "webform": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 227.6
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 1.0,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 1.0
+   },
+   "levels_done": 24,
+   "card": "cards/claude_claude-haiku-4-5-20251001.svg"
+  },
+  {
+   "model": "claude/claude-opus-5",
+   "engine": "claude",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 24.0,
+   "max_score": 24.0,
+   "stability_score": 24.0,
+   "stability_max": 24.0,
+   "stability_failed": 0,
+   "passed": 24,
+   "first_try": 24,
+   "fixed": 0,
+   "failed": 0,
+   "fabricated": 0,
+   "seconds": 531.0,
+   "tokens_total": 1865936,
+   "tokens_net": 1322576,
+   "baseline_tokens": 22644,
+   "cost": 4.087955,
+   "cost_source": "reported",
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 16.3
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 29.4
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 91.9
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 56.0
+    },
+    "pathperf": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 59.6
+    },
+    "spatial": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 44.0
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 73.6
+    },
+    "webform": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 160.2
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 1.0,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 1.0
+   },
+   "levels_done": 24,
+   "card": "cards/claude_claude-opus-5.svg"
+  },
+  {
+   "model": "claude/claude-sonnet-5",
+   "engine": "claude",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 24.0,
+   "max_score": 24.0,
+   "stability_score": 24.0,
+   "stability_max": 24.0,
+   "stability_failed": 0,
+   "passed": 24,
+   "first_try": 24,
+   "fixed": 0,
+   "failed": 0,
+   "fabricated": 0,
+   "seconds": 509.8,
+   "tokens_total": 2271993,
+   "tokens_net": 1454553,
+   "baseline_tokens": 34064,
+   "cost": 2.650796,
+   "cost_source": "reported",
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 37.0
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 32.5
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 46.3
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 28.1
+    },
+    "pathperf": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 44.4
+    },
+    "spatial": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 45.7
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 66.3
+    },
+    "webform": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 209.5
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 1.0,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 1.0
+   },
+   "levels_done": 24,
+   "card": "cards/claude_claude-sonnet-5.svg"
+  },
+  {
+   "model": "opencode/muse-spark-1.2-contributor-free",
+   "engine": "opencode",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 18.0,
+   "max_score": 24.0,
+   "stability_score": 18.0,
+   "stability_max": 24.0,
+   "stability_failed": 3,
+   "passed": 21,
+   "first_try": 21,
+   "fixed": 0,
+   "failed": 3,
+   "fabricated": 0,
+   "seconds": 4723.2,
+   "tokens_total": 1489581,
+   "tokens_net": 922160,
+   "baseline_tokens": 33993,
+   "cost": 0.15229,
+   "cost_source": "estimated",
+   "price_ref": "openrouter:meta/muse-spark-1.2-contributor",
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 427.1
+    },
+    "count": {
+     "score": 2.0,
+     "passed": 2,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 536.3
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 579.6
+    },
+    "path3d": {
+     "score": 2.0,
+     "passed": 2,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 535.1
+    },
+    "pathperf": {
+     "score": 2.0,
+     "passed": 2,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 1053.8
+    },
+    "spatial": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 858.6
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 430.5
+    },
+    "webform": {
+     "score": 0.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 302.0
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 0.772,
+    "instruction": 0.667,
+    "honesty": 1.0,
+    "spatial": 0.923,
+    "agentic": 0.433
+   },
+   "levels_done": 24,
+   "card": "cards/opencode_muse-spark-1.2-contributor-free.svg"
+  },
+  {
    "model": "opencode/x-preview-f-free",
    "engine": "opencode",
    "weights": "unknown",

@@ -63,5 +63,7 @@
   "lmstudio-local/qwen_qwen3.5-2b":         {"weights": "open", "local": true,
     "input_per_mtok": null, "output_per_mtok": null},
   "lmstudio-local/qwen3.8-27b-uncensored":  {"weights": "open", "local": true,
-    "weights_ref": "hf:Qwen/Qwen3.8-27B", "input_per_mtok": null, "output_per_mtok": null}
+    "weights_ref": "hf:Qwen/Qwen3.8-27B", "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio-local/qwen3.8-27b-unleashed":   {"weights": "open", "local": true,
+    "weights_ref": "hf:outsourc-e/Qwen3.8-27B-Unleashed-GGUF", "input_per_mtok": null, "output_per_mtok": null}
 }

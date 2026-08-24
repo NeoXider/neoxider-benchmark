@@ -11,6 +11,7 @@
 Правило попыток: одна попытка и одна возможность исправиться.
 Баллы: 1.0 с первой, 0.5 после правки, 0 провал, -1.0 за выдумку без исправления.
 """
+import glob
 import json
 import os
 import random
@@ -362,7 +363,9 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     if not out['baseline'] or not out['baseline'].get('tokens'):
         out['baseline'] = measure_baseline(model_id, timeout, cwd)
 
+    note_progress(out, len(plan))
     for tname, lvl in todo:
+        note_progress(out, len(plan), current='%s L%d' % (tname, lvl))
         task = registry.get(tname)
         # сид детерминирован по (сид, задача, уровень): разные модели получают
         # ОДИНАКОВЫЕ задачи, а добавление новой задачи не сдвигает старые
@@ -374,6 +377,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
         if save_every:
             out['summary'] = summarize(out)
             save(out, results_dir)          # черновик вне репозитория
+        note_progress(out, len(plan))
 
     out['levels'].sort(key=lambda r: (r['task'], r['level']))
     out['finished_utc'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
@@ -381,6 +385,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     # Перенос готового результата в репозиторий — уже после того, как агент
     # отработал: во время замера рядом с ним не должно быть ничего опознаваемого.
     save(out, results_dir, final=True)
+    note_progress(out, len(plan), finished=True)
     return out
 
 
@@ -468,6 +473,62 @@ def _write_json(path, data):
         json.dump(data, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)     # атомарно: прерванный прогон не портит файл
     return path
+
+
+def progress_dir():
+    """Куда прогоны кладут отметки о ходе работы.
+
+    Отдельно от черновиков результата: у каждого прогона свой случайный рабочий
+    корень, поэтому со стороны узнать, где он, нельзя — а посмотреть, идёт ли
+    дело и сколько осталось, нужно снаружи и на ходу. Каталог фиксированный и
+    лежит вне репозитория: рядом с агентом не должно оказаться ничего, что
+    указывает на бенчмарк, а внутри одни счётчики — ни задач, ни ответов.
+    """
+    base = os.environ.get('NXB_PROGRESS') or os.path.join(
+        tempfile.gettempdir(), 'nxb-progress')
+    os.makedirs(base, exist_ok=True)
+    return base
+
+
+def _progress_path(model, seed):
+    safe = str(model).replace('/', '_').replace(':', '_')
+    return os.path.join(progress_dir(), '%s_%s.json' % (safe, seed))
+
+
+def note_progress(run, planned, current=None, finished=False):
+    """Отметка о ходе прогона: сколько сделано, что идёт сейчас, когда обновлено."""
+    lv = run.get('levels') or []
+    try:
+        _write_json(_progress_path(run['model'], run['seed']), {
+            'model': run['model'],
+            'engine': run.get('engine'),
+            'seed': run.get('seed'),
+            'planned': planned,
+            'done': len(lv),
+            'passed': sum(1 for r in lv if r.get('passed')),
+            'failed': sum(1 for r in lv if not r.get('passed')),
+            'score': round(sum(r.get('score') or 0 for r in lv), 2),
+            'seconds': round(sum(r.get('seconds') or 0 for r in lv), 1),
+            'current': current,
+            'finished': bool(finished),
+            'started_utc': run.get('started_utc'),
+            'updated_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+        })
+    except Exception:
+        # Отчёт о ходе работы не имеет права уронить сам прогон.
+        pass
+
+
+def read_progress():
+    """Все известные отметки, свежие сверху."""
+    out = []
+    for path in sorted(glob.glob(os.path.join(progress_dir(), '*.json'))):
+        try:
+            with open(path, encoding='utf-8') as fh:
+                out.append(json.load(fh))
+        except (IOError, ValueError):
+            continue
+    return out
 
 
 def save(run, results_dir='results', final=False):
