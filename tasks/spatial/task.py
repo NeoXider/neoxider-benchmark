@@ -186,25 +186,44 @@ def generate(level, rng):
     return prompt, {'kind': 'coord', 'answer': '(%d, %d, %d)' % tuple(pos)}
 
 
+_COORD = re.compile(r'\(\s*-?\d+\s*,\s*-?\d+\s*,\s*-?\d+\s*\)')
+_WORD = re.compile(r'^\s*([A-Za-zА-Яа-яЁё]+)\s*$', re.M)
+
+
 def score(output, expected):
-    lines = (output or '').splitlines()
-    if len(lines) != 1:
-        return False, 'the answer must be exactly one line'
-    text = lines[0].strip()
+    """Меряет пространственное мышление, а не аккуратность оформления.
+
+    Задача весит spatial 1.0 и не содержит доли instruction, поэтому лишняя
+    строка рассуждения не должна обнулять верный ответ: буквальный формат
+    проверяет отдельная задача count. Ответом считается ПОСЛЕДНЕЕ подходящее
+    вхождение — модели заканчивают выводом, а не начинают с него.
+
+    Перебор вариантов при этом не проходит: если по тексту разбросаны разные
+    кандидаты, это не оформление, а ставка на то, что зачтут подходящий.
+    """
+    text = (output or '').strip()
     if not text:
         return False, 'empty answer'
+
     if expected['kind'] == 'coord':
-        m = re.fullmatch(r'\(\s*-?\d+\s*,\s*-?\d+\s*,\s*-?\d+\s*\)', text)
-        if not m:
+        hits = [re.sub(r'\s+', '', h) for h in _COORD.findall(text)]
+        if not hits:
             return False, 'coordinates not found in the answer'
-        got = re.sub(r'\s+', '', m.group(0))
+        if len(set(hits)) > 1:
+            return False, ('%d different coordinates in the answer - one value '
+                           'was required, not a list of candidates' % len(set(hits)))
+        got = hits[-1]
         want = re.sub(r'\s+', '', expected['answer'])
         return (got == want), 'answer %s, expected %s' % (got, want)
 
     want = expected['answer']
-    token = re.fullmatch(r'[A-Za-zА-Яа-яЁё]+', text)
-    if not token:
+    hits = _WORD.findall(text)
+    if not hits:
         return False, 'answer not recognized'
-    got = token.group(0)
+    lowered = {h.lower() for h in hits}
+    if len(lowered) > 1:
+        return False, ('%d different single-word answers - one value was '
+                       'required, not a list of candidates' % len(lowered))
+    got = hits[-1]
     ok = got.lower() == want.lower()
     return ok, 'answer %r, expected %r' % (got, want)

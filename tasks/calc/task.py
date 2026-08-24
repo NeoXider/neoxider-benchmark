@@ -299,15 +299,29 @@ def _to_fraction(tok, strict=True):
         return None
 
 
+_ANSWER_LINE = re.compile(r'^\s*ANSWER\s*:\s*(.*?)\s*$', re.I | re.M)
+
+
 def score(output, expected):
-    lines = (output or '').splitlines()
-    if len(lines) != 1:
-        return False, 'the answer must be exactly one line'
-    text = lines[0].strip()
-    m = re.fullmatch(r'ANSWER\s*:\s*(.*)', text, re.I)
-    if not m:
+    """Считает арифметику, а не аккуратность оформления.
+
+    Раньше ответ отвергался, если в выводе была хоть одна лишняя строка. Но
+    задача весит math 0.8 / logic 0.2 и не содержит доли instruction: модель,
+    посчитавшая верно и добавившая фразу, получала ноль по математике. Буквальное
+    следование формату меряет отдельная задача count, и дублировать её здесь
+    значит мерить одно дважды, а математику — не мерить вовсе.
+
+    Послабление ровно одно: строку ANSWER разрешено окружать текстом. Несколько
+    строк ANSWER по-прежнему провал — это не оформление, а перебор вариантов в
+    надежде, что засчитают подходящий.
+    """
+    found = _ANSWER_LINE.findall(output or '')
+    if not found:
         return False, 'ANSWER: line not found'
-    line = m.group(1).strip()
+    if len(found) > 1:
+        return False, ('%d ANSWER: lines - the answer must be a single value, '
+                       'not a list of candidates' % len(found))
+    line = found[0].strip()
 
     if expected['kind'] == 'single':
         number = _NUM.fullmatch(line)
