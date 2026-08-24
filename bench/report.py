@@ -23,13 +23,23 @@ def load_pricing():
 
 
 def estimate_cost(model, tokens_breakdown, pricing):
-    """Стоимость из прайса. Нет цены — возвращаем None, а не выдуманное число."""
+    """Стоимость из прайса. Нет цены — возвращаем None, а не выдуманное число.
+
+    Нулевой прайс — это НЕ стоимость. У бесплатных моделей цена входа и выхода
+    равна нулю, и если посчитать её как обычную, прогон встанет ровно на нулевую
+    ось графика «цена/score» и будет выглядеть бесконечно выгодным при любом
+    качестве. Это не сравнение, а артефакт тарифа, поэтому такие прогоны на ось
+    цены не попадают вовсе. На график «токены/score» они попадают как все:
+    токены у них измеряются честно.
+    """
     p = pricing.get(model)
     if not p or not tokens_breakdown:
         return None
     inp = p.get('input_per_mtok')
     out = p.get('output_per_mtok')
     if inp is None or out is None:
+        return None
+    if not inp and not out:
         return None
     t_in = tokens_breakdown.get('input', 0) + tokens_breakdown.get('cache_read', 0)
     t_out = tokens_breakdown.get('output', 0) + tokens_breakdown.get('reasoning', 0)
@@ -53,8 +63,10 @@ def collect():
         cost = s.get('cost_reported')
         cost_src = 'reported'
         if not cost:
+            # cost_reported == 0 у бесплатных тарифов — это не «дёшево», а «нет цены»
             cost = estimate_cost(model, s.get('tokens_breakdown'), pricing)
-            cost_src = 'priced' if cost is not None else None
+            cost_src = 'priced' if cost is not None else (
+                'free' if meta.get('access') == 'free' else None)
         rows.append({
             'model': model,
             'engine': run.get('engine'),

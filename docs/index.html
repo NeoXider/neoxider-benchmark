@@ -95,7 +95,7 @@
 
   <section>
     <h2>Cost → score</h2>
-    <p class="hint">X axis — run cost (cost), Y axis — score. Runs without pricing are not drawn as zeros — they are listed below the chart.</p>
+    <p class="hint">X axis — run cost (cost), Y axis — score. Free-tier runs are left off this chart on purpose: a zero price would pin them to the axis and make any quality look infinitely efficient. They still appear on the tokens chart above, where the measurement is real. Runs without pricing are listed below the chart.</p>
     <div class="chart-box"><div id="chart-cost"></div><div id="nocost"></div></div>
   </section>
 
@@ -384,12 +384,18 @@ function renderAll(){
     RUNS.map(r=>({x:r.tokens_net, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
     'net tokens (tokens_net)', fmtCompact);
   drawScatter('#chart-cost',
-    RUNS.filter(r=>r.cost!=null).map(r=>({x:r.cost, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
+    // ноль ценой не считается: см. пояснение над графиком
+    RUNS.filter(r=>r.cost!=null && r.cost>0).map(r=>({x:r.cost, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
     'cost ($)', v=>'$'+v.toFixed(2));
 
-  // кто остался за бортом стоимостного графика
-  const noc = RUNS.filter(r=>r.cost==null).map(r=>r.model);
-  $('#nocost').textContent = noc.length ? 'No cost data: ' + noc.join(', ') : '';
+  // кто остался за бортом стоимостного графика — и почему именно
+  const off  = RUNS.filter(r=>!(r.cost!=null && r.cost>0));
+  const free = off.filter(r=>r.cost_source==='free'||r.access==='free').map(r=>r.model);
+  const noc  = off.filter(r=>!(r.cost_source==='free'||r.access==='free')).map(r=>r.model);
+  const parts = [];
+  if (free.length) parts.push('Free tier, no price to plot: ' + free.join(', '));
+  if (noc.length)  parts.push('No cost data: ' + noc.join(', '));
+  $('#nocost').textContent = parts.join(' · ');
 
   drawCats();
   renderTable();
