@@ -23,21 +23,24 @@ _HARNESS = r'''
 import json, sys, time, runpy
 
 sol_path, cases_path = sys.argv[1], sys.argv[2]
-# Решение выполняется в том же интерпретаторе и может менять общие модули.
-# Захватываем функции ДО runpy: иначе top-level monkeypatch json.load выносил
-# всё вычисление из таймера, а затем solve() возвращала готовый ответ.
 clock = time.perf_counter
-load_cases = json.load
+
+# Вход читаем ДО загрузки решения и держим только в памяти. Иначе решение
+# успевало переписать cases.json пустым списком: харнесс возвращал ноль
+# результатов, zip в проверяльщике проходил по пустому списку, и уровень
+# засчитывался, ничего не проверив. У pathperf это выглядело как «0.00 с»,
+# то есть как идеально оптимизированное решение.
+with open(cases_path, encoding="utf-8") as fh:
+    cases = json.load(fh)
+
 setup_t0 = clock()
 ns = runpy.run_path(sol_path)
+setup_seconds = clock() - setup_t0
+
 solve = ns.get("solve")
 if not callable(solve):
     print(json.dumps({"error": "solve не определена"}))
     raise SystemExit(0)
-
-with open(cases_path, encoding="utf-8") as fh:
-    cases = load_cases(fh)
-setup_seconds = clock() - setup_t0
 
 out = []
 for index, c in enumerate(cases):
@@ -49,15 +52,14 @@ for index, c in enumerate(cases):
         val, err = None, "%s: %s" % (type(e).__name__, e)
     dt = clock() - t0
     if index == 0:
-        # В измеряемую зону входят импорт решения и любой его top-level код.
-        # Загрузку входа тоже оставляем внутри: это небольшой одинаковый для
-        # всех решений overhead, зато работу нельзя спрятать до solve().
+        # Импорт решения и его top-level код входят в измеряемое время:
+        # иначе вычисление выносилось из-под таймера на верхний уровень.
         dt += setup_seconds
     if not isinstance(val, (int, float)) and val is not None:
         val, err = None, "вернула %s вместо числа" % type(val).__name__
     out.append({"value": val, "error": err, "seconds": dt})
 
-print(json.dumps({"results": out}))
+print(json.dumps({"results": out, "n_cases": len(cases)}))
 '''
 
 
@@ -132,7 +134,14 @@ def run_solution(code, cases, timeout=60, isolate_cases=False):
                     'results': [], 'seconds': secs}
         if data.get('error'):
             return {'ok': False, 'error': data['error'], 'results': [], 'seconds': secs}
-        return {'ok': True, 'error': None, 'results': data['results'], 'seconds': secs}
+        results = data.get('results') or []
+        if len(results) != len(cases):
+            # Страховка на случай, если решение всё же повлияет на состав входа.
+            return {'ok': False,
+                    'error': 'решение вернуло %d ответов вместо %d'
+                             % (len(results), len(cases)),
+                    'results': [], 'seconds': secs}
+        return {'ok': True, 'error': None, 'results': results, 'seconds': secs}
     finally:
         for f in (sol, dat, har):
             try:
