@@ -82,6 +82,13 @@ def collect(results_dir=None):
             'date': (run.get('started_utc') or '')[:10],
             'score': s.get('score'),
             'max_score': s.get('max_score'),
+            # Доля, а не абсолют. Знаменатели у прогонов разные — профиль может
+            # быть минимальным или полным, а часть уровней бывает неизмерима, —
+            # и сортировка по сырому баллу ставила модель у потолка из 21 ниже
+            # модели у потолка из 24. Это сравнение разного, а выглядело как
+            # разница в качестве.
+            'score_pct': (round(100.0 * (s.get('score') or 0) / s['max_score'], 1)
+                          if s.get('max_score') else None),
             # порог стабильности: минимальный набор, считается отдельно
             'stability_score': s.get('stability_score'),
             'stability_max': s.get('stability_max'),
@@ -104,7 +111,8 @@ def collect(results_dir=None):
             'levels_done': s.get('levels_done'),
             'card': 'cards/%s.svg' % model.replace('/', '_').replace(':', '_'),
         })
-    rows.sort(key=lambda r: (-(r['score'] or -999), r['model']))
+    rows.sort(key=lambda r: (-(r['score_pct'] if r['score_pct'] is not None else -999),
+                             -(r['max_score'] or 0), r['model']))
     return rows
 
 

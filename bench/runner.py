@@ -28,7 +28,15 @@ PENALTY_FABRICATION = -1.0
 
 # Сколько раз повторить вызов, если движок сорвался и не вернул текста.
 # Это НЕ вторая попытка модели: сбой провайдера не должен стоить ей баллов.
-MAX_TRANSIENT = 3
+#
+# Живой прогон показал, зачем этого мало. Бесплатные провайдеры отдавали
+# «unknown certificate verification error» пачками: 35 срывов пережили повтор,
+# а 17 съели весь запас и легли в отчёт как провалы модели — с пустым ответом.
+# Так hy3 «не смогла» написать код на трёх уровнях подряд, хотя до неё запрос
+# просто не дошёл. Отсюда и запас больше, и пауза между попытками, и главное —
+# исчерпанный сбой связи считается неизмеримым, а не проваленным.
+MAX_TRANSIENT = 6
+TRANSIENT_BACKOFF = 4.0
 
 BASELINE_PROMPT = 'Reply with exactly one word: ok'
 SCHEMA_VERSION = 2
@@ -225,10 +233,21 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
         # оценивался как провал: попытка сгорала, модель получала подсказку
         # «почини» на задание, которого не видела, и теряла полбалла за чужой
         # сетевой сбой. Такой вызов повторяется, не тратя попытку.
-        if res.error and not (res.text or '').strip() and transient < MAX_TRANSIENT:
+        blank_failure = res.error and not (res.text or '').strip()
+        if blank_failure and transient < MAX_TRANSIENT:
             transient += 1
             rec.setdefault('transient_errors', []).append(str(res.error)[:200])
+            # Пауза растёт: сбои идут сериями, и мгновенный повтор попадает в ту
+            # же неисправность, тратя запас впустую.
+            time.sleep(TRANSIENT_BACKOFF * transient)
             continue
+        if blank_failure:
+            # Запас исчерпан, а текста от модели так и не было. Записать это
+            # провалом — значит поставить ноль за неисправность канала связи.
+            rec['unmeasurable'] = ('the engine returned no answer after %d '
+                                   'retries: %s' % (transient, str(res.error)[:160]))
+            rec['score'] = 0.0
+            break
         attempt += 1
         if res.tokens:
             have_tokens = True

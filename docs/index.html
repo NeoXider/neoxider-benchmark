@@ -370,13 +370,13 @@ function renderTiles(){
   const n = RUNS.length;
   let bestHtml = '—';
   if (n){
-    const b = RUNS.reduce((a,r)=> r.score>a.score ? r : a, RUNS[0]);
-    bestHtml = `${b.score.toFixed(1)} / ${b.max_score} — ${esc(b.model)}`;
+    const b = RUNS.reduce((a,r)=> (r.score_pct||0)>(a.score_pct||0) ? r : a, RUNS[0]);
+    bestHtml = `${(b.score_pct||0).toFixed(0)}% <span class="s">(${b.score.toFixed(1)}/${b.max_score})</span> — ${esc(shortModel(b.model))}`;
   }
   // средний балл и самая дешёвая модель выше среднего
   let cheapHtml = '—';
-  const avg = n ? RUNS.reduce((s,r)=>s+r.score,0)/n : 0;
-  const cand = RUNS.filter(r => r.cost!=null && r.score > avg);
+  const avg = n ? RUNS.reduce((s,r)=>s+(r.score_pct||0),0)/n : 0;
+  const cand = RUNS.filter(r => r.cost!=null && r.cost>0 && (r.score_pct||0) > avg);
   if (cand.length){
     const c = cand.reduce((a,r)=> r.cost<a.cost ? r : a, cand[0]);
     cheapHtml = `${fmtCost(c.cost, c.cost_source)} — ${esc(shortModel(c.model))}`;
@@ -384,7 +384,7 @@ function renderTiles(){
   $('#tiles').innerHTML =
     `<div class="tile"><div class="k">Models tested</div><div class="v">${n}</div></div>` +
     `<div class="tile"><div class="k">Best score</div><div class="v">${bestHtml}</div></div>` +
-    `<div class="tile"><div class="k">Cheapest above average (${avg.toFixed(1)})</div><div class="v">${cheapHtml}</div></div>`;
+    `<div class="tile"><div class="k">Cheapest above average (${avg.toFixed(0)}%)</div><div class="v">${cheapHtml}</div></div>`;
 }
 
 /* ---------- таблица ---------- */
@@ -392,7 +392,7 @@ const COLS = [
   {key:'model',          label:'Model',               num:false},
   {key:'engine',         label:'Engine',              num:false},
   {key:'weights',        label:'Weights',             num:false},
-  {key:'score',          label:'Score',               num:true },
+  {key:'score',          label:'Score %',             num:true },
   {key:'stability',      label:'Stability',           num:true },
   {key:'first_try',      label:'First try',           num:true },
   {key:'fixed',          label:'After fix',           num:true },
@@ -420,7 +420,12 @@ function cellText(r, key){
         : badge;
       return `<td>${ref}</td>`;
     }
-    case 'score':  return `<td class="num">${r.score.toFixed(1)} / ${r.max_score}</td>`;
+    // Доля впереди абсолюта: прогоны идут по разным профилям и с разным числом
+    // измеримых уровней, поэтому «20.5» и «24.0» напрямую несравнимы.
+    case 'score':
+      return `<td class="num" title="${r.score.toFixed(1)} of ${r.max_score} measurable levels">`
+           + `${r.score_pct==null?'—':r.score_pct.toFixed(0)+'%'} `
+           + `<span class="dim">${r.score.toFixed(1)}/${r.max_score}</span></td>`;
     // Порог стабильности считается отдельно от общего балла: он отвечает не
     // на «как далеко модель заходит», а на «можно ли на неё положиться в
     // простом». Полный набор брать на 100% и не нужно, минимальный — нужно.
@@ -573,6 +578,7 @@ async function load(){
     r.weights = ['open','closed'].includes(r.weights) ? r.weights : 'unknown';
     r.local = !!r.local;
     r.score = +r.score || 0; r.max_score = +r.max_score || 50;
+    r.score_pct = (r.score_pct==null ? (r.max_score ? 100*r.score/r.max_score : null) : +r.score_pct);
     ['first_try','fixed','failed','fabricated','tokens_total','tokens_net','baseline_tokens','seconds']
       .forEach(k => r[k] = (r[k]==null ? null : +r[k]));
     r.cost = (r.cost==null ? null : +r.cost);
