@@ -71,7 +71,12 @@ def collect(results_dir=None):
         rows.append({
             'model': model,
             'engine': run.get('engine'),
-            'access': meta.get('access', 'unknown'),   # free / paid / unknown
+            # open / closed / unknown — опубликованы ли веса. Это свойство
+            # модели, в отличие от free/paid, который описывал лишь то, как
+            # оплачен конкретный прогон: одна и та же модель бывает и такой,
+            # и такой, и сравнивать по этому нечего.
+            'weights': meta.get('weights', 'unknown'),
+            'local': bool(meta.get('local')),
             'seed': run.get('seed'),
             'date': (run.get('started_utc') or '')[:10],
             'score': s.get('score'),

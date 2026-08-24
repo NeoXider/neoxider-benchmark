@@ -54,7 +54,8 @@ def render(run, pricing=None):
     mx = s.get('max_score') or 1.0
     pct = max(0.0, min(1.0, score / mx if mx else 0.0))
 
-    access = (pricing or {}).get(model, {}).get('access', 'unknown')
+    meta = (pricing or {}).get(model, {})
+    weights = meta.get('weights', 'unknown')
     # Тот же расчёт, что и в лидерборде: замер CLI, иначе ставка из прайса.
     # Ноль от бесплатного тарифа ценой не считается — см. report.estimate_cost.
     from .report import estimate_cost
@@ -79,8 +80,11 @@ def render(run, pricing=None):
         'NEOXIDER BENCHMARK</text>' % MUTED)
     add('<text x="28" y="74" fill="%s" font-size="23" font-weight="700">%s</text>'
         % (FG, _esc(model)))
-    badge = {'free': ('free', GOOD), 'paid': ('paid', ACCENT)}.get(
-        access, ('access unknown', MUTED))
+    badge = {'open': ('open weights', GOOD),
+             'closed': ('closed weights', ACCENT)}.get(
+        weights, ('weights unknown', MUTED))
+    if meta.get('local'):
+        badge = (badge[0] + ', local', badge[1])
     add('<text x="28" y="96" fill="%s" font-size="12">%s · engine %s · seed %s</text>'
         % (badge[1], _esc(badge[0]), _esc(run.get('engine', '?')), _esc(run.get('seed', '?'))))
 

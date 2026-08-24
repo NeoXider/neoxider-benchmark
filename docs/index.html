@@ -9,7 +9,7 @@
   :root{
     --bg:#0f1115; --text:#e6e6e6; --accent:#3b82f6;
     --muted:#9aa3af; --line:#262b33; --card:#161a21;
-    --free:#3b82f6; --paid:#f59e0b; --unknown:#8b93a1;
+    --open:#22c55e; --closed:#f59e0b; --unknown:#8b93a1;
     --red:#ef4444; --green:#22c55e;
   }
   *{box-sizing:border-box}
@@ -75,9 +75,10 @@
   td.fab-hot{color:var(--red);font-weight:700;background:rgba(239,68,68,.08)}
   td.model-cell{max-width:260px;overflow:hidden;text-overflow:ellipsis}
   .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;border:1px solid}
-  .badge.free{color:var(--free);border-color:var(--free)}
-  .badge.paid{color:var(--paid);border-color:var(--paid)}
+  .badge.open{color:var(--open);border-color:var(--open)}
+  .badge.closed{color:var(--closed);border-color:var(--closed)}
   .badge.unknown{color:var(--unknown);border-color:var(--unknown)}
+  .badge .loc{color:var(--muted);font-size:11px;margin-left:4px}
   td .ok{color:var(--green);font-weight:700}
   td .bad{color:var(--red);font-weight:700}
   tfoot td,td.empty{color:var(--muted);padding:14px;text-align:center}
@@ -119,9 +120,10 @@
     <h2>Leaderboard table</h2>
     <div class="filters">
       <span>
-        <label><input type="radio" name="f-access" value="all" checked>All</label>
-        <label><input type="radio" name="f-access" value="free">Free only</label>
-        <label><input type="radio" name="f-access" value="paid">Paid only</label>
+        <label><input type="radio" name="f-weights" value="all" checked>All weights</label>
+        <label><input type="radio" name="f-weights" value="open">Open only</label>
+        <label><input type="radio" name="f-weights" value="closed">Closed only</label>
+        <label><input type="checkbox" id="f-local">Local runs only</label>
       </span>
       <span><label>Engine: <select id="f-engine"></select></label></span>
       <span><input type="search" id="f-search" placeholder="search by model name…"></span>
@@ -163,8 +165,11 @@ python run.py --report                      # rebuild this page</code></pre>
 'use strict';
 const CATS = ['instruction','logic','spatial','math','agentic','honesty'];
 const CAT_LABELS = {instruction:'instruction',logic:'logic',spatial:'spatial',math:'math',agentic:'agentic',honesty:'honesty'};
-const ACCESS_COLOR = {free:'#3b82f6', paid:'#f59e0b', unknown:'#8b93a1'};
-const ACCESS_TEXT  = {free:'free', paid:'paid', unknown:'?'};
+// Открытые против закрытых весов — свойство модели. free/paid описывал лишь
+// то, как оплачен конкретный прогон, и одна и та же модель бывает и такой,
+// и такой, так что сравнивать по нему было нечего.
+const WEIGHTS_COLOR = {open:'#22c55e', closed:'#f59e0b', unknown:'#8b93a1'};
+const WEIGHTS_TEXT  = {open:'open', closed:'closed', unknown:'?'};
 const PALETTE = ['#3b82f6','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#e879f9','#84cc16'];
 let RUNS = [];                       // нормализованные строки данных
 let sortKey = 'score', sortDir = -1; // сортировка таблицы по умолчанию: лучший сверху
@@ -328,7 +333,7 @@ function renderTiles(){
 const COLS = [
   {key:'model',          label:'Model',               num:false},
   {key:'engine',         label:'Engine',              num:false},
-  {key:'access',         label:'Access',              num:false},
+  {key:'weights',        label:'Weights',             num:false},
   {key:'score',          label:'Score',               num:true },
   {key:'stability',      label:'Stability',           num:true },
   {key:'first_try',      label:'First try',           num:true },
@@ -346,7 +351,8 @@ const COLS = [
 function cellText(r, key){
   switch(key){
     case 'model':  return `<td class="model-cell" title="${esc(r.model)}">${esc(r.model)}</td>`;
-    case 'access': return `<td><span class="badge ${r.access}">${ACCESS_TEXT[r.access]||r.access}</span></td>`;
+    case 'weights': return `<td><span class="badge ${r.weights}">${WEIGHTS_TEXT[r.weights]||r.weights}`
+                          + `${r.local?'<span class="loc">local</span>':''}</span></td>`;
     case 'score':  return `<td class="num">${r.score.toFixed(1)} / ${r.max_score}</td>`;
     // Порог стабильности считается отдельно от общего балла: он отвечает не
     // на «как далеко модель заходит», а на «можно ли на неё положиться в
@@ -374,11 +380,13 @@ function cellText(r, key){
   }
 }
 function filteredRuns(){
-  const acc = document.querySelector('input[name=f-access]:checked').value;
+  const w   = document.querySelector('input[name=f-weights]:checked').value;
+  const loc = $('#f-local').checked;
   const eng = $('#f-engine').value;
   const q   = $('#f-search').value.trim().toLowerCase();
   return RUNS.filter(r =>
-    (acc==='all' || r.access===acc) &&
+    (w==='all' || r.weights===w) &&
+    (!loc || r.local) &&
     (eng==='all' || r.engine===eng) &&
     (!q || r.model.toLowerCase().includes(q)));
 }
@@ -418,7 +426,7 @@ function initControls(){
     `<label style="color:${modelColors[r.model]}"><input type="checkbox" value="${esc(r.model)}"${i<3?' checked':''}> ${esc(shortModel(r.model))}${r.fabricated>0?` <span style="color:var(--red)">(FABRICATED ${r.fabricated})</span>`:''}</label>`
   ).join('');
   document.querySelectorAll('#cat-picks input').forEach(i=>i.addEventListener('change', drawCats));
-  ['input[name=f-access]','#f-engine','#f-search'].forEach(sel=>{
+  ['input[name=f-weights]','#f-local','#f-engine','#f-search'].forEach(sel=>{
     document.querySelectorAll(sel).forEach(el=>el.addEventListener('change', renderTable));
     document.querySelectorAll(sel).forEach(el=>el.addEventListener('input', renderTable));
   });
@@ -432,21 +440,21 @@ function renderAll(){
 
   // легенда доступа
   $('#legend-tokens').innerHTML =
-    Object.entries(ACCESS_COLOR).map(([k,c])=>
-      `<span class="chip"><i style="background:${c}"></i>${k==='free'?'free':k==='paid'?'paid':'access unknown'}</span>`).join('');
+    Object.entries(WEIGHTS_COLOR).map(([k,c])=>
+      `<span class="chip"><i style="background:${c}"></i>${k==='open'?'open weights':k==='closed'?'closed weights':'weights unknown'}</span>`).join('');
 
   drawScatter('#chart-tokens',
-    RUNS.map(r=>({x:r.tokens_net, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
+    RUNS.map(r=>({x:r.tokens_net, y:r.score, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
     'net tokens (tokens_net)', fmtCompact);
   drawScatter('#chart-cost',
     // ноль ценой не считается: см. пояснение над графиком
-    RUNS.filter(r=>r.cost!=null && r.cost>0).map(r=>({x:r.cost, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
+    RUNS.filter(r=>r.cost!=null && r.cost>0).map(r=>({x:r.cost, y:r.score, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
     'cost ($)', v=>'$'+v.toFixed(2));
 
   // кто остался за бортом стоимостного графика — и почему именно
   const off   = RUNS.filter(r=>!(r.cost!=null && r.cost>0));
-  const local = off.filter(r=>r.access==='local').map(r=>r.model);
-  const noc   = off.filter(r=>r.access!=='local').map(r=>r.model);
+  const local = off.filter(r=>r.local).map(r=>r.model);
+  const noc   = off.filter(r=>!r.local).map(r=>r.model);
   const parts = [];
   if (local.length) parts.push('Run on local hardware, no tariff to plot: ' + local.join(', '));
   if (noc.length)   parts.push('No published rate: ' + noc.join(', '));
@@ -476,7 +484,8 @@ async function load(){
   }
   // нормализация полей, чтобы страница не падала на неполных данных
   RUNS.forEach(r=>{
-    r.access = ['free','paid'].includes(r.access) ? r.access : 'unknown';
+    r.weights = ['open','closed'].includes(r.weights) ? r.weights : 'unknown';
+    r.local = !!r.local;
     r.score = +r.score || 0; r.max_score = +r.max_score || 50;
     ['first_try','fixed','failed','fabricated','tokens_total','tokens_net','baseline_tokens','seconds']
       .forEach(k => r[k] = (r[k]==null ? null : +r[k]));

@@ -1,5 +1,7 @@
 {
-  "_comment": "Prices per million tokens, USD. Unknown price is null: the report then shows a dash instead of an invented number. access describes how the run was paid for: free (free tier), paid, local (own hardware), unknown.",
+  "_comment": "Prices per million tokens, USD. Unknown price is null: the report then shows a dash instead of an invented number.",
+
+  "_weights": "open | closed | unknown - whether the weights are published. This is the axis worth comparing on: it is a fact about the model, whereas free-versus-paid only described how one particular run happened to be billed, and the same model can be both. local says the run was on the user's own hardware; those models are open-weight too.",
 
   "_why_open_models_have_a_price": "A model served on a free tier is not a free model. The open weights behind it have a public market price, so cost per score is computable from the measured tokens. price_ref names the exact OpenRouter listing the rate was taken from, so every number here can be re-checked against a source instead of trusted.",
 
@@ -15,38 +17,38 @@
 
   "_unmapped": "pickle-rick-free and x-preview-f-free are stealth codenames with no published identity. Guessing which open model sits behind them would produce an authoritative-looking cost that is simply invented, so they stay unpriced until the vendor names them.",
 
-  "opencode/muse-spark-1.2-contributor-free": {"access": "free", "input_per_mtok": 0.10,  "output_per_mtok": 0.20,
+  "opencode/muse-spark-1.2-contributor-free": {"weights": "open", "input_per_mtok": 0.10,  "output_per_mtok": 0.20,
     "price_ref": "openrouter:meta/muse-spark-1.2-contributor", "price_date": "2026-08-24"},
-  "opencode/nemotron-ultra-free":            {"access": "free", "input_per_mtok": 0.60,  "output_per_mtok": 3.60,
+  "opencode/nemotron-ultra-free":            {"weights": "open", "input_per_mtok": 0.60,  "output_per_mtok": 3.60,
     "price_ref": "openrouter:nvidia/nemotron-3-ultra-550b-a55b", "price_date": "2026-08-24"},
-  "opencode/lightning-free":                 {"access": "free", "input_per_mtok": 0.08,  "output_per_mtok": 0.20,
+  "opencode/lightning-free":                 {"weights": "open", "input_per_mtok": 0.08,  "output_per_mtok": 0.20,
     "price_ref": "openrouter:nvidia/nemotron-3.5-lightning", "price_date": "2026-08-24"},
-  "opencode/hy3-free":                       {"access": "free", "input_per_mtok": 0.132, "output_per_mtok": 0.528,
+  "opencode/hy3-free":                       {"weights": "open", "input_per_mtok": 0.132, "output_per_mtok": 0.528,
     "price_ref": "openrouter:tencent/hy3", "price_date": "2026-08-24"},
 
-  "opencode/mimo-free":                      {"access": "free", "input_per_mtok": null,  "output_per_mtok": null,
+  "opencode/mimo-free":                      {"weights": "open", "input_per_mtok": null,  "output_per_mtok": null,
     "price_note": "OpenRouter lists xiaomi/mimo-v2.5 (0.14/0.28) and xiaomi/mimo-v2.5-pro (0.435/0.87); the codename does not say which one is served, and the two differ threefold"},
 
-  "opencode/pickle-rick-free":               {"access": "free", "input_per_mtok": null, "output_per_mtok": null},
-  "opencode/x-preview-f-free":               {"access": "free", "input_per_mtok": null, "output_per_mtok": null},
+  "opencode/pickle-rick-free":               {"weights": "unknown", "input_per_mtok": null, "output_per_mtok": null},
+  "opencode/x-preview-f-free":               {"weights": "unknown", "input_per_mtok": null, "output_per_mtok": null},
 
-  "claude/claude-opus-5":                   {"access": "paid", "input_per_mtok": null, "output_per_mtok": null,
+  "claude/claude-opus-5":                   {"weights": "closed", "input_per_mtok": null, "output_per_mtok": null,
     "price_note": "not needed: the claude CLI reports total_cost_usd per run, and a measured cost beats a tariff estimate"},
-  "claude/claude-sonnet-5":                 {"access": "paid", "input_per_mtok": null, "output_per_mtok": null},
-  "claude/claude-haiku-4-5-20251001":       {"access": "paid", "input_per_mtok": null, "output_per_mtok": null},
+  "claude/claude-sonnet-5":                 {"weights": "closed", "input_per_mtok": null, "output_per_mtok": null},
+  "claude/claude-haiku-4-5-20251001":       {"weights": "closed", "input_per_mtok": null, "output_per_mtok": null},
 
-  "codex/gpt-5.6-terra":                    {"access": "paid", "input_per_mtok": null, "output_per_mtok": null,
+  "codex/gpt-5.6-terra":                    {"weights": "closed", "input_per_mtok": null, "output_per_mtok": null,
     "price_note": "the codex CLI reports tokens but no cost, so this rate has to be filled in by hand from the vendor price list"},
-  "codex/gpt-5.6-sol":                      {"access": "paid", "input_per_mtok": null, "output_per_mtok": null},
-  "codex/gpt-5.6-luna":                     {"access": "paid", "input_per_mtok": null, "output_per_mtok": null},
+  "codex/gpt-5.6-sol":                      {"weights": "closed", "input_per_mtok": null, "output_per_mtok": null},
+  "codex/gpt-5.6-luna":                     {"weights": "closed", "input_per_mtok": null, "output_per_mtok": null},
 
-  "opencode/qwen/qwen3.8-max":              {"access": "paid", "input_per_mtok": 2.00, "output_per_mtok": 6.00,
+  "opencode/qwen/qwen3.8-max":              {"weights": "closed", "input_per_mtok": 2.00, "output_per_mtok": 6.00,
     "price_ref": "openrouter:qwen/qwen3.8-max", "price_date": "2026-08-24"},
-  "opencode/qwen/qwen3.8-27b":              {"access": "paid", "input_per_mtok": 0.40, "output_per_mtok": 3.00,
+  "opencode/qwen/qwen3.8-27b":              {"weights": "open", "input_per_mtok": 0.40, "output_per_mtok": 3.00,
     "price_ref": "openrouter:qwen/qwen3.8-27b", "price_date": "2026-08-24"},
 
-  "lmstudio/ornith1.5":                     {"access": "local", "input_per_mtok": null, "output_per_mtok": null},
-  "lmstudio/qwen4-2":                       {"access": "local", "input_per_mtok": null, "output_per_mtok": null},
-  "lmstudio/ling-3.0-tiny":                 {"access": "local", "input_per_mtok": null, "output_per_mtok": null},
-  "lmstudio/qwen3.8-27b":                   {"access": "local", "input_per_mtok": null, "output_per_mtok": null}
+  "lmstudio/ornith1.5":                     {"weights": "open", "local": true, "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio/qwen4-2":                       {"weights": "open", "local": true, "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio/ling-3.0-tiny":                 {"weights": "open", "local": true, "input_per_mtok": null, "output_per_mtok": null},
+  "lmstudio/qwen3.8-27b":                   {"weights": "open", "local": true, "input_per_mtok": null, "output_per_mtok": null}
 }
