@@ -40,8 +40,6 @@ def _fmt_int(n):
 def _fmt_cost(c, src):
     if c is None:
         return '—'
-    if c == 0:
-        return 'free'
     return '$%.4f%s' % (c, '' if src == 'reported' else '~')
 
 
@@ -57,7 +55,14 @@ def render(run, pricing=None):
     pct = max(0.0, min(1.0, score / mx if mx else 0.0))
 
     access = (pricing or {}).get(model, {}).get('access', 'unknown')
+    # Тот же расчёт, что и в лидерборде: замер CLI, иначе ставка из прайса.
+    # Ноль от бесплатного тарифа ценой не считается — см. report.estimate_cost.
+    from .report import estimate_cost
     cost = s.get('cost_reported')
+    cost_src = 'reported'
+    if not cost:
+        cost = estimate_cost(model, s.get('tokens_breakdown'), pricing or {})
+        cost_src = 'estimated' if cost is not None else 'reported'
     fabricated = s.get('fabricated') or 0
 
     p = []
@@ -142,7 +147,7 @@ def render(run, pricing=None):
         % (W - 28, y + 14, MUTED, _fmt_int(s.get('baseline_tokens'))))
     add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="11">'
         '%s · %.0f s</text>'
-        % (W - 28, y + 30, MUTED, _esc(_fmt_cost(cost, 'reported')),
+        % (W - 28, y + 30, MUTED, _esc(_fmt_cost(cost, cost_src)),
            s.get('seconds') or 0))
 
     add('</svg>')

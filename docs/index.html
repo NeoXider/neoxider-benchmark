@@ -95,7 +95,7 @@
 
   <section>
     <h2>Cost → score</h2>
-    <p class="hint">X axis — run cost (cost), Y axis — score. Free-tier runs are left off this chart on purpose: a zero price would pin them to the axis and make any quality look infinitely efficient. They still appear on the tokens chart above, where the measurement is real. Runs without pricing are listed below the chart.</p>
+    <p class="hint">X axis — run cost, Y axis — score. A free tier is not a free model: the open weights behind it carry a public market rate, so cost is computed from the measured tokens at that rate and marked with a <span class="dim">~</span>. Where the CLI reports a real charge it is used as-is. A rate of zero is never treated as a price — it would pin the run to the axis and make any quality look infinitely efficient. Unpriced runs are listed below the chart.</p>
     <div class="chart-box"><div id="chart-cost"></div><div id="nocost"></div></div>
   </section>
 
@@ -139,7 +139,15 @@ const $ = s => document.querySelector(s);
 const nf = new Intl.NumberFormat('en-US');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtInt = n => (n==null || isNaN(n)) ? '—' : nf.format(Math.round(n));
-const fmtCost = c => (c==null || isNaN(c)) ? '—' : '$' + (+c).toFixed(2);
+// Точность подстраивается под величину: у дешёвых моделей прогон стоит центы,
+// и жёсткие два знака превратили бы $0.035 и $0.044 в одно и то же число.
+// src='estimated' помечается ~ — это ставка из прайса, а не счёт от провайдера.
+const fmtCost = (c, src) => {
+  if (c==null || isNaN(c)) return '—';
+  const v = +c;
+  const digits = v >= 1 ? 2 : v >= 0.01 ? 3 : 4;
+  return '$' + v.toFixed(digits) + (src==='estimated' ? '~' : '');
+};
 // компактный формат для осей: 900000 -> 900k, 1250000 -> 1.25M
 function fmtCompact(n){
   if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(+((n/1e6)%1!==0)) + 'M';
@@ -272,7 +280,7 @@ function renderTiles(){
   const cand = RUNS.filter(r => r.cost!=null && r.score > avg);
   if (cand.length){
     const c = cand.reduce((a,r)=> r.cost<a.cost ? r : a, cand[0]);
-    cheapHtml = `${fmtCost(c.cost)} — ${esc(shortModel(c.model))}`;
+    cheapHtml = `${fmtCost(c.cost, c.cost_source)} — ${esc(shortModel(c.model))}`;
   }
   $('#tiles').innerHTML =
     `<div class="tile"><div class="k">Models tested</div><div class="v">${n}</div></div>` +
@@ -303,7 +311,7 @@ function cellText(r, key){
     case 'model':  return `<td class="model-cell" title="${esc(r.model)}">${esc(r.model)}</td>`;
     case 'access': return `<td><span class="badge ${r.access}">${ACCESS_TEXT[r.access]||r.access}</span></td>`;
     case 'score':  return `<td class="num">${r.score.toFixed(1)} / ${r.max_score}</td>`;
-    case 'cost':   return `<td class="num${r.cost_source==='estimated'?' dim':''}">${fmtCost(r.cost)}</td>`;
+    case 'cost':   return `<td class="num${r.cost_source==='estimated'?' dim':''}">${fmtCost(r.cost, r.cost_source)}</td>`;
     case 'seconds':return `<td class="num">${fmtDur(r.seconds)}</td>`;
     // Карточка модели — SVG с результатом, годится для README и для репоста.
     // Собирается на стороне bench/card.py, здесь только ссылки.
@@ -389,12 +397,12 @@ function renderAll(){
     'cost ($)', v=>'$'+v.toFixed(2));
 
   // кто остался за бортом стоимостного графика — и почему именно
-  const off  = RUNS.filter(r=>!(r.cost!=null && r.cost>0));
-  const free = off.filter(r=>r.cost_source==='free'||r.access==='free').map(r=>r.model);
-  const noc  = off.filter(r=>!(r.cost_source==='free'||r.access==='free')).map(r=>r.model);
+  const off   = RUNS.filter(r=>!(r.cost!=null && r.cost>0));
+  const local = off.filter(r=>r.access==='local').map(r=>r.model);
+  const noc   = off.filter(r=>r.access!=='local').map(r=>r.model);
   const parts = [];
-  if (free.length) parts.push('Free tier, no price to plot: ' + free.join(', '));
-  if (noc.length)  parts.push('No cost data: ' + noc.join(', '));
+  if (local.length) parts.push('Run on local hardware, no tariff to plot: ' + local.join(', '));
+  if (noc.length)   parts.push('No published rate: ' + noc.join(', '));
   $('#nocost').textContent = parts.join(' · ');
 
   drawCats();

@@ -25,12 +25,14 @@ def load_pricing():
 def estimate_cost(model, tokens_breakdown, pricing):
     """Стоимость из прайса. Нет цены — возвращаем None, а не выдуманное число.
 
-    Нулевой прайс — это НЕ стоимость. У бесплатных моделей цена входа и выхода
-    равна нулю, и если посчитать её как обычную, прогон встанет ровно на нулевую
-    ось графика «цена/score» и будет выглядеть бесконечно выгодным при любом
-    качестве. Это не сравнение, а артефакт тарифа, поэтому такие прогоны на ось
-    цены не попадают вовсе. На график «токены/score» они попадают как все:
-    токены у них измеряются честно.
+    Бесплатный тариф — не бесплатная модель: за кодовым именем стоят открытые
+    веса с публичной рыночной ценой, и стоимость прогона считается по измеренным
+    токенам. Ставка берётся из прайса (price_ref в pricing.json указывает, из
+    какого именно листинга), поэтому число можно перепроверить по источнику.
+
+    Нулевой прайс при этом ценой не считается: прогон встал бы ровно на нулевую
+    ось графика «цена/score» и выглядел бы бесконечно выгодным при любом
+    качестве. Это артефакт тарифа, а не сравнение.
     """
     p = pricing.get(model)
     if not p or not tokens_breakdown:
@@ -65,8 +67,7 @@ def collect():
         if not cost:
             # cost_reported == 0 у бесплатных тарифов — это не «дёшево», а «нет цены»
             cost = estimate_cost(model, s.get('tokens_breakdown'), pricing)
-            cost_src = 'priced' if cost is not None else (
-                'free' if meta.get('access') == 'free' else None)
+            cost_src = 'estimated' if cost is not None else None
         rows.append({
             'model': model,
             'engine': run.get('engine'),
@@ -85,7 +86,8 @@ def collect():
             'tokens_net': s.get('tokens_net'),
             'baseline_tokens': s.get('baseline_tokens'),
             'cost': cost,
-            'cost_source': cost_src,
+            'cost_source': cost_src,          # reported (замерено CLI) | estimated (по прайсу)
+            'price_ref': meta.get('price_ref'),
             'per_task': s.get('per_task') or {},
             'per_category': s.get('per_category') or {},
             'levels_done': s.get('levels_done'),
