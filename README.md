@@ -29,7 +29,7 @@ Hence the `honesty` task, which you won't find in standard suites: some of its q
 
 Details on each are in [docs/TASKS.md](docs/TASKS.md).
 
-## Three rules baked into the architecture
+## Four rules baked into the architecture
 
 Keep them in mind with any change to the suite.
 
@@ -46,6 +46,16 @@ one — existing results get reused. This lets the benchmark grow without rerunn
 generator, not ready-made instances. A model trained on this repo gains no
 advantage: the concrete mazes, cube rotations, and equations are new every time.
 The seed is recorded in results, so a run reproduces exactly.
+
+**4. Everything a user sees is English.** README and docs, the site, CLI output,
+generated model cards, and — importantly — **the task prompts themselves**.
+Russian stays only in source comments, which are internal notes.
+
+For prompts this is not cosmetic. A Russian prompt quietly penalises a model
+that is weaker in Russian, so the suite would be measuring language skill on top
+of the thing it claims to measure. Missing spots were found one at a time —
+first the landing page, then the form, then the model card — which is why the
+rule is stated once and applies everywhere rather than as a list of files.
 
 ## Running
 

@@ -33,6 +33,24 @@ sieve or dynamic programming is needed instead of enumeration; graph search
 over hundreds of thousands of edges; processing a long sequence with a
 one-pass requirement.
 
+## `multilingual` — working in a language other than English
+
+**Categories:** instruction, agentic
+
+Not a translation of the whole suite — running every task in another language
+would just fold language skill into every score. This is one task that measures
+language handling on purpose and in isolation.
+
+The shape is agentic rather than translational: the assignment arrives in one
+language, the source material is in a second, and the required output format is
+in a third. Passing means the model kept the format, didn't silently switch
+languages, and didn't lose content in transfer. Failure modes worth catching:
+answering in the wrong language, translating identifiers that must stay verbatim,
+and dropping diacritics or non-Latin text on the way through.
+
+Because the rest of the suite is English-only by rule, this is the only place
+where language becomes a measured variable instead of noise.
+
 ## `macro` — record a browser automation macro
 
 **Categories:** agentic

@@ -17,12 +17,12 @@ BAD = '#ef4444'
 LINE = '#2a2f3a'
 
 CAT_TITLES = {
-    'instruction': 'Инструкции',
-    'logic': 'Логика',
-    'spatial': 'Пространство',
-    'math': 'Счёт',
-    'agentic': 'Агентность',
-    'honesty': 'Честность',
+    'instruction': 'Instruction',
+    'logic': 'Logic',
+    'spatial': 'Spatial',
+    'math': 'Arithmetic',
+    'agentic': 'Agentic',
+    'honesty': 'Honesty',
 }
 
 
@@ -41,7 +41,7 @@ def _fmt_cost(c, src):
     if c is None:
         return '—'
     if c == 0:
-        return 'бесплатно'
+        return 'free'
     return '$%.4f%s' % (c, '' if src == 'reported' else '~')
 
 
@@ -74,15 +74,15 @@ def render(run, pricing=None):
         'NEOXIDER BENCHMARK</text>' % MUTED)
     add('<text x="28" y="74" fill="%s" font-size="23" font-weight="700">%s</text>'
         % (FG, _esc(model)))
-    badge = {'free': ('бесплатная', GOOD), 'paid': ('платная', ACCENT)}.get(
-        access, ('доступ неизвестен', MUTED))
-    add('<text x="28" y="96" fill="%s" font-size="12">%s · движок %s · сид %s</text>'
+    badge = {'free': ('free', GOOD), 'paid': ('paid', ACCENT)}.get(
+        access, ('access unknown', MUTED))
+    add('<text x="28" y="96" fill="%s" font-size="12">%s · engine %s · seed %s</text>'
         % (badge[1], _esc(badge[0]), _esc(run.get('engine', '?')), _esc(run.get('seed', '?'))))
 
     # крупный балл
     add('<text x="%d" y="72" text-anchor="end" fill="%s" font-size="44" '
         'font-weight="700">%.1f</text>' % (W - 28, ACCENT, score))
-    add('<text x="%d" y="94" text-anchor="end" fill="%s" font-size="12">из %.0f'
+    add('<text x="%d" y="94" text-anchor="end" fill="%s" font-size="12">of %.0f'
         '</text>' % (W - 28, MUTED, mx))
 
     # полоса общего результата
@@ -95,7 +95,7 @@ def render(run, pricing=None):
     # категории
     y = 158
     add('<text x="28" y="%d" fill="%s" font-size="12" letter-spacing="1">'
-        'ПО КАТЕГОРИЯМ</text>' % (y, MUTED))
+        'BY CATEGORY</text>' % (y, MUTED))
     y += 18
     bar_x, bar_w = 150, 330
     for key in ('instruction', 'logic', 'spatial', 'math', 'agentic', 'honesty'):
@@ -119,14 +119,14 @@ def render(run, pricing=None):
     add('<line x1="28" y1="%d" x2="%d" y2="%d" stroke="%s"/>' % (y, W - 28, y, LINE))
     y += 26
     stats = [
-        ('с первой', s.get('first_try')),
-        ('после правки', s.get('fixed')),
-        ('провалов', s.get('failed')),
-        ('выдумано', fabricated),
+        ('first try', s.get('first_try')),
+        ('after fix', s.get('fixed')),
+        ('failed', s.get('failed')),
+        ('fabricated', fabricated),
     ]
     x = 28
     for label, val in stats:
-        col = BAD if (label == 'выдумано' and val) else FG
+        col = BAD if (label == 'fabricated' and val) else FG
         add('<text x="%d" y="%d" fill="%s" font-size="20" font-weight="700" '
             'font-family="ui-monospace,Consolas,monospace">%s</text>'
             % (x, y, col, _esc(val if val is not None else '—')))
@@ -135,13 +135,13 @@ def render(run, pricing=None):
         x += 118
     # токены и стоимость справа
     add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="13" '
-        'font-family="ui-monospace,Consolas,monospace">%s токенов</text>'
+        'font-family="ui-monospace,Consolas,monospace">%s tokens</text>'
         % (W - 28, y - 4, FG, _fmt_int(s.get('tokens_net'))))
     add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="11">'
-        'чистых, накладные %s</text>'
+        'net, overhead %s</text>'
         % (W - 28, y + 14, MUTED, _fmt_int(s.get('baseline_tokens'))))
     add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="11">'
-        '%s · %.0f c</text>'
+        '%s · %.0f s</text>'
         % (W - 28, y + 30, MUTED, _esc(_fmt_cost(cost, 'reported')),
            s.get('seconds') or 0))
 

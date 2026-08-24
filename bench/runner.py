@@ -25,6 +25,10 @@ SCORE_FIXED = 0.5
 SCORE_FAIL = 0.0
 PENALTY_FABRICATION = -1.0
 
+# Сколько раз повторить вызов, если движок сорвался и не вернул текста.
+# Это НЕ вторая попытка модели: сбой провайдера не должен стоить ей баллов.
+MAX_TRANSIENT = 3
+
 BASELINE_PROMPT = 'Ответь ровно одним словом: ок'
 SCHEMA_VERSION = 2
 
@@ -210,9 +214,21 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
     cost_acc = 0.0
     have_tokens = False
 
-    for attempt in (1, 2):
+    attempt = 0
+    transient = 0
+    while attempt < 2:
         res = models.call(model_id, prompt, timeout=timeout, cwd=workspace)
         rec['seconds'] += res.seconds
+
+        # Сбой движка — не ответ модели. Раньше пустой ответ после обрыва сети
+        # оценивался как провал: попытка сгорала, модель получала подсказку
+        # «почини» на задание, которого не видела, и теряла полбалла за чужой
+        # сетевой сбой. Такой вызов повторяется, не тратя попытку.
+        if res.error and not (res.text or '').strip() and transient < MAX_TRANSIENT:
+            transient += 1
+            rec.setdefault('transient_errors', []).append(str(res.error)[:200])
+            continue
+        attempt += 1
         if res.tokens:
             have_tokens = True
             for k in tokens_acc:
