@@ -236,7 +236,10 @@ def score(output, expected):
     # чужой код мог добраться до кадра проверяльщика и вытащить эталоны, а
     # бесконечный цикл вешал весь прогон навсегда.
     from bench import sandbox
-    run = sandbox.run_solution(code, expected['cases'], timeout=60)
+    # Каждый case запускается с чистым module state. Иначе решение могло
+    # игнорировать grid и вернуть заученный список по номеру вызова.
+    run = sandbox.run_solution(code, expected['cases'], timeout=60,
+                               isolate_cases=True)
     if not run['ok']:
         if run.get('timeout'):
             return False, 'превышен лимит времени', {

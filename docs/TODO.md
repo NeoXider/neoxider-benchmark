@@ -47,6 +47,12 @@ and run it. Pass/fail is whether the macro reaches the target page state.
 Take a simple game to a target state. The game is static, hosted alongside on
 GitHub Pages, with state read from the DOM.
 
+A dino runner is a good candidate: one input (jump), a clearly readable state
+(score, obstacle distance), and it measures something no other task does —
+acting under a real-time constraint rather than thinking it over. The agent has
+to react while the game is running, not compose a perfect answer offline.
+Scoring by distance survived, with obstacle patterns generated from the seed.
+
 ---
 
 ## Infrastructure

@@ -6,11 +6,9 @@
 арифметикой (Fraction), поэтому ответ либо совпадает, либо нет — округление
 не спасает.
 
-Уровни — по три на сферу:
-  1-3   длинное выражение со скобками: целые -> дроби -> дроби со степенями
-  4-6   одно неизвестное: простое -> x по обе стороны -> с дробными коэффициентами
-  7-9   два неизвестных: целые корни -> дробные корни -> дробные коэффициенты
-  10    финал: система трёх неизвестных и квадратное уравнение в одном задании
+Шкала начинается с короткой целой и простой дробной арифметики, затем плавно
+переходит к смешанным выражениям, линейным уравнениям, системам и составным
+точным вычислениям. L1-L3 — обязательный нижний порог; L9-L10 — потолок.
 """
 import random
 import re
@@ -66,14 +64,19 @@ def _fmt(fr):
 
 def _linear(rng, hard=False):
     """Уравнение вида a*x + b = c*x + d с рациональным корнем."""
-    x = Fraction(rng.randrange(-20, 21), rng.choice([1, 1, 2, 4]))
     if hard:
+        den = rng.choice([2, 3, 4])
+        num = rng.randrange(-20, 21)
+        while num % den == 0:
+            num = rng.randrange(-20, 21)
+        x = Fraction(num, den)
         a = Fraction(rng.randrange(3, 20), rng.choice([2, 3, 4]))
         c = Fraction(rng.randrange(3, 20), rng.choice([2, 3, 5]))
         while c == a:
             c = Fraction(rng.randrange(3, 20), rng.choice([2, 3, 5]))
         b = Fraction(rng.randrange(-30, 31), rng.choice([1, 2, 3]))
     else:
+        x = Fraction(rng.randrange(-20, 21))
         a = Fraction(rng.randrange(2, 15))
         c = Fraction(rng.randrange(2, 15))
         while c == a:
@@ -88,8 +91,15 @@ def _linear(rng, hard=False):
 def _system2(rng, kind=1):
     """kind: 1 — целые корни, 2 — дробные корни, 3 — дробные коэффициенты."""
     if kind >= 2:
-        x = Fraction(rng.randrange(-24, 25), rng.choice([2, 3, 4]))
-        y = Fraction(rng.randrange(-24, 25), rng.choice([2, 3, 5]))
+        def non_integer(denominators):
+            den = rng.choice(denominators)
+            num = rng.randrange(-24, 25)
+            while num % den == 0:
+                num = rng.randrange(-24, 25)
+            return Fraction(num, den)
+
+        x = non_integer([2, 3, 4])
+        y = non_integer([2, 3, 5])
     else:
         x = Fraction(rng.randrange(-12, 13))
         y = Fraction(rng.randrange(-12, 13))
@@ -101,7 +111,7 @@ def _system2(rng, kind=1):
 
     while True:
         a, b, c, d = coef(), coef(), coef(), coef()
-        if a * d - b * c != 0:
+        if all(v != 0 for v in (a, b, c, d)) and a * d - b * c != 0:
             break
     e = a * x + b * y
     f = c * x + d * y
@@ -150,13 +160,40 @@ _HEAD = ('Посчитай точно. Дроби не округляй.\n\n')
 _TAIL = ('\n\nNXB-CANARY-a7f3c1')
 
 
+def _easy_expression(level, rng):
+    """Короткие L1-L3 без случайного взрыва длины или знаменателя."""
+    if level == 1:
+        a, b, c = (rng.randrange(2, 16) for _ in range(3))
+        return '%d + %d * %d' % (a, b, c), Fraction(a + b * c)
+    if level == 2:
+        a, b, c, d = (rng.randrange(2, 21) for _ in range(4))
+        return '(%d + %d) * %d - %d' % (a, b, c, d), Fraction((a + b) * c - d)
+
+    a, c = rng.randrange(1, 13), rng.randrange(1, 13)
+    b, d = rng.choice([2, 3, 4, 5, 6, 8]), rng.choice([2, 3, 4, 5, 6, 8])
+    op = rng.choice(['+', '-'])
+    left, right = Fraction(a, b), Fraction(c, d)
+    value = left + right if op == '+' else left - right
+    return '%d/%d %s %d/%d' % (a, b, op, c, d), value
+
+
+def _moderate_expression(rng):
+    """L4: несколько действий с дробями, но без огромных чисел."""
+    a, c = rng.randrange(2, 20), rng.randrange(2, 20)
+    b, d = rng.choice([2, 3, 4, 5, 6, 8]), rng.choice([2, 3, 4, 5, 6, 8])
+    mul, sub = rng.randrange(2, 10), rng.randrange(2, 21)
+    value = (Fraction(a, b) + Fraction(c, d)) * mul - sub
+    return '(%d/%d + %d/%d) * %d - %d' % (a, b, c, d, mul, sub), value
+
+
 def generate(level, rng):
-    if level <= 3:
-        # Нижние уровни: обычная арифметика. Их обязана брать любая рабочая
-        # модель, включая локальную — это порог вменяемости, а не сложность.
-        depth = {1: 2, 2: 3, 3: 4}[level]
-        frac = level >= 3
-        s, val = _expr(rng, depth, allow_frac=frac)
+    if level <= 4:
+        # L1-L3 намеренно имеют жёсткую верхнюю границу сложности. На L4
+        # впервые появляется рекурсивное смешанное выражение со скобками.
+        if level <= 3:
+            s, val = _easy_expression(level, rng)
+        else:
+            s, val = _moderate_expression(rng)
         prompt = (
             _HEAD +
             'Вычисли значение выражения:\n\n%s\n\n'
@@ -182,7 +219,7 @@ def generate(level, rng):
         )
         return prompt, {'kind': 'vars', 'vars': sol}
 
-    if level <= 9:
+    if level <= 8:
         eqs, sol = _system2(rng, kind=level - 6)
         prompt = (
             _HEAD +
@@ -193,6 +230,22 @@ def generate(level, rng):
             'Никаких пояснений.' % eqs + _TAIL
         )
         return prompt, {'kind': 'vars', 'vars': sol}
+
+    if level == 9:
+        eqs, sol = _system2(rng, kind=3)
+        expr, value = _expr(rng, 4, allow_frac=True)
+        merged = {'x': sol['x'], 'y': sol['y'], 'e': value}
+        prompt = (
+            _HEAD +
+            'Задание из двух частей, ответить нужно на обе.\n\n'
+            'Часть A. Реши систему уравнений:\n\n%s\n\n'
+            'Часть B. Вычисли точное значение выражения:\n\n%s\n\n'
+            'Ответ дай ровно одной строкой:\n'
+            'ANSWER: x=<значение>, y=<значение>, e=<значение части B>\n'
+            'Значения — целые числа либо несократимые дроби p/q. '
+            'Никаких пояснений.' % (eqs, expr) + _TAIL
+        )
+        return prompt, {'kind': 'vars', 'vars': merged}
 
     # Уровень 10 — финал: три разные задачи в одном задании, каждая с точной
     # рациональной арифметикой. Верхний уровень намеренно тяжёлый: бенчмарк,
@@ -218,7 +271,6 @@ def generate(level, rng):
     return prompt, {'kind': 'vars', 'vars': merged}
 
 
-_ANSWER = re.compile(r'ANSWER\s*:\s*(.+)', re.I)
 _NUM = re.compile(r'-?\d+\s*/\s*-?\d+|-?\d+\.\d+|-?\d+')
 
 
@@ -247,26 +299,34 @@ def _to_fraction(tok, strict=True):
 
 
 def score(output, expected):
-    m = _ANSWER.search(output or '')
+    lines = (output or '').splitlines()
+    if len(lines) != 1:
+        return False, 'ответ должен содержать ровно одну строку'
+    text = lines[0].strip()
+    m = re.fullmatch(r'ANSWER\s*:\s*(.*)', text, re.I)
     if not m:
         return False, 'строка ANSWER: не найдена'
     line = m.group(1).strip()
 
     if expected['kind'] == 'single':
-        nums = _NUM.findall(line)
-        if not nums:
-            return False, 'число в ответе не найдено'
-        got = _to_fraction(nums[0])
+        number = _NUM.fullmatch(line)
+        if not number:
+            return False, 'после ANSWER должно быть ровно одно число'
+        got = _to_fraction(number.group(0))
         want = expected['vars']['value']
         if got is None:
-            return False, 'ответ %r не разобран' % nums[0]
+            return False, 'ответ %r не разобран' % number.group(0)
         return (got == want), 'ответ %s, эталон %s' % (_fmt(got), _fmt(want))
 
     want = expected['vars']
     got = {}
-    for name in want:
-        mm = re.search(r'\b%s\s*=\s*(-?\d+\s*/\s*-?\d+|-?\d+\.\d+|-?\d+)' % name,
-                       line, re.I)
+    parts = [part.strip() for part in line.split(',')]
+    if len(parts) != len(want):
+        return False, 'неверное число значений в строке ANSWER'
+    for name, part in zip(want, parts):
+        mm = re.fullmatch(
+            r'%s\s*=\s*(-?\d+\s*/\s*-?\d+|-?\d+\.\d+|-?\d+)' % re.escape(name),
+            part, re.I)
         if not mm:
             return False, 'не найдено значение %s' % name
         v = _to_fraction(mm.group(1))

@@ -61,9 +61,19 @@ def _fields_for(level, rng):
         f['frequency'] = rng.choice(['daily', 'weekly', 'monthly'])
     if level >= 8:
         f['startdate'] = '2026-%02d-%02d' % (rng.randrange(1, 13), rng.randrange(1, 29))
+        # Поля живут во вкладках и не видны, пока по вкладке не кликнули.
+        f['invoice'] = 'INV-%04d' % rng.randrange(1000, 9999)
+        f['seats'] = str(rng.randrange(2, 40))
     if level >= 9:
         n = rng.randrange(2, 4)
         f['topics'] = ','.join(sorted(rng.sample(TOPICS, n)))
+        # Перетаскивание: порядок заведомо отличается от исходного, иначе
+        # уровень проходился бы, даже если агент вообще ничего не тащил.
+        items = ['alpha', 'beta', 'gamma', 'delta']
+        shuffled = list(items)
+        while shuffled == items:
+            rng.shuffle(shuffled)
+        f['order'] = ','.join(shuffled)
     if level >= 10:
         f['priority'] = str(rng.randrange(1, 11))
     return f
@@ -71,7 +81,8 @@ def _fields_for(level, rng):
 
 # Порядок полей в подписи фиксирован — от него зависит код.
 ORDER = ['name', 'email', 'quantity', 'country', 'plan', 'newsletter',
-         'comment', 'frequency', 'startdate', 'topics', 'priority']
+         'comment', 'frequency', 'startdate', 'invoice', 'seats', 'topics',
+         'order', 'priority']
 
 LABELS = {
     'name': 'Full name (текстовое поле)',
@@ -83,7 +94,11 @@ LABELS = {
     'comment': 'Comment (многострочное поле)',
     'frequency': 'Frequency (выпадающий список; появляется только когда включён флажок Newsletter)',
     'startdate': 'Start date (поле даты, формат ГГГГ-ММ-ДД)',
+    'invoice': 'Invoice number (текстовое поле на вкладке Billing)',
+    'seats': 'Seats (числовое поле на вкладке Access)',
     'topics': 'Topics (флажки, отметить перечисленные)',
+    'order': 'Priority order (список с перетаскиванием — расставить элементы '
+             'в указанном порядке сверху вниз)',
     'priority': 'Priority (ползунок от 1 до 10)',
 }
 

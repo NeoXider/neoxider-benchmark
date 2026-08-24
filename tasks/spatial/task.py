@@ -184,22 +184,24 @@ def generate(level, rng):
 
 
 def score(output, expected):
-    text = (output or '').strip()
+    lines = (output or '').splitlines()
+    if len(lines) != 1:
+        return False, 'ответ должен содержать ровно одну строку'
+    text = lines[0].strip()
     if not text:
         return False, 'пустой ответ'
     if expected['kind'] == 'coord':
-        m = re.findall(r'\(\s*-?\d+\s*,\s*-?\d+\s*,\s*-?\d+\s*\)', text)
+        m = re.fullmatch(r'\(\s*-?\d+\s*,\s*-?\d+\s*,\s*-?\d+\s*\)', text)
         if not m:
             return False, 'координаты не найдены в ответе'
-        got = re.sub(r'\s+', '', m[-1])
+        got = re.sub(r'\s+', '', m.group(0))
         want = re.sub(r'\s+', '', expected['answer'])
         return (got == want), 'ответ %s, эталон %s' % (got, want)
 
     want = expected['answer']
-    # берём последнее непустое слово/букву — модели любят дописывать пояснение
-    tokens = re.findall(r'[A-FА-Яа-яЁё]+', text)
-    if not tokens:
+    token = re.fullmatch(r'[A-FА-Яа-яЁё]+', text)
+    if not token:
         return False, 'ответ не распознан'
-    got = tokens[-1]
-    ok = got.lower().strip('.') == want.lower()
+    got = token.group(0)
+    ok = got.lower() == want.lower()
     return ok, 'ответ %r, эталон %r' % (got, want)

@@ -64,11 +64,20 @@ fields. There is no way to fake it without filling in the form correctly.
 |---|---|
 | 1–3 | text fields, a number, a dropdown |
 | 4–6 | radio buttons, a checkbox, a multiline field |
-| 7–8 | a field that **appears only after the checkbox is toggled**; a date |
-| 9–10 | multiple checkboxes, a slider |
+| 7 | a field that **appears only after the checkbox is toggled** |
+| 8 | a date, plus two fields hidden behind **tabs** that must be clicked open |
+| 9 | multiple checkboxes, and a **drag-and-drop** list to reorder |
+| 10 | a slider on top of everything above |
 
 Level 7 and up verifies that the agent actually interacts with the page rather
-than submitting values blindly.
+than submitting values blindly. Tabs hide fields until clicked, and the
+drag-and-drop list starts in an order that is never the required one, so it
+cannot be passed by leaving it alone.
+
+Reordering runs on pointer events rather than the HTML5 drag-and-drop API:
+synthetic HTML5 drags usually fail in browser automation, while
+mousedown/mousemove/mouseup works everywhere. Verified — one synthetic drag
+moves an item from last place to first.
 
 ## 4. `spatial` — spatial reasoning
 

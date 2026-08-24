@@ -22,6 +22,19 @@
   button { margin-top:24px; background:#3b82f6; color:#fff; border:0; border-radius:6px;
            padding:11px 22px; font:inherit; font-weight:600; cursor:pointer; }
   button:hover { background:#2f6fd8; }
+
+  /* Вкладки */
+  .tabs { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+  .tab { background:#171a21; color:#8b93a1; border:1px solid #2a2f3a; border-radius:6px;
+         padding:7px 14px; font:inherit; font-size:13px; cursor:pointer; margin:0; }
+  .tab.active { color:#e6e6e6; border-color:#3b82f6; background:#12203a; }
+  .tabpanel { border:1px solid #2a2f3a; border-radius:6px; padding:12px; }
+  .tabpanel label { margin-top:0; }
+  /* Перетаскиваемый список */
+  #sortable { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  #sortable li { background:#171a21; border:1px solid #2a2f3a; border-radius:6px;
+                 padding:10px 14px; cursor:grab; user-select:none; }
+  #sortable li.dragging { opacity:.55; cursor:grabbing; border-color:#3b82f6; }
   .hidden { display:none; }
   #result { margin-top:24px; padding:16px; border-radius:8px; }
   #result.ok { background:#0f2a1a; border:1px solid #1f6b3f; }
@@ -34,8 +47,8 @@
 <body>
 <div class="wrap">
   <h1>Benchmark form</h1>
-  <div class="sub">Уровень <span id="lvl">1</span>. Заполните поля значениями из задания
-    и нажмите Submit — страница покажет код подтверждения.</div>
+  <div class="sub">Level <span id="lvl">1</span>. Fill the fields with the values from the
+    assignment and press Submit — the page will show a confirmation code.</div>
 
   <form id="f" autocomplete="off">
     <label for="name">Full name</label>
@@ -85,7 +98,7 @@
         <option value="">—</option>
         <option>daily</option><option>weekly</option><option>monthly</option>
       </select>
-      <div class="note">Появляется только когда включён Newsletter.</div>
+      <div class="note">Only shows up once Newsletter is checked.</div>
     </div>
 
     <div data-min="8" class="fld">
@@ -106,6 +119,42 @@
     <div data-min="10" class="fld">
       <label for="priority">Priority: <span id="prioVal">5</span></label>
       <input type="range" id="priority" min="1" max="10" value="5" style="width:100%">
+    </div>
+
+    <!-- Вкладки: часть полей не видна, пока по вкладке не кликнули. Проверяет,
+         что агент осматривает страницу, а не заполняет по памяти о разметке. -->
+    <div data-min="8" class="fld">
+      <label>Details</label>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" data-tab="general" role="tab">General</button>
+        <button type="button" class="tab" data-tab="billing" role="tab">Billing</button>
+        <button type="button" class="tab" data-tab="access" role="tab">Access</button>
+      </div>
+      <div class="tabpanel" data-panel="general">
+        <div class="note">Nothing to fill in here.</div>
+      </div>
+      <div class="tabpanel hidden" data-panel="billing">
+        <label for="invoice">Invoice number</label>
+        <input type="text" id="invoice" name="invoice">
+      </div>
+      <div class="tabpanel hidden" data-panel="access">
+        <label for="seats">Seats</label>
+        <input type="number" id="seats" name="seats" min="1" max="99">
+      </div>
+    </div>
+
+    <!-- Перетаскивание. Реализовано на pointer-событиях, а не на HTML5
+         drag-and-drop: синтетический drag браузерной автоматизации по HTML5 API
+         обычно не проходит, а mousedown/mousemove/mouseup работает везде. -->
+    <div data-min="9" class="fld">
+      <label>Priority order — drag the items into the required order</label>
+      <ul id="sortable">
+        <li data-key="alpha">alpha</li>
+        <li data-key="beta">beta</li>
+        <li data-key="gamma">gamma</li>
+        <li data-key="delta">delta</li>
+      </ul>
+      <div class="note">Current order: <span id="orderNow">alpha,beta,gamma,delta</span></div>
     </div>
 
     <button type="submit">Submit</button>
@@ -138,6 +187,60 @@ if (prio) prio.addEventListener('input', function () {
   document.getElementById('prioVal').textContent = prio.value;
 });
 
+// --- вкладки ---------------------------------------------------------------
+document.querySelectorAll('.tab').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.tabpanel').forEach(function (p) {
+      p.classList.toggle('hidden', p.dataset.panel !== btn.dataset.tab);
+    });
+  });
+});
+
+// --- перетаскивание --------------------------------------------------------
+// Порядок меняется по pointer-событиям: элемент, который тащат, вставляется
+// перед тем, над чьей верхней половиной находится курсор.
+(function () {
+  var list = document.getElementById('sortable');
+  if (!list) return;
+  var dragging = null;
+
+  function refresh() {
+    var out = [].slice.call(list.children).map(function (li) { return li.dataset.key; });
+    var box = document.getElementById('orderNow');
+    if (box) box.textContent = out.join(',');
+  }
+
+  list.addEventListener('mousedown', function (e) {
+    var li = e.target.closest('li');
+    if (!li) return;
+    dragging = li;
+    li.classList.add('dragging');
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    if (!dragging) return;
+    var over = document.elementFromPoint(e.clientX, e.clientY);
+    over = over && over.closest ? over.closest('#sortable li') : null;
+    if (!over || over === dragging) return;
+    var r = over.getBoundingClientRect();
+    var before = e.clientY < r.top + r.height / 2;
+    list.insertBefore(dragging, before ? over : over.nextSibling);
+    refresh();
+  });
+
+  document.addEventListener('mouseup', function () {
+    if (!dragging) return;
+    dragging.classList.remove('dragging');
+    dragging = null;
+    refresh();
+  });
+
+  refresh();
+})();
+
 // FNV-1a 32 бита. Тот же алгоритм в bench/tasks/t3_webform.py.
 function fnv1a(str) {
   var bytes = new TextEncoder().encode(str);
@@ -152,7 +255,7 @@ function fnv1a(str) {
 }
 
 var ORDER = ['name','email','quantity','country','plan','newsletter',
-             'comment','frequency','startdate','topics','priority'];
+             'comment','frequency','startdate','invoice','seats','topics','order','priority'];
 
 function collect() {
   var v = {};
@@ -168,10 +271,14 @@ function collect() {
   if (level >= 5) v.newsletter = document.getElementById('newsletter').checked ? 'yes' : 'no';
   if (level >= 6) v.comment = g('comment');
   if (level >= 7) v.frequency = g('frequency');
-  if (level >= 8) v.startdate = g('startdate');
+  if (level >= 8) { v.startdate = g('startdate'); v.invoice = g('invoice'); v.seats = g('seats'); }
   if (level >= 9) {
     var t = [].slice.call(document.querySelectorAll('.topic:checked')).map(function (c) { return c.value; });
     v.topics = t.sort().join(',');
+  }
+  if (level >= 9) {
+    var li = [].slice.call(document.querySelectorAll('#sortable li'));
+    v.order = li.map(function (x) { return x.dataset.key; }).join(',');
   }
   if (level >= 10) v.priority = g('priority');
   return v;
@@ -188,7 +295,7 @@ document.getElementById('f').addEventListener('submit', function (e) {
   });
   if (empty.length) {
     box.classList.add('err');
-    box.innerHTML = '<b>Не заполнено:</b> ' + empty.join(', ');
+    box.innerHTML = '<b>Not filled in:</b> ' + empty.join(', ');
     return;
   }
 
@@ -197,7 +304,7 @@ document.getElementById('f').addEventListener('submit', function (e) {
   var code = fnv1a('L' + level + '|' + parts.join('|'));
   box.classList.add('ok');
   box.innerHTML = '<div>Confirmation code</div><code id="code">' + code + '</code>' +
-                  '<div class="note">Верните строку: CODE: ' + code + '</div>';
+                  '<div class="note">Return the line: CODE: ' + code + '</div>';
 });
 </script>
 </body>

@@ -61,7 +61,7 @@ print(json.dumps({"results": out}))
 '''
 
 
-def run_solution(code, cases, timeout=60):
+def run_solution(code, cases, timeout=60, isolate_cases=False):
     """Прогоняет solve(grid, start, goal) на списке случаев.
 
     Возвращает dict:
@@ -70,6 +70,28 @@ def run_solution(code, cases, timeout=60):
         results  — [{'value', 'error', 'seconds'}, ...]
         seconds  — общее время процесса
     """
+    if isolate_cases:
+        # Для задач, где скорость не оценивается, каждый case получает новый
+        # процесс и новое состояние module globals. Решение видит только свою
+        # карту: порядок вызовов и состав соседних карт использовать нельзя.
+        import time as _t
+        deadline = _t.monotonic() + timeout
+        results = []
+        seconds = 0.0
+        for case in cases:
+            remaining = deadline - _t.monotonic()
+            if remaining <= 0:
+                return {'ok': False, 'error': 'превышен лимит времени %g с' % timeout,
+                        'results': results, 'seconds': seconds,
+                        'timeout': True}
+            run = run_solution(code, [case], timeout=remaining)
+            seconds += run.get('seconds', 0.0)
+            if not run['ok']:
+                run['seconds'] = seconds
+                return run
+            results.extend(run['results'])
+        return {'ok': True, 'error': None, 'results': results, 'seconds': seconds}
+
     tmp = tempfile.mkdtemp(prefix='nxb_')
     sol = os.path.join(tmp, 'solution.py')
     dat = os.path.join(tmp, 'cases.json')
