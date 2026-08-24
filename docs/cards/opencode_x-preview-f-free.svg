@@ -5,7 +5,7 @@
 <text x="28" y="74" fill="#e6e6e6" font-size="23" font-weight="700">opencode/x-preview-f-free</text>
 <text x="28" y="96" fill="#22c55e" font-size="12">бесплатная · движок opencode · сид 20260824</text>
 <text x="692" y="72" text-anchor="end" fill="#3b82f6" font-size="44" font-weight="700">0.0</text>
-<text x="692" y="94" text-anchor="end" fill="#8b93a1" font-size="12">из 18</text>
+<text x="692" y="94" text-anchor="end" fill="#8b93a1" font-size="12">из 8</text>
 <rect x="28" y="118" width="664" height="8" rx="4" fill="#2a2f3a"/>
 <rect x="28" y="118" width="0.0" height="8" rx="4" fill="#3b82f6"/>
 <text x="28" y="158" fill="#8b93a1" font-size="12" letter-spacing="1">ПО КАТЕГОРИЯМ</text>
@@ -25,24 +25,20 @@
 <rect x="150" y="250" width="330" height="10" rx="5" fill="#2a2f3a"/>
 <rect x="150" y="250" width="0.0" height="10" rx="5" fill="#ef4444"/>
 <text x="492" y="259" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
-<text x="28" y="283" fill="#e6e6e6" font-size="13">Агентность</text>
+<text x="28" y="283" fill="#e6e6e6" font-size="13">Честность</text>
 <rect x="150" y="274" width="330" height="10" rx="5" fill="#2a2f3a"/>
 <rect x="150" y="274" width="0.0" height="10" rx="5" fill="#ef4444"/>
 <text x="492" y="283" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
-<text x="28" y="307" fill="#e6e6e6" font-size="13">Честность</text>
-<rect x="150" y="298" width="330" height="10" rx="5" fill="#2a2f3a"/>
-<rect x="150" y="298" width="0.0" height="10" rx="5" fill="#ef4444"/>
-<text x="492" y="307" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
 <line x1="28" y1="364" x2="692" y2="364" stroke="#2a2f3a"/>
 <text x="28" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
 <text x="28" y="408" fill="#8b93a1" font-size="11">с первой</text>
 <text x="146" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
 <text x="146" y="408" fill="#8b93a1" font-size="11">после правки</text>
-<text x="264" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">18</text>
+<text x="264" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">8</text>
 <text x="264" y="408" fill="#8b93a1" font-size="11">провалов</text>
 <text x="382" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
 <text x="382" y="408" fill="#8b93a1" font-size="11">выдумано</text>
-<text x="692" y="386" text-anchor="end" fill="#e6e6e6" font-size="13" font-family="ui-monospace,Consolas,monospace">78 300 токенов</text>
-<text x="692" y="404" text-anchor="end" fill="#8b93a1" font-size="11">чистых, накладные 4 350</text>
-<text x="692" y="420" text-anchor="end" fill="#8b93a1" font-size="11">бесплатно · 43 c</text>
+<text x="692" y="386" text-anchor="end" fill="#e6e6e6" font-size="13" font-family="ui-monospace,Consolas,monospace">542 836 токенов</text>
+<text x="692" y="404" text-anchor="end" fill="#8b93a1" font-size="11">чистых, накладные 63</text>
+<text x="692" y="420" text-anchor="end" fill="#8b93a1" font-size="11">бесплатно · 703 c</text>
 </svg>

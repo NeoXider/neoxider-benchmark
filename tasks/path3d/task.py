@@ -39,8 +39,35 @@ def _spec(level):
     return size, density, mode
 
 
-def _make_grid(rng, size, density, mode):
-    """Строит карту, гарантированно имеющую решение."""
+def _lower_bound(start, goal, mode):
+    """Длина пути, если бы препятствий не было.
+
+    Нужна, чтобы отбирать карты, где обход ОБЯЗАТЕЛЕН. Без этого отбора
+    генератор выдавал карты, на которых ответ всегда равнялся расстоянию по
+    прямой, и решение, полностью игнорирующее grid, проходило уровни 1-4
+    (проверено: 960 карт из 960).
+    """
+    d = [abs(a - b) for a, b in zip(start, goal)]
+    return sum(d) if mode == 'moves6' else max(d)
+
+
+def _sealed_grid(rng, size, mode):
+    """Карта, где финиш заведомо замурован: правильный ответ -1."""
+    grid = [[[0] * size for _ in range(size)] for _ in range(size)]
+    if mode == 'weighted':
+        grid = [[[1] * size for _ in range(size)] for _ in range(size)]
+    gx = gy = gz = size - 1
+    for dx, dy, dz in DIRS26:
+        x, y, z = gx + dx, gy + dy, gz + dz
+        if 0 <= x < size and 0 <= y < size and 0 <= z < size:
+            grid[x][y][z] = -1
+    grid[gx][gy][gz] = 1 if mode == 'weighted' else 0
+    grid[0][0][0] = 1 if mode == 'weighted' else 0
+    return grid, (0, 0, 0), (gx, gy, gz), -1
+
+
+def _make_grid(rng, size, density, mode, require_detour=False):
+    """Строит карту с решением. require_detour — путь по прямой не должен подходить."""
     dirs = DIRS6 if mode == 'moves6' else DIRS26
     for _ in range(400):
         grid = [[[0] * size for _ in range(size)] for _ in range(size)]
@@ -62,9 +89,42 @@ def _make_grid(rng, size, density, mode):
             grid[0][0][0] = 1
             grid[size - 1][size - 1][size - 1] = 1
         best = _reference(grid, start, goal, dirs, mode)
-        if best is not None:
-            return grid, start, goal, best
-    raise RuntimeError('не удалось сгенерировать проходимую карту')
+        if best is None:
+            continue
+        if require_detour and mode != 'weighted' and best <= _lower_bound(start, goal, mode):
+            continue          # прямой путь прошёл — карта ничего не проверяет
+        return grid, start, goal, best
+    # не удалось набрать обход случайно — строим барьер с одним проходом
+    return _barrier_grid(rng, size, mode, dirs)
+
+
+def _barrier_grid(rng, size, mode, dirs):
+    """Стена поперёк маршрута с отверстием ВНЕ прямого коридора.
+
+    Тонкость: если финиш в противоположном углу, то через любое отверстие в
+    перпендикулярной стене всё равно проходит путь манхэттенской длины —
+    барьер ничего не проверяет. Поэтому финиш ставится в плоскость z=0, а
+    единственное отверстие — на z=size-1, то есть заведомо в стороне:
+    пройти можно только сделав крюк по оси z и вернувшись.
+    """
+    fill = 1 if mode == 'weighted' else 0
+    grid = [[[fill] * size for _ in range(size)] for _ in range(size)]
+    wall = size // 2
+    for y in range(size):
+        for z in range(size):
+            grid[wall][y][z] = -1
+    hy = rng.randrange(size)
+    hz = size - 1
+    grid[wall][hy][hz] = fill
+
+    start = (0, 0, 0)
+    goal = (size - 1, size - 1, 0)
+    grid[start[0]][start[1]][start[2]] = fill
+    grid[goal[0]][goal[1]][goal[2]] = fill
+    best = _reference(grid, start, goal, dirs, mode)
+    if best is None:
+        raise RuntimeError('барьерная карта оказалась непроходимой')
+    return grid, start, goal, best
 
 
 def _reference(grid, start, goal, dirs, mode):
@@ -109,10 +169,19 @@ def _reference(grid, start, goal, dirs, mode):
 
 def generate(level, rng):
     size, density, mode = _spec(level)
+    # Набор карт подобран так, чтобы решение, игнорирующее препятствия, не
+    # прошло: две карты требуют обхода, одна непроходима вовсе (ответ -1),
+    # одна обычная случайная.
     cases = []
-    for _ in range(4):
-        grid, start, goal, best = _make_grid(rng, size, density, mode)
+    for _ in range(2):
+        grid, start, goal, best = _make_grid(rng, size, density, mode,
+                                             require_detour=True)
         cases.append({'grid': grid, 'start': list(start), 'goal': list(goal), 'best': best})
+    grid, start, goal, best = _sealed_grid(rng, size, mode)
+    cases.append({'grid': grid, 'start': list(start), 'goal': list(goal), 'best': best})
+    grid, start, goal, best = _make_grid(rng, size, density, mode)
+    cases.append({'grid': grid, 'start': list(start), 'goal': list(goal), 'best': best})
+    rng.shuffle(cases)
 
     if mode == 'moves6':
         rules = ('Перемещаться можно на соседнюю клетку по шести направлениям '

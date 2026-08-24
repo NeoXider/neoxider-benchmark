@@ -32,16 +32,36 @@ def _zero_tokens():
     return {'input': 0, 'output': 0, 'reasoning': 0, 'cache_read': 0, 'cache_write': 0}
 
 
+def _resolve(cmd):
+    """Разворачивает имя CLI в исполняемый путь.
+
+    На Windows npm-обёртки — это .CMD, а CreateProcess их по голому имени не
+    находит и запускать напрямую не умеет: нужен cmd.exe. Без этого любой вызов
+    падал мгновенно с «CLI не найден», а в отчёте это выглядело как ноль баллов
+    у модели.
+    """
+    exe = shutil.which(cmd[0])
+    if not exe:
+        return None
+    if os.name == 'nt' and exe.lower().endswith(('.cmd', '.bat')):
+        comspec = os.environ.get('COMSPEC', 'cmd.exe')
+        return [comspec, '/c', exe] + list(cmd[1:])
+    return [exe] + list(cmd[1:])
+
+
 def _run(cmd, timeout, cwd=None):
     t0 = time.time()
+    real = _resolve(cmd)
+    if not real:
+        return '', '', time.time() - t0, 'CLI не найден в PATH: %s' % cmd[0]
     try:
-        p = subprocess.run(cmd, capture_output=True, timeout=timeout, cwd=cwd)
+        p = subprocess.run(real, capture_output=True, timeout=timeout, cwd=cwd)
         return p.stdout.decode('utf-8', 'replace'), p.stderr.decode('utf-8', 'replace'), \
             time.time() - t0, None
     except subprocess.TimeoutExpired:
         return '', '', time.time() - t0, 'timeout %ds' % timeout
-    except FileNotFoundError:
-        return '', '', time.time() - t0, 'CLI не найден: %s' % cmd[0]
+    except OSError as e:
+        return '', '', time.time() - t0, 'не удалось запустить %s: %s' % (cmd[0], e)
 
 
 # ------------------------------------------------------------------ opencode

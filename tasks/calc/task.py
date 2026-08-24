@@ -216,14 +216,25 @@ _ANSWER = re.compile(r'ANSWER\s*:\s*(.+)', re.I)
 _NUM = re.compile(r'-?\d+\s*/\s*-?\d+|-?\d+\.\d+|-?\d+')
 
 
-def _to_fraction(tok):
+def _to_fraction(tok, strict=True):
+    """Разбирает число ответа.
+
+    В задании прямо сказано: целое либо НЕСОКРАТИМАЯ дробь p/q, десятичную
+    запись не использовать. Раньше проверялось только значение, поэтому
+    «52949.0» и «-26/2» засчитывались вопреки условию. Теперь при strict=True
+    представление проверяется тоже — иначе требование в промпте было бы
+    декоративным.
+    """
     tok = tok.strip().replace(' ', '')
     try:
         if '/' in tok:
             n, d = tok.split('/', 1)
-            return Fraction(int(n), int(d))
+            fr = Fraction(int(n), int(d))
+            if strict and (int(d) <= 0 or fr.denominator != abs(int(d))):
+                return None      # сократимая дробь либо отрицательный знаменатель
+            return fr
         if '.' in tok:
-            return Fraction(tok)
+            return None if strict else Fraction(tok)
         return Fraction(int(tok))
     except (ValueError, ZeroDivisionError):
         return None

@@ -116,11 +116,21 @@ _BLOCK = re.compile(r'```count[ \t]*\r?\n(.*?)```', re.S)
 
 
 def score(output, expected):
-    """Возвращает (ok, detail)."""
-    m = _BLOCK.search(output or '')
+    """Возвращает (ok, detail).
+
+    Проверка привязана к границам всего ответа: в задании сказано «до и после
+    блока ничего не пиши», и это требование теперь действительно проверяется.
+    Раньше блок искался где угодно, и ответ вида «МУСОР ```count ... ``` МУСОР»
+    засчитывался, хотя формат нарушен.
+    """
+    text = (output or '').replace('\r\n', '\n').strip()
+    m = _BLOCK.fullmatch(text)
     if not m:
+        loose = _BLOCK.search(text)
+        if loose:
+            return False, 'вне блока ```count есть лишний текст'
         return False, 'блок ```count не найден'
-    got = m.group(1).replace('\r\n', '\n').strip('\n').split('\n')
+    got = m.group(1).strip('\n').split('\n')
     if got == expected:
         return True, 'совпало, строк: %d' % len(got)
     if len(got) != len(expected):
@@ -128,4 +138,4 @@ def score(output, expected):
     for i, (a, b) in enumerate(zip(got, expected)):
         if a != b:
             return False, 'строка %d: %r вместо %r' % (i + 1, a, b)
-    return False, '不 совпало'
+    return False, 'содержимое не совпало'
