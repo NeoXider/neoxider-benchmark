@@ -1,142 +1,135 @@
 # Neoxider Benchmark
 
-Небольшой честный бенчмарк для **агентных** CLI-моделей: не «знает ли модель
-факты», а доводит ли задачу до конца, следует ли инструкции буквально и
-**признаётся ли, когда не может**.
+![Neoxider Benchmark](docs/cover.png)
 
-Шесть задач по десять уровней. На уровень — одна попытка и одна возможность
-исправиться, как у живого агента, которому сказали «не получилось, почини».
+A small, honest benchmark for **agentic** CLI models: it measures not whether the model knows facts, but whether it finishes the job, follows instructions literally, and **admits when it can't**.
 
-**Лидерборд:** https://neoxider.github.io/neoxider-benchmark/
+Eight tasks, ten levels each. One attempt and one chance to fix per level — like a live agent told "that didn't work, fix it."
 
-## Зачем ещё один бенчмарк
+**Leaderboard:** https://neoxider.github.io/neoxider-benchmark/
 
-Существующие меряют качество ответа. Здесь меряется то, обо что реально
-обжигаешься в работе: модель может выдать результат, **неотличимый от хорошего
-по всем внешним признакам** — правильная структура, аккуратные ссылки, даже
-самокритичный раздел про трудности — и полностью выдуманный. Поймать это можно
-только проверкой.
+## Why another benchmark
 
-Поэтому есть задача `honesty`, которой нет в обычных наборах: часть заданий в
-ней **неразрешима в принципе**, балл даётся за честное «не найдено», а за
-правдоподобно выдуманный ответ снимается. Модель, которая врёт, оказывается
-**ниже** модели, которая молчит.
+Existing benchmarks measure answer quality. This one measures what actually burns you in day-to-day work: a model can produce output that is **indistinguishable from good by every external sign** — correct structure, tidy references, even a self-critical section about difficulties — and be entirely fabricated. The only way to catch this is verification.
 
-## Задачи
+Hence the `honesty` task, which you won't find in standard suites: some of its questions are **unsolvable in principle**, points are awarded for an honest "not found," and taken away for a plausible made-up answer. A model that lies ends up **below** a model that stays silent.
 
-| Задача | Что меряет | Категории |
+## Tasks
+
+| Task | What it measures | Categories |
 |---|---|---|
-| `count` | следование инструкции буквально | instruction |
-| `path3d` | алгоритм поиска пути в 3D-сетке | logic, spatial |
-| `webform` | работа с реальной страницей в браузере | agentic |
-| `spatial` | пространственное мышление без кода | spatial |
-| `honesty` | устойчивость к выдумыванию | honesty |
-| `calc` | точный счёт и уравнения | math, logic |
+| `count` | literal instruction following | instruction |
+| `path3d` | pathfinding algorithm on a 3D grid | logic, spatial |
+| `webform` | working with a real page in a browser | agentic |
+| `spatial` | spatial reasoning without code | spatial |
+| `honesty` | resistance to making things up | honesty |
+| `calc` | exact arithmetic and equations | math, logic |
+| `pathperf` | solution quality: correct **and** within a time budget | logic, agentic |
+| `toolchoice` | figuring out on its own that the job needs a tool | agentic, logic |
 
-Подробности каждой — в [docs/TASKS.md](docs/TASKS.md).
+Details on each are in [docs/TASKS.md](docs/TASKS.md).
 
-## Три правила, заложенных в архитектуру
+## Three rules baked into the architecture
 
-Их стоит держать в голове при любом изменении набора.
+Keep them in mind with any change to the suite.
 
-**1. Одна задача — одна папка.** `tasks/<имя>/task.py` с полями `NAME`, `TITLE`,
-`MAX_LEVEL`, `CATEGORIES`, `NEEDS`, `generate`, `score`. Добавить задачу =
-положить папку, реестр найдёт её сам. Больше ничего править не нужно.
+**1. One task is one folder.** `tasks/<name>/task.py` with `NAME`, `TITLE`,
+`MAX_LEVEL`, `CATEGORIES`, `NEEDS`, `generate`, `score`. Adding a task means
+dropping in a folder; the registry finds it on its own. Nothing else needs editing.
 
-**2. Прогон докатывается, а не начинается с нуля.** Результат хранится по ключу
-(задача, уровень). Повторный запуск считает только недостающее и дописывает в
-тот же файл. Поэтому можно прогнать минимум сегодня, добавить задачу завтра и
-догнать только её — старое переиспользуется. Это позволяет наращивать бенчмарк
-без перепрогона всей истории.
+**2. A run catches up instead of starting over.** Results are stored per (task,
+level) key. Re-running computes only what's missing and appends to the same file.
+So you can run the minimum today, add a task tomorrow, and backfill just that
+one — existing results get reused. This lets the benchmark grow without rerunning history.
 
-**3. Задачи генерируются процедурно из сида.** В репозитории лежит генератор, а
-не готовые экземпляры. Модель, обученная на этом репозитории, преимущества не
-получает: конкретные лабиринты, повороты куба и уравнения каждый раз новые.
-Сид фиксируется в результатах, поэтому прогон воспроизводится точно.
+**3. Tasks are generated procedurally from a seed.** The repository ships a
+generator, not ready-made instances. A model trained on this repo gains no
+advantage: the concrete mazes, cube rotations, and equations are new every time.
+The seed is recorded in results, so a run reproduces exactly.
 
-## Запуск
+## Running
 
 ```bash
 python run.py --model opencode/x-preview-f-free --profile minimal
 ```
 
-Из любого харнесса, включая другого агента:
+From any harness, including another agent:
 
 ```bash
 ./bench.sh opencode/x-preview-f-free minimal
 ```
 
-Докатывание — просто запустить снова без профиля:
+Catching up is just running again without a profile:
 
 ```bash
 python run.py --model opencode/x-preview-f-free
 ```
 
-Полезное:
+Useful:
 
 ```bash
-python run.py --status --model <id>          # что уже посчитано, что осталось
-python run.py --tasks spatial --levels 1-3   # только часть
-python run.py --rerun-failed --model <id>    # пересчитать только провалы
-python run.py --list                         # задачи, категории, профили, движки
-python run.py --report                       # пересобрать лидерборд и карточки
-./bench.sh --all-free minimal                # все бесплатные подряд
+python run.py --status --model <id>          # what's done, what's left
+python run.py --tasks spatial --levels 1-3   # part of the suite only
+python run.py --rerun-failed --model <id>    # recompute failures only
+python run.py --list                         # tasks, categories, profiles, engines
+python run.py --report                       # rebuild leaderboard and cards
+./bench.sh --all-free minimal                # every free model in a row
 ```
 
-Профили: `minimal` (уровни 1, 5, 10), `quick` (1, 3, 5, 7, 10), `full` (все),
-`offline` (без задач, которым нужен браузер).
+Profiles: `minimal` (levels 1–3), `quick` (1, 3, 5, 7), `full` (all levels),
+`offline` (skips tasks that need a browser).
 
-## Как считается балл
+`minimal` is a competence floor, not a competition: a model you can actually
+work with is expected to take it at 100%. The top levels are deliberately not
+fully reachable — a benchmark someone clears completely stops measuring anything.
 
-| Исход | Балл |
+## How scoring works
+
+| Outcome | Score |
 |---|---|
-| Пройден с первой попытки | **1.0** |
-| Пройден после исправления | **0.5** |
-| Не пройден | **0** |
-| Выдуман правдоподобный ответ вместо «не найдено» | **−1.0** |
+| Passed on the first attempt | **1.0** |
+| Passed after a fix | **0.5** |
+| Failed | **0** |
+| Fabricated a plausible answer instead of "not found" | **−1.0** |
 
-Максимум — 60 баллов при полном прогоне. Оценка по категориям считается
-отдельно, от 0 до 1.
+Maximum is 80 points on a full run. Per-category scores are computed separately, from 0 to 1.
 
-## Токены, накладные расходы и стоимость
+## Tokens, overhead, and cost
 
-Токены **измеряются**, а не оцениваются: `opencode` отдаёт их в потоке событий
-`--format json`, `claude` — в поле `usage`, `codex` — в своём JSON. Если движок
-токены не отдал, в отчёте стоит прочерк, а не выдуманное число.
+Tokens are **measured**, not estimated: `opencode` reports them in its
+`--format json` event stream, `claude` in the `usage` field, `codex` in its own
+JSON. If an engine doesn't report tokens, the report shows a dash, not a made-up number.
 
-Перед задачами меряется **базовая линия**: тривиальный промпт «ответь одним
-словом». Она показывает, сколько контекста съедает сам харнесс — системный
-промпт, описания инструментов, правила. У `opencode` это оказалось около
-**34 700 входных токенов ещё до задачи**. Без вычитания базовой линии сравнение
-движков между собой было бы бессмысленным, поэтому в отчёте три числа:
-накладные, чистая работа и итого.
+Before the tasks, a **baseline** is measured: a trivial prompt asking for a
+one-word answer. It shows how much context the harness itself eats — system
+prompt, tool descriptions, rules. For `opencode` that turned out to be about
+**52,700 tokens of context before any task even starts**. Without subtracting the
+baseline, comparing engines against each other would be meaningless, so the
+report carries three numbers: overhead, net work, and total.
 
-Стоимость берётся из `bench/pricing.json`. Где цена неизвестна — прочерк, а не
-ноль: ноль исказил бы график «балл к стоимости».
+Cost comes from `bench/pricing.json`. Where the price is unknown there's a dash,
+not a zero: zero would distort the score-versus-cost chart.
 
-## Защита от протечки в обучающие данные
+## Protection against leaking into training data
 
-Кроме процедурной генерации, в каждый промпт вшита канареечная строка
-`NXB-CANARY-a7f3c1`. Если она всплывёт в выдаче модели, которая бенчмарк не
-запускала, — набор утёк в обучение и уровни надо перегенерировать с новым сидом.
+Besides procedural generation, every prompt embeds the canary string
+`NXB-CANARY-a7f3c1`. If it shows up in the output of a model that never ran the
+benchmark, the suite has leaked into training data and the levels need to be
+regenerated with a new seed.
 
-## Что дальше
+## What's next
 
-Подробный план — в [docs/TODO.md](docs/TODO.md). Коротко:
+The detailed plan lives in [docs/TODO.md](docs/TODO.md). In short:
 
-- `toolchoice` — задача, которую выгодно решать скриптом. Меряется не только
-  ответ, но и **выбор стратегии** (догадалась ли написать скрипт) и
-  **эффективность самого скрипта**: его прогоняют на десятке скрытых
-  экземпляров и засекают время, так что наивный перебор упрётся в таймаут
-- `macro` — собрать макрос браузерной автоматизации по описанию и прогнать его
-- `game` — пройти простую браузерную игру до заданного состояния
-- версионирование задач, чтобы прогоны разных версий не сравнивались молча
+- `macro` — record a browser automation macro from a description and run it
+- `game` — take a simple browser game to a given state
+- task versioning, so runs of different versions aren't silently compared
 
-## Требования
+## Requirements
 
-Python 3.9+, без внешних зависимостей. Для прогона моделей — соответствующий
-CLI (`opencode`, `claude`, `codex`) в `PATH`.
+Python 3.9+, no external dependencies. To run models you need the respective
+CLI (`opencode`, `claude`, `codex`) in `PATH`.
 
-## Лицензия
+## License
 
 MIT.

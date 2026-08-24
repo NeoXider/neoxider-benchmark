@@ -88,6 +88,18 @@ def generate(level, rng):
 
 _ANSWER = re.compile(r'ANSWER\s*:\s*(-?\d[\d\s_]*)', re.I)
 
+# Имена отличаются между движками, поэтому проверяем устойчивые подстроки.
+# Инструменты поиска, чтения файлов, задач и т.п. не доказывают вычисление.
+_COMPUTE_TOOL_MARKERS = (
+    'bash', 'shell', 'python', 'execute', 'exec', 'run', 'terminal',
+    'powershell', 'command', 'code_interpreter', 'calculator', 'wolfram',
+)
+
+
+def _is_compute_tool(name):
+    low = str(name or '').lower()
+    return any(marker in low for marker in _COMPUTE_TOOL_MARKERS)
+
 
 def score(output, expected, meta=None):
     m = _ANSWER.search(output or '')
@@ -102,25 +114,28 @@ def score(output, expected, meta=None):
         return False, 'число не разобрано', {'hint': 'ANSWER должен содержать целое число.'}
 
     tools = (meta or {}).get('tools')
-    used_tool = None if tools is None else bool(tools)
+    compute_tools = None if tools is None else [t for t in tools if _is_compute_tool(t)]
+    used_tool = None if tools is None else bool(compute_tools)
     correct = (got == expected['answer'])
 
     extra = {'used_tool': used_tool,
              'tools': (tools or [])[:6],
-             'hint': 'Ответ неверный. Проверь вычисление.'}
+             'compute_tools': (compute_tools or [])[:6]}
 
     if correct and used_tool:
-        return True, 'верно, посчитала инструментом (%s)' % ', '.join(sorted(set(tools))), extra
+        return True, ('верно, посчитала инструментом (%s)'
+                      % ', '.join(sorted(set(compute_tools)))), extra
     if correct and used_tool is False:
-        # Ответ верный без единого вызова инструмента. Это подозрительно на
-        # больших уровнях, но доказать угадывание мы не можем, поэтому зачёт
-        # ставим и просто помечаем факт.
+        # Эта задача измеряет именно самостоятельный выбор вычислительного
+        # инструмента. Верная цифра без такого вызова не закрывает уровень.
         extra['answered_without_tool'] = True
-        return True, 'верно, но без единого вызова инструмента', extra
+        extra['hint'] = 'Используй вычислительный инструмент и проверь ответ.'
+        return False, 'ответ верный, но вычислительный инструмент не вызывался', extra
     if correct:
         return True, 'верно (движок не сообщает о вызовах инструментов)', extra
 
     detail = 'ответ неверный'
+    extra['hint'] = 'Ответ неверный. Проверь вычисление.'
     if used_tool is False:
         detail += ', инструменты не вызывались'
         extra['guessed'] = True

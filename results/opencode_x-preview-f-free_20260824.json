@@ -381,25 +381,397 @@
    },
    "tokens_net": 979,
    "cost": 0.0
+  },
+  {
+   "task": "pathperf",
+   "level": 1,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "верно за 0.03 с при бюджете 2.00 с (x0.8 от эталона)",
+     "seconds": 47.37,
+     "error": null,
+     "output_head": "```python\nfrom collections import deque\n\n\ndef solve(grid, start, goal):\n    if start == goal:\n        return 0\n    n = len(grid)\n    sx, sy, sz = start\n    gx, gy, gz = goal\n    visited = [[[False] * n for _ in range(n)] for _ in range(n)]\n    visited[sx][sy][sz] = True\n    q = deque([(sx, sy, sz, 0)])\n    dirs = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))\n    while q:\n  "
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 47.37,
+   "ts": "2026-08-24T15:30:02Z",
+   "tokens_raw": {
+    "input": 52905,
+    "output": 353,
+    "reasoning": 40,
+    "cache_read": 64,
+    "cache_write": 0
+   },
+   "tokens_net": 611,
+   "cost": 0.0
+  },
+  {
+   "task": "pathperf",
+   "level": 5,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": false,
+     "detail": "карта 1: IndexError: list index out of range",
+     "seconds": 44.3,
+     "error": null,
+     "output_head": "```python\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    sx, sy, sz = start\n    gx, gy, gz = goal\n    n = 36\n    if (sx, sy, sz) == (gx, gy, gz):\n        return 0\n    dist = [[[-1] * n for _ in range(n)] for _ in range(n)]\n    dist[sx][sy][sz] = 0\n    q = deque([(sx, sy, sz)])\n    while q:\n        x, y, z = q.popleft()\n        d = dist[x][y][z]\n        for dx, dy, dz in ((1,0,0),"
+    },
+    {
+     "n": 2,
+     "ok": true,
+     "detail": "верно за 0.24 с при бюджете 2.00 с (x1.3 от эталона)",
+     "seconds": 61.67,
+     "error": null,
+     "output_head": "```python\nfrom collections import deque\n\n\ndef solve(grid, start, goal):\n    try:\n        sx, sy, sz = int(start[0]), int(start[1]), int(start[2])\n        gx, gy, gz = int(goal[0]), int(goal[1]), int(goal[2])\n    except (IndexError, TypeError, ValueError):\n        return -1\n\n    try:\n        X = len(grid)\n        Y = len(grid[0]) if X > 0 else 0\n        Z = len(grid[0][0]) if Y > 0 else 0\n    excep"
+    }
+   ],
+   "score": 0.5,
+   "fixed": true,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 105.97,
+   "ts": "2026-08-24T15:30:50Z",
+   "tokens_raw": {
+    "input": 105871,
+    "output": 1410,
+    "reasoning": 287,
+    "cache_read": 128,
+    "cache_write": 0
+   },
+   "tokens_net": 54945,
+   "cost": 0.0
+  },
+  {
+   "task": "pathperf",
+   "level": 10,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "верно за 1.28 с при бюджете 9.09 с (x1.1 от эталона)",
+     "seconds": 37.55,
+     "error": null,
+     "output_head": "```python\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    if start == goal:\n        return 0\n    n = 64\n    sx, sy, sz = start\n    gx, gy, gz = goal\n    dist = [[[0] * n for _ in range(n)] for _ in range(n)]\n    dist[sx][sy][sz] = 1\n    q = deque([(sx, sy, sz)])\n    dirs = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))\n    while q:\n        x, y, z = q.poplef"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 37.55,
+   "ts": "2026-08-24T15:32:38Z",
+   "tokens_raw": {
+    "input": 50665,
+    "output": 344,
+    "reasoning": 37,
+    "cache_read": 2304,
+    "cache_write": 0
+   },
+   "tokens_net": 599,
+   "cost": 0.0
+  },
+  {
+   "task": "spatial",
+   "level": 1,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "ответ 'зелёная', эталон 'зелёная'",
+     "seconds": 47.41,
+     "error": null,
+     "output_head": "зелёная"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 47.41,
+   "ts": "2026-08-24T15:33:17Z",
+   "tokens_raw": {
+    "input": 50673,
+    "output": 257,
+    "reasoning": 119,
+    "cache_read": 2304,
+    "cache_write": 0
+   },
+   "tokens_net": 602,
+   "cost": 0.0
+  },
+  {
+   "task": "spatial",
+   "level": 5,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "ответ 'B', эталон 'B'",
+     "seconds": 42.32,
+     "error": null,
+     "output_head": "B"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 42.32,
+   "ts": "2026-08-24T15:34:05Z",
+   "tokens_raw": {
+    "input": 52852,
+    "output": 62,
+    "reasoning": 31,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "tokens_net": 194,
+   "cost": 0.0
+  },
+  {
+   "task": "spatial",
+   "level": 10,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "ответ (1,2,0), эталон (1,2,0)",
+     "seconds": 33.8,
+     "error": null,
+     "output_head": "(1, 2, 0)"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 33.8,
+   "ts": "2026-08-24T15:34:47Z",
+   "tokens_raw": {
+    "input": 50612,
+    "output": 130,
+    "reasoning": 35,
+    "cache_read": 2304,
+    "cache_write": 0
+   },
+   "tokens_net": 330,
+   "cost": 0.0
+  },
+  {
+   "task": "toolchoice",
+   "level": 1,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": false,
+     "detail": "строка ANSWER: не найдена",
+     "seconds": 61.54,
+     "error": null,
+     "output_head": "ОТВЕТ: 19286035716"
+    },
+    {
+     "n": 2,
+     "ok": true,
+     "detail": "верно, посчитала инструментом (bash)",
+     "seconds": 99.47,
+     "error": null,
+     "output_head": "ANSWER: 19286035716"
+    }
+   ],
+   "score": 0.5,
+   "fixed": true,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 161.01,
+   "ts": "2026-08-24T15:35:21Z",
+   "tokens_raw": {
+    "input": 156268,
+    "output": 1609,
+    "reasoning": 538,
+    "cache_read": 111552,
+    "cache_write": 0
+   },
+   "tokens_net": 217216,
+   "cost": 0.0
+  },
+  {
+   "task": "toolchoice",
+   "level": 5,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": false,
+     "detail": "строка ANSWER: не найдена",
+     "seconds": 61.91,
+     "error": null,
+     "output_head": "ОТВЕТ: 135072"
+    },
+    {
+     "n": 2,
+     "ok": false,
+     "detail": "строка ANSWER: не найдена",
+     "seconds": 150.5,
+     "error": "{\"name\": \"APIError\", \"data\": {\"message\": \"Error from provider (Console): Upstream request failed: Endpoint is unavailable.\", \"statusCode\": 503, \"isRetryable\": true, \"responseHeaders\": {\"cf-placement\": \"remote-ORD\", \"cf-ray\": \"a303761468fd455b-PHL\", \"connection\": \"keep-alive\", \"content-length\": \"126\"",
+     "output_head": ""
+    }
+   ],
+   "score": 0.0,
+   "fixed": false,
+   "passed": false,
+   "fabricated": 0,
+   "seconds": 212.4,
+   "ts": "2026-08-24T15:38:02Z",
+   "tokens_raw": {
+    "input": 50908,
+    "output": 275,
+    "reasoning": 33,
+    "cache_read": 108096,
+    "cache_write": 0
+   },
+   "tokens_net": 106561,
+   "cost": 0.0
+  },
+  {
+   "task": "toolchoice",
+   "level": 10,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "верно, посчитала инструментом (bash)",
+     "seconds": 108.31,
+     "error": null,
+     "output_head": "ANSWER: 633578"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 108.31,
+   "ts": "2026-08-24T15:41:34Z",
+   "tokens_raw": {
+    "input": 53006,
+    "output": 264,
+    "reasoning": 103,
+    "cache_read": 52800,
+    "cache_write": 0
+   },
+   "tokens_net": 53422,
+   "cost": 0.0
+  },
+  {
+   "task": "webform",
+   "level": 1,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "код совпал",
+     "seconds": 165.36,
+     "error": null,
+     "output_head": "Поля заполнены корректно (`#name` = \"Anna Orlov\", `#email` = \"anna@example.org\"). Отправляю форму один раз и читаю результат.\nCODE: A6240197"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 165.36,
+   "ts": "2026-08-24T15:44:01Z",
+   "tokens_raw": {
+    "input": 61169,
+    "output": 1029,
+    "reasoning": 237,
+    "cache_read": 465344,
+    "cache_write": 0
+   },
+   "tokens_net": 475028,
+   "cost": 0.0
+  },
+  {
+   "task": "webform",
+   "level": 5,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "код совпал",
+     "seconds": 297.88,
+     "error": null,
+     "output_head": "Все значения проверены. Отправка:\nCODE: EE54A3E0"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 297.88,
+   "ts": "2026-08-24T15:46:46Z",
+   "tokens_raw": {
+    "input": 31588,
+    "output": 1496,
+    "reasoning": 389,
+    "cache_read": 927872,
+    "cache_write": 0
+   },
+   "tokens_net": 908594,
+   "cost": 0.0
+  },
+  {
+   "task": "webform",
+   "level": 10,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": true,
+     "detail": "код совпал",
+     "seconds": 164.51,
+     "error": null,
+     "output_head": "Все поля проверены. Отправляю форму один раз.\nCODE: DF7435AC"
+    }
+   ],
+   "score": 1.0,
+   "fixed": false,
+   "passed": true,
+   "fabricated": 0,
+   "seconds": 164.51,
+   "ts": "2026-08-24T15:51:44Z",
+   "tokens_raw": {
+    "input": 33657,
+    "output": 1339,
+    "reasoning": 406,
+    "cache_read": 518784,
+    "cache_write": 0
+   },
+   "tokens_net": 501435,
+   "cost": 0.0
   }
  ],
  "summary": {
-  "score": 11.0,
-  "max_score": 12.0,
-  "levels_done": 12,
-  "passed": 12,
-  "first_try": 10,
-  "fixed": 2,
-  "failed": 0,
+  "score": 21.0,
+  "max_score": 24.0,
+  "levels_done": 24,
+  "passed": 23,
+  "first_try": 19,
+  "fixed": 4,
+  "failed": 1,
   "fabricated": 0,
-  "seconds": 793.5,
-  "tokens_total": 1222523,
-  "tokens_net": 589511,
+  "seconds": 2217.4,
+  "tokens_total": 4175072,
+  "tokens_net": 2909048,
   "tokens_breakdown": {
-   "input": 528614,
-   "output": 7883,
-   "reasoning": 1930,
-   "cache_read": 684096,
+   "input": 1278788,
+   "output": 16451,
+   "reasoning": 4185,
+   "cache_read": 2875648,
    "cache_write": 0
   },
   "baseline_tokens": 52754,
@@ -433,14 +805,44 @@
     "fixed": 1,
     "total": 3,
     "seconds": 177.1
+   },
+   "pathperf": {
+    "score": 2.5,
+    "passed": 3,
+    "fixed": 1,
+    "total": 3,
+    "seconds": 190.9
+   },
+   "spatial": {
+    "score": 3.0,
+    "passed": 3,
+    "fixed": 0,
+    "total": 3,
+    "seconds": 123.5
+   },
+   "toolchoice": {
+    "score": 1.5,
+    "passed": 2,
+    "fixed": 1,
+    "total": 3,
+    "seconds": 481.7
+   },
+   "webform": {
+    "score": 3.0,
+    "passed": 3,
+    "fixed": 0,
+    "total": 3,
+    "seconds": 627.8
    }
   },
   "per_category": {
    "math": 0.833,
-   "logic": 0.833,
+   "logic": 0.763,
    "instruction": 1.0,
    "honesty": 1.0,
-   "spatial": 0.833
+   "spatial": 0.962,
+   "agentic": 0.817
   }
- }
+ },
+ "finished_utc": "2026-08-24T15:54:29Z"
 }

@@ -75,17 +75,28 @@ def _reference(grid, start, goal):
 def generate(level, rng):
     size, density = _spec(level)
     cases = []
-    ref_total = 0.0
-    for _ in range(3):
-        grid = _make_grid(rng, size, density)
-        start, goal = (0, 0, 0), (size - 1, size - 1, size - 1)
-        t0 = time.perf_counter()
-        best = _reference(grid, start, goal)
-        ref_total += time.perf_counter() - t0
-        cases.append({'grid': grid, 'start': list(start), 'goal': list(goal),
-                      'best': best})
+    answers = set()
+    for case_index in range(3):
+        # У соседних дальних целей обычно разные манхэттенские расстояния.
+        # Из-за препятствий длины всё же могут совпасть, поэтому принимаем
+        # карту только после проверки эталоном. Это не позволяет один раз
+        # посчитать ответ и вернуть тот же глобальный cache всем трём картам.
+        for _attempt in range(100):
+            grid = _make_grid(rng, size, density)
+            start = (0, 0, 0)
+            goal = (size - 1, size - 1, size - 1 - case_index)
+            grid[goal[0]][goal[1]][goal[2]] = 0
+            best = _reference(grid, start, goal)
+            if best >= 0 and best not in answers:
+                answers.add(best)
+                cases.append({'grid': grid, 'start': list(start), 'goal': list(goal),
+                              'best': best})
+                break
+        else:
+            raise RuntimeError('не удалось сгенерировать карты с разными ответами')
 
-    budget = max(MIN_BUDGET, ref_total * SLACK)
+    if len(answers) != len(cases):
+        raise RuntimeError('ответы pathperf должны быть попарно различны')
 
     prompt = (
         'Напиши на Python функцию:\n\n'
@@ -104,11 +115,20 @@ def generate(level, rng):
         'NXB-CANARY-a7f3c1'
         % (size, size, size)
     )
-    return prompt, {'cases': cases, 'budget': round(budget, 3),
-                    'ref_seconds': round(ref_total, 3), 'size': size}
+    return prompt, {'cases': cases, 'size': size}
 
 
 _BLOCK = re.compile(r'```(?:python|py)?[ \t]*\r?\n(.*?)```', re.S)
+
+
+def _measure_reference(cases):
+    """Замеряет эталон рядом с решением, а не в момент генерации задания."""
+    t0 = time.perf_counter()
+    for c in cases:
+        got = _reference(c['grid'], c['start'], c['goal'])
+        if got != c['best']:
+            raise RuntimeError('эталон pathperf изменился после генерации')
+    return time.perf_counter() - t0
 
 
 def score(output, expected):
@@ -121,9 +141,13 @@ def score(output, expected):
             'hint': 'В блоке должна быть функция solve.'}
 
     from bench import sandbox
-    budget = expected['budget']
+    # Первый замер даёт безопасный process timeout. Второй делается сразу
+    # после решения; итоговый бюджет использует оба соседних замера, поэтому
+    # случайная нагрузка в далёкой фазе generate больше не меняет результат.
+    ref_before = _measure_reference(expected['cases'])
+    preliminary_budget = max(MIN_BUDGET, ref_before * SLACK)
     run = sandbox.run_solution(code, expected['cases'],
-                               timeout=min(HARD_TIMEOUT, budget * 3 + 15))
+                               timeout=min(HARD_TIMEOUT, preliminary_budget * 3 + 15))
 
     if not run['ok']:
         if run.get('timeout'):
@@ -131,6 +155,10 @@ def score(output, expected):
                 'hint': 'Решение работает слишком долго на картах такого размера.',
                 'slow': True}
         return False, run['error'], {'hint': 'Код не запускается либо падает с ошибкой.'}
+
+    ref_after = _measure_reference(expected['cases'])
+    ref_seconds = (ref_before + ref_after) / 2.0
+    budget = max(MIN_BUDGET, ref_seconds * SLACK)
 
     total = 0.0
     for i, (got, c) in enumerate(zip(run['results'], expected['cases']), 1):
@@ -142,9 +170,9 @@ def score(output, expected):
                 'hint': 'Ответ неверный хотя бы на одной карте.'}
         total += got['seconds']
 
-    ratio = total / max(expected['ref_seconds'], 1e-6)
+    ratio = total / max(ref_seconds, 1e-6)
     extra = {'seconds': round(total, 3), 'budget': budget,
-             'ref_seconds': expected['ref_seconds'], 'ratio': round(ratio, 2)}
+             'ref_seconds': round(ref_seconds, 3), 'ratio': round(ratio, 2)}
 
     if total > budget:
         extra['slow'] = True
@@ -153,6 +181,6 @@ def score(output, expected):
         return False, ('верно, но медленно: %.2f с при бюджете %.2f с (x%.1f от эталона)'
                        % (total, budget, ratio)), extra
 
-    extra['hint'] = 'Проверка не пройдена.'
+    extra['hint'] = 'Проверка пройдена.'
     return True, ('верно за %.2f с при бюджете %.2f с (x%.1f от эталона)'
                   % (total, budget, ratio)), extra

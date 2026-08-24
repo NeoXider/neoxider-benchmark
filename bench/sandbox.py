@@ -23,6 +23,12 @@ _HARNESS = r'''
 import json, sys, time, runpy
 
 sol_path, cases_path = sys.argv[1], sys.argv[2]
+# Решение выполняется в том же интерпретаторе и может менять общие модули.
+# Захватываем функции ДО runpy: иначе top-level monkeypatch json.load выносил
+# всё вычисление из таймера, а затем solve() возвращала готовый ответ.
+clock = time.perf_counter
+load_cases = json.load
+setup_t0 = clock()
 ns = runpy.run_path(sol_path)
 solve = ns.get("solve")
 if not callable(solve):
@@ -30,17 +36,23 @@ if not callable(solve):
     raise SystemExit(0)
 
 with open(cases_path, encoding="utf-8") as fh:
-    cases = json.load(fh)
+    cases = load_cases(fh)
+setup_seconds = clock() - setup_t0
 
 out = []
-for c in cases:
-    t0 = time.perf_counter()
+for index, c in enumerate(cases):
+    t0 = clock()
     try:
         val = solve(c["grid"], list(c["start"]), list(c["goal"]))
         err = None
     except Exception as e:
         val, err = None, "%s: %s" % (type(e).__name__, e)
-    dt = time.perf_counter() - t0
+    dt = clock() - t0
+    if index == 0:
+        # В измеряемую зону входят импорт решения и любой его top-level код.
+        # Загрузку входа тоже оставляем внутри: это небольшой одинаковый для
+        # всех решений overhead, зато работу нельзя спрятать до solve().
+        dt += setup_seconds
     if not isinstance(val, (int, float)) and val is not None:
         val, err = None, "вернула %s вместо числа" % type(val).__name__
     out.append({"value": val, "error": err, "seconds": dt})

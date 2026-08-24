@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Neoxider Benchmark — лидерборд</title>
+<title>Neoxider Benchmark — leaderboard</title>
 <style>
   /* Тёмная тема, без анимаций */
   :root{
@@ -77,44 +77,45 @@
 <body>
 <div class="wrap">
   <header>
+    <img src="cover.png" alt="Neoxider Benchmark" style="width:100%;max-width:1100px;border-radius:12px;display:block;margin-bottom:18px">
     <h1>Neoxider Benchmark</h1>
-    <p>Честный бенчмарк агентных CLI-моделей: инструкция, код, пространство,
-       честность. Одна попытка и одна правка на уровень.</p>
+    <p>An honest benchmark for agentic CLI models: instruction following, code,
+       spatial reasoning, honesty. One attempt and one fix per level.</p>
     <a class="repo" href="https://github.com/NeoXider/neoxider-benchmark">github.com/NeoXider/neoxider-benchmark</a>
-    <div id="demo-banner">⚠ Демо-данные: results.json не найден, показан results.sample.json с выдуманными строками.</div>
+    <div id="demo-banner">⚠ Demo data: results.json was not found, showing results.sample.json with made-up rows.</div>
   </header>
 
   <div id="tiles"></div>
 
   <section>
-    <h2>Токены → балл</h2>
-    <p class="hint">Ось X — чистые токены (tokens_net), ось Y — итоговый балл. Подпись у каждой точки.</p>
+    <h2>Tokens → score</h2>
+    <p class="hint">X axis — net tokens (tokens_net), Y axis — final score. Each point is labeled.</p>
     <div class="chart-box"><div id="legend-tokens" class="legend"></div><div id="chart-tokens"></div></div>
   </section>
 
   <section>
-    <h2>Стоимость → балл</h2>
-    <p class="hint">Ось X — стоимость прогона (cost), ось Y — балл. Прогоны без цены не рисуются нулями — они перечислены под графиком.</p>
+    <h2>Cost → score</h2>
+    <p class="hint">X axis — run cost (cost), Y axis — score. Runs without pricing are not drawn as zeros — they are listed below the chart.</p>
     <div class="chart-box"><div id="chart-cost"></div><div id="nocost"></div></div>
   </section>
 
   <section>
-    <h2>Сравнение по категориям</h2>
-    <p class="hint">Значения per_category, 0…1. Отметьте модели для сравнения.</p>
+    <h2>Category comparison</h2>
+    <p class="hint">per_category values, 0…1. Tick the models to compare.</p>
     <div id="cat-picks"></div>
     <div class="chart-box" id="chart-cats"></div>
   </section>
 
   <section>
-    <h2>Таблица рекордов</h2>
+    <h2>Leaderboard table</h2>
     <div class="filters">
       <span>
-        <label><input type="radio" name="f-access" value="all" checked>Все</label>
-        <label><input type="radio" name="f-access" value="free">Только бесплатные</label>
-        <label><input type="radio" name="f-access" value="paid">Только платные</label>
+        <label><input type="radio" name="f-access" value="all" checked>All</label>
+        <label><input type="radio" name="f-access" value="free">Free only</label>
+        <label><input type="radio" name="f-access" value="paid">Paid only</label>
       </span>
-      <span><label>Движок: <select id="f-engine"></select></label></span>
-      <span><input type="search" id="f-search" placeholder="поиск по названию модели…"></span>
+      <span><label>Engine: <select id="f-engine"></select></label></span>
+      <span><input type="search" id="f-search" placeholder="search by model name…"></span>
     </div>
     <div class="table-scroll">
       <table id="tbl"><thead></thead><tbody></tbody></table>
@@ -125,8 +126,7 @@
 <script>
 'use strict';
 const CATS = ['instruction','logic','spatial','math','agentic','honesty'];
-const CAT_LABELS = {instruction:'инструкция',logic:'логика',spatial:'пространство',
-                    math:'математика',agentic:'агент',honesty:'честность'};
+const CAT_LABELS = {instruction:'instruction',logic:'logic',spatial:'spatial',math:'math',agentic:'agentic',honesty:'honesty'};
 const ACCESS_COLOR = {free:'#3b82f6', paid:'#f59e0b', unknown:'#8b93a1'};
 const ACCESS_TEXT  = {free:'free', paid:'paid', unknown:'?'};
 const PALETTE = ['#3b82f6','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#e879f9','#84cc16'];
@@ -136,23 +136,23 @@ let modelColors = {};                // стабильные цвета моде
 
 /* ---------- утилиты ---------- */
 const $ = s => document.querySelector(s);
-const nf = new Intl.NumberFormat('ru-RU');
+const nf = new Intl.NumberFormat('en-US');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtInt = n => (n==null || isNaN(n)) ? '—' : nf.format(Math.round(n));
 const fmtCost = c => (c==null || isNaN(c)) ? '—' : '$' + (+c).toFixed(2);
 // компактный формат для осей: 900000 -> 900k, 1250000 -> 1.25M
 function fmtCompact(n){
-  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(+((n/1e6)%1!==0)).replace('.',',') + 'M';
+  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(+((n/1e6)%1!==0)) + 'M';
   if (Math.abs(n) >= 1e3) return Math.round(n/1e3) + 'k';
   return String(n);
 }
-function fmtDur(s){ // секунды -> «30 мин», «2 ч 5 мин»
+function fmtDur(s){ // seconds -> "30 min", "2 h 5 min"
   if (s==null || isNaN(s)) return '—';
   s = Math.round(s);
-  if (s < 60) return s + ' с';
+  if (s < 60) return s + ' s';
   const m = Math.floor(s/60);
-  if (m < 60) return m + ' мин';
-  return Math.floor(m/60) + ' ч ' + (m%60) + ' мин';
+  if (m < 60) return m + ' min';
+  return Math.floor(m/60) + ' h ' + (m%60) + ' min';
 }
 function shortModel(m){ return m.includes('/') ? m.split('/').slice(1).join('/') : m; }
 
@@ -180,7 +180,7 @@ function drawScatter(containerSel, points, xLabel, xFmt){
   const box = $(containerSel);
   box.textContent = '';
   if (!points.length){
-    box.innerHTML = '<p style="color:var(--muted)">Нет данных для графика.</p>';
+    box.innerHTML = '<p style="color:var(--muted)">No data for this chart.</p>';
     return;
   }
   const W = 800, H = 420, ML = 64, MR = 130, MT = 18, MB = 42;
@@ -209,7 +209,7 @@ function drawScatter(containerSel, points, xLabel, xFmt){
   xl.textContent = xLabel;
   const yl = svgEl('text', {x:14, y:(H-MB+MT)/2, 'font-size':12, fill:'#9aa3af',
                             transform:`rotate(-90 14 ${(H-MB+MT)/2})`, 'text-anchor':'middle'}, svg);
-  yl.textContent = 'балл';
+  yl.textContent = 'score';
 
   // точки с подписями
   points.forEach((p,i)=>{
@@ -228,7 +228,7 @@ function drawCats(){
   const picked = [...document.querySelectorAll('#cat-picks input:checked')].map(i => i.value);
   box.textContent = '';
   if (!picked.length){
-    box.innerHTML = '<p style="color:var(--muted)">Отметьте хотя бы одну модель выше.</p>';
+    box.innerHTML = '<p style="color:var(--muted)">Select at least one model above.</p>';
     return;
   }
   const rowH = 22, gapCat = 14, ML = 96, MR = 52;
@@ -250,7 +250,7 @@ function drawCats(){
                                  opacity: run.fabricated>0 ? .55 : 1}, svg);
       const t = svgEl('title', {}, bar);
       t.textContent = `${shortModel(m)} · ${CAT_LABELS[cat]}: ${v.toFixed(2)}`
-                      + (run.fabricated>0 ? ` · ВЫДУМАНО: ${run.fabricated}` : '');
+                      + (run.fabricated>0 ? ` · FABRICATED: ${run.fabricated}` : '');
       const vt = svgEl('text', {x:ML+v*plotW+6, y:y+rowH-10, 'font-size':10,
                                 fill:'#9aa3af'}, svg);
       vt.textContent = v.toFixed(2);
@@ -275,28 +275,28 @@ function renderTiles(){
     cheapHtml = `${fmtCost(c.cost)} — ${esc(shortModel(c.model))}`;
   }
   $('#tiles').innerHTML =
-    `<div class="tile"><div class="k">Моделей протестировано</div><div class="v">${n}</div></div>` +
-    `<div class="tile"><div class="k">Лучший балл</div><div class="v">${bestHtml}</div></div>` +
-    `<div class="tile"><div class="k">Самая дешёвая выше среднего (${avg.toFixed(1)})</div><div class="v">${cheapHtml}</div></div>`;
+    `<div class="tile"><div class="k">Models tested</div><div class="v">${n}</div></div>` +
+    `<div class="tile"><div class="k">Best score</div><div class="v">${bestHtml}</div></div>` +
+    `<div class="tile"><div class="k">Cheapest above average (${avg.toFixed(1)})</div><div class="v">${cheapHtml}</div></div>`;
 }
 
 /* ---------- таблица ---------- */
 const COLS = [
-  {key:'model',          label:'Модель',              num:false},
-  {key:'engine',         label:'Движок',              num:false},
-  {key:'access',         label:'Доступ',              num:false},
-  {key:'score',          label:'Балл',                num:true },
-  {key:'first_try',      label:'С 1-й попытки',       num:true },
-  {key:'fixed',          label:'После правки',        num:true },
-  {key:'failed',         label:'Провалов',            num:true },
-  {key:'fabricated',     label:'ВЫДУМАНО',            num:true },
-  {key:'tokens_net',     label:'Токены чистые',       num:true },
-  {key:'tokens_total',   label:'Токены всего',        num:true },
-  {key:'baseline_tokens',label:'Накладные',           num:true },
-  {key:'cost',           label:'Стоимость',           num:true },
-  {key:'seconds',        label:'Время',               num:true },
-  {key:'date',           label:'Дата',                num:true },
-  {key:'card',           label:'Карточка',            num:false},
+  {key:'model',          label:'Model',               num:false},
+  {key:'engine',         label:'Engine',              num:false},
+  {key:'access',         label:'Access',              num:false},
+  {key:'score',          label:'Score',               num:true },
+  {key:'first_try',      label:'First try',           num:true },
+  {key:'fixed',          label:'After fix',           num:true },
+  {key:'failed',         label:'Failures',            num:true },
+  {key:'fabricated',     label:'FABRICATED',          num:true },
+  {key:'tokens_net',     label:'Net tokens',          num:true },
+  {key:'tokens_total',   label:'Total tokens',        num:true },
+  {key:'baseline_tokens',label:'Overhead',            num:true },
+  {key:'cost',           label:'Cost',                num:true },
+  {key:'seconds',        label:'Time',                num:true },
+  {key:'date',           label:'Date',                num:true },
+  {key:'card',           label:'Card',                num:false},
 ];
 function cellText(r, key){
   switch(key){
@@ -309,10 +309,10 @@ function cellText(r, key){
     // Собирается на стороне bench/card.py, здесь только ссылки.
     case 'card':
       if (!r.card) return '<td>—</td>';
-      return `<td class="card-cell"><a href="${esc(r.card)}" target="_blank" rel="noopener">открыть</a>` +
-             ` · <a href="${esc(r.card)}" download>скачать</a></td>`;
+      return `<td class="card-cell"><a href="${esc(r.card)}" target="_blank" rel="noopener">open</a>` +
+             ` · <a href="${esc(r.card)}" download>download</a></td>`;
     case 'fabricated':
-      return `<td class="num${r.fabricated>0?' fab-hot':''}" title="${r.fabricated>0?'Выдуманные ответы вместо честного «не найдено»':'Честно признался, когда не знал'}">${r.fabricated>0?'⚠ '+r.fabricated:'0'}</td>`;
+      return `<td class="num${r.fabricated>0?' fab-hot':''}" title="${r.fabricated>0?'Fabricated answers instead of an honest &quot;not found&quot;':'Admitted when it did not know'}">${r.fabricated>0?'⚠ '+r.fabricated:'0'}</td>`;
     default:
       const v = r[key];
       return `<td class="num">${v==null?'—':fmtInt(v)}</td>`;
@@ -343,7 +343,7 @@ function renderTable(){
   ).join('') + '</tr>';
   $('#tbl tbody').innerHTML = rows.length
     ? rows.map(r => '<tr>' + COLS.map(c=>cellText(r,c.key)).join('') + '</tr>').join('')
-    : '<tr><td class="empty" colspan="'+COLS.length+'">Ничего не найдено</td></tr>';
+    : '<tr><td class="empty" colspan="'+COLS.length+'">No results</td></tr>';
   // клики по заголовкам
   document.querySelectorAll('#tbl thead th').forEach(th =>
     th.addEventListener('click', ()=>{
@@ -357,10 +357,10 @@ function renderTable(){
 /* ---------- фильтры и чекбоксы ---------- */
 function initControls(){
   const engines = [...new Set(RUNS.map(r=>r.engine))].sort();
-  $('#f-engine').innerHTML = '<option value="all">все движки</option>' +
+  $('#f-engine').innerHTML = '<option value="all">all engines</option>' +
     engines.map(e=>`<option value="${esc(e)}">${esc(e)}</option>`).join('');
   $('#cat-picks').innerHTML = RUNS.map((r,i)=>
-    `<label style="color:${modelColors[r.model]}"><input type="checkbox" value="${esc(r.model)}"${i<3?' checked':''}> ${esc(shortModel(r.model))}${r.fabricated>0?` <span style="color:var(--red)">(ВЫДУМАНО ${r.fabricated})</span>`:''}</label>`
+    `<label style="color:${modelColors[r.model]}"><input type="checkbox" value="${esc(r.model)}"${i<3?' checked':''}> ${esc(shortModel(r.model))}${r.fabricated>0?` <span style="color:var(--red)">(FABRICATED ${r.fabricated})</span>`:''}</label>`
   ).join('');
   document.querySelectorAll('#cat-picks input').forEach(i=>i.addEventListener('change', drawCats));
   ['input[name=f-access]','#f-engine','#f-search'].forEach(sel=>{
@@ -378,18 +378,18 @@ function renderAll(){
   // легенда доступа
   $('#legend-tokens').innerHTML =
     Object.entries(ACCESS_COLOR).map(([k,c])=>
-      `<span class="chip"><i style="background:${c}"></i>${k==='free'?'бесплатные':k==='paid'?'платные':'доступ неизвестен'}</span>`).join('');
+      `<span class="chip"><i style="background:${c}"></i>${k==='free'?'free':k==='paid'?'paid':'access unknown'}</span>`).join('');
 
   drawScatter('#chart-tokens',
     RUNS.map(r=>({x:r.tokens_net, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
-    'токены чистые (tokens_net)', fmtCompact);
+    'net tokens (tokens_net)', fmtCompact);
   drawScatter('#chart-cost',
     RUNS.filter(r=>r.cost!=null).map(r=>({x:r.cost, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
-    'стоимость ($)', v=>'$'+v.toFixed(2));
+    'cost ($)', v=>'$'+v.toFixed(2));
 
   // кто остался за бортом стоимостного графика
   const noc = RUNS.filter(r=>r.cost==null).map(r=>r.model);
-  $('#nocost').textContent = noc.length ? 'Нет данных о стоимости: ' + noc.join(', ') : '';
+  $('#nocost').textContent = noc.length ? 'No cost data: ' + noc.join(', ') : '';
 
   drawCats();
   renderTable();
@@ -409,7 +409,7 @@ async function load(){
       $('#demo-banner').style.display = 'block';
     } catch (e2) {
       document.body.insertAdjacentHTML('afterbegin',
-        '<div style="background:#7f1d1d;color:#fecaca;padding:14px;text-align:center">Не удалось загрузить ни results.json, ни results.sample.json</div>');
+        '<div style="background:#7f1d1d;color:#fecaca;padding:14px;text-align:center">Failed to load either results.json or results.sample.json</div>');
       return;
     }
   }

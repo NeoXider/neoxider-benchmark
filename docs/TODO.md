@@ -1,61 +1,62 @@
-# План развития
+# Roadmap
 
-Задачи добавляются папкой в `tasks/`, старые прогоны при этом не ломаются:
-новые уровни просто окажутся недостающими и досчитаются следующим запуском.
-Поэтому список ниже можно закрывать по одному пункту, не перегоняя всё заново.
-
----
-
-## `toolchoice` — сама догадалась написать скрипт
-
-**Категории:** logic, agentic
-
-Дать задачу, которую **невыгодно решать в уме**, но выгодно скриптом: объём
-данных такой, что перебор руками нереален, а короткая программа считает за
-секунды. Модели никто не подсказывает, что нужен скрипт — она должна решить
-это сама.
-
-Меряем три вещи, а не одну:
-
-1. **Выбрала ли стратегию** — написала скрипт или полезла считать вручную.
-2. **Работает ли скрипт** — прогоняем его на десятке скрытых экземпляров задачи
-   и сверяем ответы с эталоном.
-3. **Насколько он эффективен** — замеряем время выполнения на каждом экземпляре.
-   Наивное решение уложится в лимит на маленьких входах и упрётся в таймаут на
-   больших; хороший алгоритм пройдёт все.
-
-Балл складывается из корректности и попадания в бюджет времени. Это отличает
-задачу от `path3d`, где эффективность не проверяется: там достаточно, чтобы
-ответ был верным.
-
-Идеи для условия: подсчёт чего-либо на больших диапазонах, где нужен решётный
-или динамический алгоритм вместо перебора; поиск в графе с сотнями тысяч рёбер;
-обработка длинной последовательности с требованием одного прохода.
-
-## `macro` — записать макрос браузерной автоматизации
-
-**Категории:** agentic
-
-По текстовому описанию сценария собрать макрос для `web-search-neo` и прогнать
-его. Проверка — дошёл ли макрос до целевого состояния страницы.
-
-## `game` — пройти простую браузерную игру
-
-**Категории:** agentic, spatial
-
-Довести простую игру до заданного состояния. Игра статическая, лежит рядом на
-GitHub Pages, состояние читается из DOM.
+Tasks are added as a folder under `tasks/`, and old runs don't break: new
+levels simply show up as missing and get computed on the next run. So the list
+below can be worked through one item at a time without rerunning everything.
 
 ---
 
-## Инфраструктура
+## `toolchoice` — the model has to figure out on its own that it needs a script
 
-- **Версионирование задач.** Если условие задачи изменили, старые результаты
-  становятся несравнимыми с новыми, а сейчас это ничем не помечено. Нужна
-  версия у каждой задачи и отметка в результате, чтобы лидерборд не сравнивал
-  молча разные вещи.
-- **Параллельный прогон нескольких моделей** в один каталог `results/`:
-  сейчас запись атомарная (через временный файл), но у каждой модели свой файл,
-  поэтому конфликта быть не должно — надо проверить на практике.
-- **Повторные прогоны одной модели** для оценки разброса: сейчас один прогон на
-  модель, а бесплатные модели заметно нестабильны.
+**Categories:** logic, agentic
+
+Pose a task that is **unprofitable to solve in your head** but profitable to
+solve with a script: the data volume makes manual enumeration unrealistic,
+while a short program computes it in seconds. Nothing hints to the model that a
+script is needed — it has to decide that itself.
+
+Three things are measured, not one:
+
+1. **Did it pick the right strategy** — wrote a script or started counting by hand.
+2. **Does the script work** — it runs on a dozen hidden instances of the task
+   and its answers are checked against references.
+3. **How efficient is it** — runtime is measured per instance. A naive
+   solution fits within the limit on small inputs and times out on large ones;
+   a good algorithm passes everything.
+
+The score combines correctness and fitting the time budget. This is what sets
+the task apart from `path3d`, where efficiency isn't checked: there, a correct
+answer is enough.
+
+Ideas for the problem statement: counting something over large ranges where a
+sieve or dynamic programming is needed instead of enumeration; graph search
+over hundreds of thousands of edges; processing a long sequence with a
+one-pass requirement.
+
+## `macro` — record a browser automation macro
+
+**Categories:** agentic
+
+From a text description of a scenario, assemble a macro for `web-search-neo`
+and run it. Pass/fail is whether the macro reaches the target page state.
+
+## `game` — play through a simple browser game
+
+**Categories:** agentic, spatial
+
+Take a simple game to a target state. The game is static, hosted alongside on
+GitHub Pages, with state read from the DOM.
+
+---
+
+## Infrastructure
+
+- **Task versioning.** When a task's spec changes, old results become
+  incomparable with new ones, and right now nothing marks that. Each task needs
+  a version recorded in results, so the leaderboard doesn't silently compare
+  different things.
+- **Parallel runs of several models** into one `results/` directory: writing is
+  already atomic (via a temp file), and each model gets its own file, so there
+  should be no conflicts — needs a real-world test.
+- **Repeat runs of one model** to estimate variance: currently it's one run per
+  model, and free models are noticeably unstable.
