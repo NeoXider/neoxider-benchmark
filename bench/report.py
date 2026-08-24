@@ -86,6 +86,7 @@ def collect(results_dir=None):
             'stability_score': s.get('stability_score'),
             'stability_max': s.get('stability_max'),
             'stability_failed': s.get('stability_failed'),
+            'unmeasurable': s.get('unmeasurable') or 0,
             'passed': s.get('passed'),
             'first_try': s.get('first_try'),
             'fixed': s.get('fixed'),

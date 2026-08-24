@@ -283,6 +283,194 @@
    "card": "cards/claude_claude-sonnet-5.svg"
   },
   {
+   "model": "codex/gpt-5.6-sol",
+   "engine": "codex",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 21.0,
+   "max_score": 24.0,
+   "stability_score": 21.0,
+   "stability_max": 24.0,
+   "stability_failed": 1,
+   "passed": 23,
+   "first_try": 19,
+   "fixed": 4,
+   "failed": 1,
+   "fabricated": 0,
+   "seconds": 1102.7,
+   "tokens_total": 5125459,
+   "tokens_net": 4363284,
+   "baseline_tokens": 33115,
+   "cost": null,
+   "cost_source": null,
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 67.3
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 66.5
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 141.8
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 71.3
+    },
+    "pathperf": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 62.3
+    },
+    "spatial": {
+     "score": 2.5,
+     "passed": 3,
+     "fixed": 1,
+     "total": 3,
+     "seconds": 67.0
+    },
+    "toolchoice": {
+     "score": 2.5,
+     "passed": 3,
+     "fixed": 1,
+     "total": 3,
+     "seconds": 78.7
+    },
+    "webform": {
+     "score": 1.0,
+     "passed": 2,
+     "fixed": 2,
+     "total": 3,
+     "seconds": 547.8
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 0.965,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 0.872,
+    "agentic": 0.617
+   },
+   "levels_done": 24,
+   "card": "cards/codex_gpt-5.6-sol.svg"
+  },
+  {
+   "model": "codex/gpt-5.6-luna",
+   "engine": "codex",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 20.5,
+   "max_score": 24.0,
+   "stability_score": 20.5,
+   "stability_max": 24.0,
+   "stability_failed": 3,
+   "passed": 21,
+   "first_try": 20,
+   "fixed": 1,
+   "failed": 3,
+   "fabricated": 0,
+   "seconds": 800.3,
+   "tokens_total": 3204250,
+   "tokens_net": 2711098,
+   "baseline_tokens": 20553,
+   "cost": null,
+   "cost_source": null,
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 44.7
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 64.4
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 116.4
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 67.3
+    },
+    "pathperf": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 58.2
+    },
+    "spatial": {
+     "score": 2.5,
+     "passed": 3,
+     "fixed": 1,
+     "total": 3,
+     "seconds": 62.9
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 56.9
+    },
+    "webform": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 329.6
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 1.0,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 0.872,
+    "agentic": 0.5
+   },
+   "levels_done": 24,
+   "card": "cards/codex_gpt-5.6-luna.svg"
+  },
+  {
    "model": "codex/gpt-5.6-terra",
    "engine": "codex",
    "weights": "closed",

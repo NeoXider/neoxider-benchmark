@@ -203,7 +203,13 @@ function fmtDur(s){ // seconds -> "30 min", "2 h 5 min"
   if (m < 60) return m + ' min';
   return Math.floor(m/60) + ' h ' + (m%60) + ' min';
 }
-function shortModel(m){ return m.includes('/') ? m.split('/').slice(1).join('/') : m; }
+// Имя для подписи на графике: без вендора и без даты сборки. Дата не
+// различает ни одну пару моделей в таблице, а восемь лишних цифр — это как
+// раз та длина, на которой подпись доезжает до соседней точки.
+function shortModel(m){
+  const bare = m.includes('/') ? m.split('/').slice(1).join('/') : m;
+  return bare.replace(/-20\d{6}$/, '');
+}
 
 /* ---------- SVG-хелперы ---------- */
 function svgEl(tag, attrs, parent){
@@ -247,8 +253,10 @@ function drawScatter(containerSel, points, xLabel, xFmt){
     const tx = svgEl('text', {x:px(t), y:H-MB+18, 'text-anchor':'middle', 'font-size':11}, svg);
     tx.textContent = xFmt(t);
   }
-  // сетка + подписи Y
-  for (const t of ticks(0, yMax, 5)){
+  // сетка + подписи Y. Линий больше, чем было: с двумя-тремя по высоте
+  // прочитать значение точки на глаз невозможно, а именно за этим на график
+  // и смотрят.
+  for (const t of ticks(0, yMax, 9)){
     svgEl('line', {x1:ML, y1:py(t), x2:W-MR, y2:py(t), stroke:'#22262e'}, svg);
     const ty = svgEl('text', {x:ML-8, y:py(t)+4, 'text-anchor':'end', 'font-size':11}, svg);
     ty.textContent = fmtCompact(t);
@@ -260,15 +268,65 @@ function drawScatter(containerSel, points, xLabel, xFmt){
                             transform:`rotate(-90 14 ${(H-MB+MT)/2})`, 'text-anchor':'middle'}, svg);
   yl.textContent = 'score';
 
-  // точки с подписями
-  points.forEach((p,i)=>{
-    svgEl('circle', {cx:px(p.x), cy:py(p.y), r:5, fill:p.color, stroke:'#0f1115', 'stroke-width':1}, svg);
-    const t = svgEl('text', {x:px(p.x)+9, y:py(p.y)+4+(i%2)*11, 'font-size':11,
-                             title:p.label}, svg);
+  // Точки и подписи. Раньше подпись просто ставилась справа от точки со
+  // сдвигом через одну — при близких точках надписи наезжали друг на друга и
+  // читались как одна каша, а на графике их и читают.
+  //
+  // Теперь место под подпись подбирается: идём сверху вниз и сдвигаем каждую
+  // следующую вниз ровно настолько, чтобы она не задевала предыдущую. Если
+  // подпись уехала от своей точки, к ней рисуется поводок — иначе непонятно,
+  // чья она. У правого края подпись разворачивается влево, чтобы не вылезать
+  // за пределы картинки.
+  const LH = 13;                     // минимальный просвет между строками
+  const placed = points.map((p, i) => ({
+    p, i, cx: px(p.x), cy: py(p.y),
+    flip: px(p.x) > W - MR - 70,     // близко к правому краю — подпись слева
+  }));
+  placed.sort((a, b) => a.cy - b.cy || a.cx - b.cx);
+  let lastY = -Infinity;
+  for (const it of placed){
+    it.ty = Math.max(it.cy, lastY + LH);
+    lastY = it.ty;
+  }
+  // Если стопка уехала за нижний край, поднимаем её целиком.
+  const overflow = lastY - (H - MB - 2);
+  if (overflow > 0) for (const it of placed) it.ty -= overflow;
+
+  // Одного вертикального разведения мало: подписи друг на друга уже не лезут,
+  // но длинная строка спокойно проходит НАД чужой точкой и перечёркивает её.
+  // Точка — это само измерение, и закрывать её подписью соседа нельзя, поэтому
+  // задевающая строка разворачивается в другую сторону.
+  const CHAR = 6;                          // ширина символа на 11px шрифте
+  const hits = (it, flip) => {
+    const w = shortModel(it.p.label).length * CHAR + 10;
+    const a = flip ? it.cx - 9 - w : it.cx + 9;
+    return placed.some(o => o !== it &&
+      Math.abs(o.cy - it.ty) < 7 && o.cx > a - 6 && o.cx < a + w + 6);
+  };
+  for (const it of placed){
+    if (hits(it, it.flip) && !hits(it, !it.flip)) it.flip = !it.flip;
+  }
+
+  for (const it of placed){
+    const p = it.p;
+    const dx = it.flip ? -9 : 9;
+    if (Math.abs(it.ty - it.cy) > 3){
+      svgEl('line', {x1:it.cx + (it.flip ? -5 : 5), y1:it.cy,
+                     x2:it.cx + dx, y2:it.ty - 4,
+                     stroke:p.color, 'stroke-width':1, opacity:.55}, svg);
+    }
+    const t = svgEl('text', {x:it.cx + dx, y:it.ty, 'font-size':11,
+                             'text-anchor': it.flip ? 'end' : 'start'}, svg);
     t.textContent = shortModel(p.label);
     const title = svgEl('title', {}, t);
     title.textContent = `${p.label}: ${xFmt(p.x)}, ${p.y}`;
-  });
+  }
+  // Точки рисуются последними: подпись, прошедшая рядом, больше не закрывает
+  // чужой маркер — а маркер и есть само измерение.
+  for (const it of placed){
+    svgEl('circle', {cx:it.cx, cy:it.cy, r:5, fill:it.p.color,
+                     stroke:'#0f1115', 'stroke-width':1}, svg);
+  }
 }
 
 /* ---------- график категорий: группированные горизонтальные полосы ---------- */
@@ -339,6 +397,7 @@ const COLS = [
   {key:'first_try',      label:'First try',           num:true },
   {key:'fixed',          label:'After fix',           num:true },
   {key:'failed',         label:'Failures',            num:true },
+  {key:'unmeasurable',   label:'Not measurable',      num:true },
   {key:'fabricated',     label:'FABRICATED',          num:true },
   {key:'tokens_net',     label:'Net tokens',          num:true },
   {key:'tokens_total',   label:'Total tokens',        num:true },
@@ -380,6 +439,11 @@ function cellText(r, key){
     }
     case 'cost':   return `<td class="num${r.cost_source==='estimated'?' dim':''}">${fmtCost(r.cost, r.cost_source)}</td>`;
     case 'seconds':return `<td class="num">${fmtDur(r.seconds)}</td>`;
+    // Уровни, которые этот харнесс не может дать модели вообще (у codex нет
+    // браузера). Они не провал и не успех и в балл не входят — но и молчать о
+    // них нельзя: иначе меньший знаменатель выглядит как удача.
+    case 'unmeasurable':
+      return `<td class="num${r.unmeasurable?' dim':''}" title="Levels this harness cannot present to the model, excluded from the score">${r.unmeasurable||0}</td>`;
     // Карточка модели — SVG с результатом, годится для README и для репоста.
     // Собирается на стороне bench/card.py, здесь только ссылки.
     case 'card':

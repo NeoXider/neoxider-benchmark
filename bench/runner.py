@@ -364,9 +364,28 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
         out['baseline'] = measure_baseline(model_id, timeout, cwd)
 
     note_progress(out, len(plan))
+    engine = out['engine']
     for tname, lvl in todo:
         note_progress(out, len(plan), current='%s L%d' % (tname, lvl))
         task = registry.get(tname)
+        # Задача, требующая инструмента, которого у движка нет, мерит харнесс,
+        # а не модель. Ноль за такой уровень занижал бы балл за чужой недостаток,
+        # поэтому уровень помечается неизмеримым и в счёт не идёт.
+        lack = models.missing_capabilities(engine, getattr(task, 'NEEDS', []))
+        if lack:
+            out['levels'].append({
+                'task': tname, 'level': lvl, 'attempts': [],
+                'task_version': getattr(task, 'VERSION', 1),
+                'score': 0.0, 'fixed': False, 'passed': False, 'fabricated': 0,
+                'seconds': 0.0, 'peeked': False,
+                'unmeasurable': 'the %s harness provides no %s'
+                                % (engine, ', '.join(lack)),
+                'ts': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            })
+            if progress:
+                progress({'_info': '%s L%d skipped: %s has no %s'
+                          % (tname, lvl, engine, ', '.join(lack))})
+            continue
         # сид детерминирован по (сид, задача, уровень): разные модели получают
         # ОДИНАКОВЫЕ задачи, а добавление новой задачи не сдвигает старые
         rng = random.Random('%d|%s|%d' % (seed, tname, lvl))
@@ -390,7 +409,11 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
 
 
 def summarize(run):
-    lv = run['levels']
+    # Неизмеримые уровни исключаются целиком: они не провал модели и не успех,
+    # и попадание их в знаменатель делало бы балл несравнимым между движками
+    # с разным набором инструментов.
+    lv = [r for r in run['levels'] if 'unmeasurable' not in r]
+    skipped = len(run['levels']) - len(lv)
     per_task = {}
     for r in lv:
         d = per_task.setdefault(r['task'], {'score': 0.0, 'passed': 0, 'fixed': 0,
@@ -428,6 +451,7 @@ def summarize(run):
     return {
         'score': round(sum(r['score'] for r in lv), 2),
         'max_score': float(len(lv)),
+        'unmeasurable': skipped,
         'stability_score': round(sum(r['score'] for r in mlv), 2) if mlv else None,
         'stability_max': float(len(mlv)) if mlv else None,
         'stability_failed': sum(1 for r in mlv if not r['passed']) if mlv else None,
