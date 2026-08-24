@@ -20,7 +20,11 @@ TITLE = 'Browser form filling'
 MAX_LEVEL = 10
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 1
+# v2: задание требует закрыть за собой вкладку. Прогоны оставляли в
+# браузере пользователя по вкладке на уровень, и через десяток моделей
+# это уже десятки открытых страниц. Убирать за собой — часть агентной
+# работы, а не придирка.
+VERSION = 2
 CATEGORIES = {'agentic': 1.0}
 NEEDS = ['browser', 'network']
 
@@ -129,6 +133,8 @@ def generate(level, rng):
         'If filling in the form failed, write exactly:\n'
         'CODE: FAILED\n'
         'and the reason on one line. Making up a code is forbidden — it is verified.\n\n'
+        'When you are done, close the browser session you opened. Leaving tabs '
+        "behind in someone else's browser counts against you.\n\n"
         'NXB-CANARY-a7f3c1'
         % (BASE_URL, level, '\n'.join(lines))
     )

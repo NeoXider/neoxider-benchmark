@@ -283,6 +283,100 @@
    "card": "cards/claude_claude-sonnet-5.svg"
   },
   {
+   "model": "codex/gpt-5.6-terra",
+   "engine": "codex",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 20.0,
+   "max_score": 24.0,
+   "stability_score": 20.0,
+   "stability_max": 24.0,
+   "stability_failed": 4,
+   "passed": 20,
+   "first_try": 20,
+   "fixed": 0,
+   "failed": 4,
+   "fabricated": 0,
+   "seconds": 750.8,
+   "tokens_total": 3230957,
+   "tokens_net": 2463020,
+   "baseline_tokens": 33115,
+   "cost": null,
+   "cost_source": null,
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 37.2
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 61.9
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 94.7
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 94.6
+    },
+    "pathperf": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 72.7
+    },
+    "spatial": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 42.6
+    },
+    "toolchoice": {
+     "score": 2.0,
+     "passed": 2,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 64.2
+    },
+    "webform": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 283.0
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 0.93,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 0.4
+   },
+   "levels_done": 24,
+   "card": "cards/codex_gpt-5.6-terra.svg"
+  },
+  {
    "model": "opencode/muse-spark-1.2-contributor-free",
    "engine": "opencode",
    "weights": "closed",
