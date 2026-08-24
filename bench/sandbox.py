@@ -23,7 +23,14 @@ _HARNESS = r'''
 import json, sys, time, runpy
 
 sol_path, cases_path = sys.argv[1], sys.argv[2]
+
+# Ссылки на сериализатор и вывод захватываются ДО загрузки решения. Иначе
+# недоверенный код подменял json.dumps в общем модуле и проставлял всем
+# результатам seconds=0 уже на выходе: решение спало 2.4 секунды и
+# засчитывалось как «0.00 с», то есть как идеально оптимизированное.
 clock = time.perf_counter
+_dumps = json.dumps
+_write = sys.stdout.write
 
 # Вход читаем ДО загрузки решения и держим только в памяти. Иначе решение
 # успевало переписать cases.json пустым списком: харнесс возвращал ноль
@@ -59,7 +66,9 @@ for index, c in enumerate(cases):
         val, err = None, "вернула %s вместо числа" % type(val).__name__
     out.append({"value": val, "error": err, "seconds": dt})
 
-print(json.dumps({"results": out, "n_cases": len(cases)}))
+payload = {"results": out, "n_cases": len(cases), "wall": clock() - setup_t0}
+_write(_dumps(payload))
+_write(chr(10))
 '''
 
 
@@ -140,6 +149,16 @@ def run_solution(code, cases, timeout=60, isolate_cases=False):
             return {'ok': False,
                     'error': 'решение вернуло %d ответов вместо %d'
                              % (len(results), len(cases)),
+                    'results': [], 'seconds': secs}
+        # Сверка: сумма заявленных времён не может быть заметно меньше времени,
+        # реально проведённого в решении. Это ловит любую подделку тайминга,
+        # включая ту, что мы ещё не придумали.
+        claimed = sum((r.get('seconds') or 0) for r in results)
+        inside = data.get('wall')
+        if inside is not None and claimed + 0.25 < inside * 0.5:
+            return {'ok': False,
+                    'error': 'заявленное время %.2f с не сходится с фактическим %.2f с'
+                             % (claimed, inside),
                     'results': [], 'seconds': secs}
         return {'ok': True, 'error': None, 'results': results, 'seconds': secs}
     finally:

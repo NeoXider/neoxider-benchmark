@@ -10,8 +10,12 @@
 выбрать нормальный алгоритм и аккуратную реализацию. Именно это здесь и
 меряется — качество инженерного решения без напоминания.
 
-Бюджет времени считается от эталонной реализации на той же машине, а не
-абсолютной константой: иначе результат зависел бы от того, где запускали.
+Эффективность меряется ОТНОШЕНИЕМ к эталонной реализации, а не абсолютными
+секундами: отношение почти не зависит от машины, на которой запускали, а
+секунды зависят целиком. Эталон замеряется рядом с решением и берётся лучшим
+из нескольких проходов — случайная нагрузка может замедлить проход, но не
+может его ускорить. Итог переводится в оценку: optimal, good, acceptable,
+inefficient.
 """
 import collections
 import random
@@ -72,6 +76,30 @@ def _reference(grid, start, goal):
     return -1
 
 
+
+def _barrier_grid(rng, size, offset):
+    """Стена с отверстием вне прямого коридора: обход обязателен.
+
+    offset сдвигает финиш по оси y, чтобы у разных карт получались разные
+    ответы, не ослабляя требование обхода.
+    """
+    grid = [[[0] * size for _ in range(size)] for _ in range(size)]
+    wall = size // 2
+    for y in range(size):
+        for z in range(size):
+            grid[wall][y][z] = -1
+    hy = rng.randrange(size)
+    grid[wall][hy][size - 1] = 0          # единственный проход, на дальней грани
+
+    start = (0, 0, 0)
+    goal = (size - 1, max(0, size - 1 - offset), 0)
+    grid[start[0]][start[1]][start[2]] = 0
+    grid[goal[0]][goal[1]][goal[2]] = 0
+    best = _reference(grid, start, goal)
+    if best < 0:
+        raise RuntimeError('барьерная карта оказалась непроходимой')
+    return grid, start, goal, best
+
 def generate(level, rng):
     size, density = _spec(level)
     cases = []
@@ -87,13 +115,34 @@ def generate(level, rng):
             goal = (size - 1, size - 1, size - 1 - case_index)
             grid[goal[0]][goal[1]][goal[2]] = 0
             best = _reference(grid, start, goal)
-            if best >= 0 and best not in answers:
+            # Карта обязана ТРЕБОВАТЬ ОБХОДА. Одного условия «ответы различны»
+            # оказалось мало: цели по одной оси сделали все пути прямыми, и на
+            # 90 картах из 90 ответ совпал с манхэттенским расстоянием — то
+            # есть однострочник sum(abs(a-b)) проходил десятый уровень, ни разу
+            # не заглянув в grid.
+            manhattan = sum(abs(a - b) for a, b in zip(start, goal))
+            if best > manhattan and best not in answers:
                 answers.add(best)
                 cases.append({'grid': grid, 'start': list(start), 'goal': list(goal),
                               'best': best})
                 break
         else:
-            raise RuntimeError('не удалось сгенерировать карты с разными ответами')
+            # Случайная карта почти всегда пропускает прямой путь, поэтому
+            # обход приходится строить: стена поперёк маршрута с единственным
+            # отверстием ВНЕ прямого коридора. Финиш лежит в плоскости z=0, а
+            # отверстие — на дальней грани по z, иначе через дырку всё равно
+            # проходил бы путь манхэттенской длины.
+            grid, start, goal, best = _barrier_grid(rng, size, case_index)
+            if best in answers:
+                best_alt = None
+                for shift in range(1, size):
+                    grid, start, goal, best_alt = _barrier_grid(rng, size, shift)
+                    if best_alt not in answers:
+                        break
+                best = best_alt
+            answers.add(best)
+            cases.append({'grid': grid, 'start': list(start), 'goal': list(goal),
+                          'best': best})
 
     if len(answers) != len(cases):
         raise RuntimeError('ответы pathperf должны быть попарно различны')
@@ -121,14 +170,41 @@ def generate(level, rng):
 _BLOCK = re.compile(r'```(?:python|py)?[ \t]*\r?\n(.*?)```', re.S)
 
 
-def _measure_reference(cases):
-    """Замеряет эталон рядом с решением, а не в момент генерации задания."""
-    t0 = time.perf_counter()
-    for c in cases:
-        got = _reference(c['grid'], c['start'], c['goal'])
-        if got != c['best']:
-            raise RuntimeError('эталон pathperf изменился после генерации')
-    return time.perf_counter() - t0
+REPEATS = 3          # повторов замера, чтобы шум машины не решал исход
+
+
+def _measure_reference(cases, repeats=REPEATS):
+    """Замеряет эталон рядом с решением, а не в момент генерации задания.
+
+    Берётся ЛУЧШИЙ из нескольких проходов, а не средний: минимум ближе к
+    настоящей стоимости алгоритма, потому что случайная нагрузка на машину
+    может замедлить проход, но не может его ускорить.
+    """
+    best_run = None
+    for _ in range(max(1, repeats)):
+        t0 = time.perf_counter()
+        for c in cases:
+            got = _reference(c['grid'], c['start'], c['goal'])
+            if got != c['best']:
+                raise RuntimeError('эталон pathperf изменился после генерации')
+        dt = time.perf_counter() - t0
+        best_run = dt if best_run is None else min(best_run, dt)
+    return best_run
+
+
+def _efficiency_grade(ratio):
+    """Во сколько раз решение дороже эталона — в понятную оценку.
+
+    Меряется отношение к эталону, а не абсолютные секунды: отношение почти не
+    зависит от машины, на которой запускали, а секунды зависят целиком.
+    """
+    if ratio <= 1.5:
+        return 'optimal'       # на уровне эталонного BFS
+    if ratio <= 3.0:
+        return 'good'
+    if ratio <= SLACK:
+        return 'acceptable'    # проходит, но заметно дороже
+    return 'inefficient'
 
 
 def score(output, expected):
@@ -172,7 +248,8 @@ def score(output, expected):
 
     ratio = total / max(ref_seconds, 1e-6)
     extra = {'seconds': round(total, 3), 'budget': budget,
-             'ref_seconds': round(ref_seconds, 3), 'ratio': round(ratio, 2)}
+             'ref_seconds': round(ref_seconds, 3), 'ratio': round(ratio, 2),
+             'efficiency': _efficiency_grade(ratio)}
 
     if total > budget:
         extra['slow'] = True
@@ -182,5 +259,5 @@ def score(output, expected):
                        % (total, budget, ratio)), extra
 
     extra['hint'] = 'Проверка пройдена.'
-    return True, ('верно за %.2f с при бюджете %.2f с (x%.1f от эталона)'
-                  % (total, budget, ratio)), extra
+    return True, ('верно за %.2f с, x%.1f от эталона — %s'
+                  % (total, ratio, extra['efficiency'])), extra

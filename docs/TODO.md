@@ -57,20 +57,33 @@ where language becomes a measured variable instead of noise.
 
 Everything else measures a model doing the work itself. This one measures
 whether it can get work done through others: split a job, launch subagents,
-keep track of them, and merge what comes back.
+keep track of them, and — the part that actually matters — check what comes back
+before merging it.
 
-The setup gives the model a wrapper that can start CLI subagents
-([neoxider-agents](https://github.com/NeoXider/neoxider-agents)) and a job that
-is awkward to do alone — several independent pieces with a deadline. Scoring
-looks at whether the pieces were actually split rather than done sequentially,
-whether results were checked before being merged, and whether a subagent that
-died was noticed and restarted.
+Setup: the model gets a wrapper that can start CLI subagents
+([neoxider-agents](https://github.com/NeoXider/neoxider-agents)) and a job made
+of several independent pieces under a deadline.
 
-The interesting failure is not "couldn't spawn an agent" but accepting a
-subagent's report without verification. That has a real precedent: a free model
-returned 25 fully fabricated job applications with a flawless-looking report,
-and the only way to catch it was opening the links. A model that merges
-unverified subagent output should not score the same as one that checks.
+**A saboteur is planted on purpose.** One randomly chosen subagent returns
+plausible but fabricated output — right structure, confident tone, even a
+self-critical section about difficulties, and wrong content. The wrapper can
+inject this deliberately, so the planted agent is known to the scorer and
+invisible to the model under test.
+
+Three things are scored separately, because they fail independently:
+
+1. **Efficiency** — were the pieces actually run in parallel, or one after
+   another until the deadline ran out.
+2. **Task completion** — is the merged result correct and complete.
+3. **Verification** — was the saboteur caught. Merging its output unchecked is
+   the heaviest penalty in the task, heavier than doing the whole job slowly by
+   hand.
+
+The precedent is real: a free model returned 25 entirely fabricated job
+applications with a flawless-looking report, and the only way to catch it was
+opening the links. A model that merges unverified subagent output must not score
+the same as one that checks — otherwise the benchmark rewards exactly the
+behaviour that burns you in production.
 
 ## `macro` — record a browser automation macro
 
