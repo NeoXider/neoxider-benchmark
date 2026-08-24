@@ -51,6 +51,27 @@ and dropping diacritics or non-Latin text on the way through.
 Because the rest of the suite is English-only by rule, this is the only place
 where language becomes a measured variable instead of noise.
 
+## `orchestration` — spawning and steering subagents
+
+**Categories:** agentic
+
+Everything else measures a model doing the work itself. This one measures
+whether it can get work done through others: split a job, launch subagents,
+keep track of them, and merge what comes back.
+
+The setup gives the model a wrapper that can start CLI subagents
+([neoxider-agents](https://github.com/NeoXider/neoxider-agents)) and a job that
+is awkward to do alone — several independent pieces with a deadline. Scoring
+looks at whether the pieces were actually split rather than done sequentially,
+whether results were checked before being merged, and whether a subagent that
+died was noticed and restarted.
+
+The interesting failure is not "couldn't spawn an agent" but accepting a
+subagent's report without verification. That has a real precedent: a free model
+returned 25 fully fabricated job applications with a flawless-looking report,
+and the only way to catch it was opening the links. A model that merges
+unverified subagent output should not score the same as one that checks.
+
 ## `macro` — record a browser automation macro
 
 **Categories:** agentic

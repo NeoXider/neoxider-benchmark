@@ -135,6 +135,25 @@ The detailed plan lives in [docs/TODO.md](docs/TODO.md). In short:
 - `game` — take a simple browser game to a given state
 - task versioning, so runs of different versions aren't silently compared
 
+## Tooling this runs on
+
+Two companion projects, both open:
+
+- **[web-search-neo](https://github.com/NeoXider/web-search-neo)** — the MCP
+  behind the `webform` task: visible, authorized Chrome automation with forms,
+  uploads, pointer-level drag, and no API keys. It is what makes the browser
+  task solvable by an agent rather than decorative — the drag-and-drop list is
+  driven by real pointer events, and synthetic HTML5 drags would not have worked.
+- **[neoxider-agents](https://github.com/NeoXider/neoxider-agents)** — the
+  wrapper used to run CLI subagents (Codex, Claude Code, opencode, Gemini) for
+  auditing and fixing this benchmark. Handy here because provider streams drop
+  mid-run: it retries transient failures instead of losing the whole step, which
+  is exactly how two audit rounds were lost before it did.
+
+Neither is required to run the benchmark itself — `run.py` talks to the CLIs
+directly. They matter if you want to reproduce the browser task or drive the
+suite from other agents.
+
 ## Requirements
 
 Python 3.9+, no external dependencies. To run models you need the respective

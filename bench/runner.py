@@ -429,7 +429,11 @@ def staging_path(run):
 
 
 def _write_json(path, data):
-    tmp = path + '.tmp'
+    # Имя временного файла уникально для процесса. С общим '<path>.tmp' два
+    # параллельных прогона писали в один и тот же файл и затирали друг друга
+    # ещё до os.replace — при параллельном запуске моделей это молча теряло
+    # результаты.
+    tmp = '%s.%d.tmp' % (path, os.getpid())
     with open(tmp, 'w', encoding='utf-8') as fh:
         json.dump(data, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)     # атомарно: прерванный прогон не портит файл

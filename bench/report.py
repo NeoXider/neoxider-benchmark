@@ -106,12 +106,19 @@ def write():
     rows = collect()
     os.makedirs(DOCS, exist_ok=True)
     write_cards()
+    # Тот же приём, что в runner: параллельные прогоны пересобирают лидерборд
+    # одновременно, поэтому пишем через уникальный временный файл и подменяем
+    # атомарно. Иначе читатель мог поймать наполовину записанный JSON.
+    def _atomic(path, data):
+        tmp = '%s.%d.tmp' % (path, os.getpid())
+        with open(tmp, 'w', encoding='utf-8') as fh:
+            json.dump(data, fh, ensure_ascii=False, indent=1)
+        os.replace(tmp, path)
+
     out = os.path.join(DOCS, 'results.json')
-    with open(out, 'w', encoding='utf-8') as fh:
-        json.dump({'runs': rows}, fh, ensure_ascii=False, indent=1)
+    _atomic(out, {'runs': rows})
     os.makedirs(RESULTS, exist_ok=True)
-    with open(os.path.join(RESULTS, 'index.json'), 'w', encoding='utf-8') as fh:
-        json.dump({'runs': rows}, fh, ensure_ascii=False, indent=1)
+    _atomic(os.path.join(RESULTS, 'index.json'), {'runs': rows})
     return out, len(rows)
 
 
