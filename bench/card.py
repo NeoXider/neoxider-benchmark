@@ -1,0 +1,158 @@
+# -*- coding: utf-8 -*-
+"""Карточка модели: результат прогона одной картинкой.
+
+SVG собирается вручную, без зависимостей — открывается в браузере, вставляется
+в README, конвертируется во что угодно. Данные берутся из готового прогона,
+ничего не пересчитывается.
+"""
+import os
+
+W, H = 720, 460
+BG = '#0f1115'
+FG = '#e6e6e6'
+MUTED = '#8b93a1'
+ACCENT = '#3b82f6'
+GOOD = '#22c55e'
+BAD = '#ef4444'
+LINE = '#2a2f3a'
+
+CAT_TITLES = {
+    'instruction': 'Инструкции',
+    'logic': 'Логика',
+    'spatial': 'Пространство',
+    'math': 'Счёт',
+    'agentic': 'Агентность',
+    'honesty': 'Честность',
+}
+
+
+def _esc(s):
+    return (str(s).replace('&', '&amp;').replace('<', '&lt;')
+            .replace('>', '&gt;').replace('"', '&quot;'))
+
+
+def _fmt_int(n):
+    if n is None:
+        return '—'
+    return '{:,}'.format(int(n)).replace(',', ' ')
+
+
+def _fmt_cost(c, src):
+    if c is None:
+        return '—'
+    if c == 0:
+        return 'бесплатно'
+    return '$%.4f%s' % (c, '' if src == 'reported' else '~')
+
+
+def render(run, pricing=None):
+    """run — словарь прогона (results/<model>_<seed>.json)."""
+    s = run.get('summary') or {}
+    model = run.get('model', '?')
+    cats = s.get('per_category') or {}
+    per_task = s.get('per_task') or {}
+
+    score = s.get('score') or 0.0
+    mx = s.get('max_score') or 1.0
+    pct = max(0.0, min(1.0, score / mx if mx else 0.0))
+
+    access = (pricing or {}).get(model, {}).get('access', 'unknown')
+    cost = s.get('cost_reported')
+    fabricated = s.get('fabricated') or 0
+
+    p = []
+    add = p.append
+    add('<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" '
+        'viewBox="0 0 %d %d" font-family="system-ui,-apple-system,Segoe UI,sans-serif">'
+        % (W, H, W, H))
+    add('<rect width="%d" height="%d" rx="14" fill="%s"/>' % (W, H, BG))
+    add('<rect x="0.5" y="0.5" width="%d" height="%d" rx="14" fill="none" stroke="%s"/>'
+        % (W - 1, H - 1, LINE))
+
+    # шапка
+    add('<text x="28" y="42" fill="%s" font-size="13" letter-spacing="2">'
+        'NEOXIDER BENCHMARK</text>' % MUTED)
+    add('<text x="28" y="74" fill="%s" font-size="23" font-weight="700">%s</text>'
+        % (FG, _esc(model)))
+    badge = {'free': ('бесплатная', GOOD), 'paid': ('платная', ACCENT)}.get(
+        access, ('доступ неизвестен', MUTED))
+    add('<text x="28" y="96" fill="%s" font-size="12">%s · движок %s · сид %s</text>'
+        % (badge[1], _esc(badge[0]), _esc(run.get('engine', '?')), _esc(run.get('seed', '?'))))
+
+    # крупный балл
+    add('<text x="%d" y="72" text-anchor="end" fill="%s" font-size="44" '
+        'font-weight="700">%.1f</text>' % (W - 28, ACCENT, score))
+    add('<text x="%d" y="94" text-anchor="end" fill="%s" font-size="12">из %.0f'
+        '</text>' % (W - 28, MUTED, mx))
+
+    # полоса общего результата
+    y = 118
+    add('<rect x="28" y="%d" width="%d" height="8" rx="4" fill="%s"/>'
+        % (y, W - 56, LINE))
+    add('<rect x="28" y="%d" width="%.1f" height="8" rx="4" fill="%s"/>'
+        % (y, (W - 56) * pct, ACCENT))
+
+    # категории
+    y = 158
+    add('<text x="28" y="%d" fill="%s" font-size="12" letter-spacing="1">'
+        'ПО КАТЕГОРИЯМ</text>' % (y, MUTED))
+    y += 18
+    bar_x, bar_w = 150, 330
+    for key in ('instruction', 'logic', 'spatial', 'math', 'agentic', 'honesty'):
+        if key not in cats:
+            continue
+        v = cats[key]
+        add('<text x="28" y="%d" fill="%s" font-size="13">%s</text>'
+            % (y + 11, FG, _esc(CAT_TITLES.get(key, key))))
+        add('<rect x="%d" y="%d" width="%d" height="10" rx="5" fill="%s"/>'
+            % (bar_x, y + 2, bar_w, LINE))
+        col = GOOD if v >= 0.75 else (ACCENT if v >= 0.4 else BAD)
+        add('<rect x="%d" y="%d" width="%.1f" height="10" rx="5" fill="%s"/>'
+            % (bar_x, y + 2, bar_w * max(0.0, min(1.0, v)), col))
+        add('<text x="%d" y="%d" fill="%s" font-size="12" '
+            'font-family="ui-monospace,Consolas,monospace">%.2f</text>'
+            % (bar_x + bar_w + 12, y + 11, MUTED, v))
+        y += 24
+
+    # нижние показатели
+    y = H - 96
+    add('<line x1="28" y1="%d" x2="%d" y2="%d" stroke="%s"/>' % (y, W - 28, y, LINE))
+    y += 26
+    stats = [
+        ('с первой', s.get('first_try')),
+        ('после правки', s.get('fixed')),
+        ('провалов', s.get('failed')),
+        ('выдумано', fabricated),
+    ]
+    x = 28
+    for label, val in stats:
+        col = BAD if (label == 'выдумано' and val) else FG
+        add('<text x="%d" y="%d" fill="%s" font-size="20" font-weight="700" '
+            'font-family="ui-monospace,Consolas,monospace">%s</text>'
+            % (x, y, col, _esc(val if val is not None else '—')))
+        add('<text x="%d" y="%d" fill="%s" font-size="11">%s</text>'
+            % (x, y + 18, MUTED, _esc(label)))
+        x += 118
+    # токены и стоимость справа
+    add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="13" '
+        'font-family="ui-monospace,Consolas,monospace">%s токенов</text>'
+        % (W - 28, y - 4, FG, _fmt_int(s.get('tokens_net'))))
+    add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="11">'
+        'чистых, накладные %s</text>'
+        % (W - 28, y + 14, MUTED, _fmt_int(s.get('baseline_tokens'))))
+    add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="11">'
+        '%s · %.0f c</text>'
+        % (W - 28, y + 30, MUTED, _esc(_fmt_cost(cost, 'reported')),
+           s.get('seconds') or 0))
+
+    add('</svg>')
+    return '\n'.join(p)
+
+
+def write(run, out_dir, pricing=None):
+    os.makedirs(out_dir, exist_ok=True)
+    safe = run['model'].replace('/', '_').replace(':', '_')
+    path = os.path.join(out_dir, '%s.svg' % safe)
+    with open(path, 'w', encoding='utf-8') as fh:
+        fh.write(render(run, pricing))
+    return path

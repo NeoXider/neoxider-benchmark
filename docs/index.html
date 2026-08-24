@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neoxider Benchmark — лидерборд</title>
+<style>
+  /* Тёмная тема, без анимаций */
+  :root{
+    --bg:#0f1115; --text:#e6e6e6; --accent:#3b82f6;
+    --muted:#9aa3af; --line:#262b33; --card:#161a21;
+    --free:#3b82f6; --paid:#f59e0b; --unknown:#8b93a1;
+    --red:#ef4444; --green:#22c55e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+  header h1{font-size:28px;margin:0 0 4px}
+  header p{color:var(--muted);margin:0}
+  header .repo{display:inline-block;margin-top:6px}
+
+  /* Плашка демо-данных */
+  #demo-banner{display:none;margin-top:14px;padding:10px 14px;border-radius:8px;
+    background:#7c2d12;color:#fed7aa;border:1px solid #ea580c;font-weight:600}
+
+  /* Плитки-итоги */
+  #tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+         gap:12px;margin-top:20px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .tile .k{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+  .tile .v{font-size:22px;margin-top:4px;font-weight:700}
+  .tile .s{color:var(--muted);font-size:13px}
+
+  section{margin-top:36px}
+  section>h2{font-size:19px;margin:0 0 4px}
+  section>.hint{color:var(--muted);font-size:13px;margin:0 0 10px}
+  .chart-box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  svg{display:block;width:100%;height:auto}
+  svg text{fill:var(--text)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:2px 0 8px;font-size:13px;color:var(--muted)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .legend .chip{color:var(--text)}
+
+  /* Чекбоксы выбора моделей для графика категорий */
+  #cat-picks{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;font-size:14px}
+  #cat-picks label{cursor:pointer;white-space:nowrap}
+  #nocost{color:var(--muted);font-size:13px;margin-top:8px}
+
+  /* Фильтры и таблица */
+  .filters{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:10px 0 12px;
+           background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .filters label{color:var(--muted);font-size:14px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  select,input[type=search]{background:#0f1115;color:var(--text);border:1px solid var(--line);
+           border-radius:6px;padding:6px 8px;font-size:14px}
+  input[type=search]{min-width:200px}
+  .table-scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;min-width:1080px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:left}
+  thead th{position:sticky;top:0;background:#12151b;color:var(--muted);font-weight:600;
+           cursor:pointer;user-select:none;border-bottom:1px solid #333a45}
+  thead th:hover{color:var(--text)}
+  thead th .dir{color:var(--accent);margin-left:4px}
+  td.num,th.num{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  td.dim{color:var(--muted)}
+  td.fab-hot{color:var(--red);font-weight:700;background:rgba(239,68,68,.08)}
+  td.model-cell{max-width:260px;overflow:hidden;text-overflow:ellipsis}
+  .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;border:1px solid}
+  .badge.free{color:var(--free);border-color:var(--free)}
+  .badge.paid{color:var(--paid);border-color:var(--paid)}
+  .badge.unknown{color:var(--unknown);border-color:var(--unknown)}
+  tfoot td,td.empty{color:var(--muted);padding:14px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Neoxider Benchmark</h1>
+    <p>Честный бенчмарк агентных CLI-моделей: инструкция, код, пространство,
+       честность. Одна попытка и одна правка на уровень.</p>
+    <a class="repo" href="https://github.com/NeoXider/neoxider-benchmark">github.com/NeoXider/neoxider-benchmark</a>
+    <div id="demo-banner">⚠ Демо-данные: results.json не найден, показан results.sample.json с выдуманными строками.</div>
+  </header>
+
+  <div id="tiles"></div>
+
+  <section>
+    <h2>Токены → балл</h2>
+    <p class="hint">Ось X — чистые токены (tokens_net), ось Y — итоговый балл. Подпись у каждой точки.</p>
+    <div class="chart-box"><div id="legend-tokens" class="legend"></div><div id="chart-tokens"></div></div>
+  </section>
+
+  <section>
+    <h2>Стоимость → балл</h2>
+    <p class="hint">Ось X — стоимость прогона (cost), ось Y — балл. Прогоны без цены не рисуются нулями — они перечислены под графиком.</p>
+    <div class="chart-box"><div id="chart-cost"></div><div id="nocost"></div></div>
+  </section>
+
+  <section>
+    <h2>Сравнение по категориям</h2>
+    <p class="hint">Значения per_category, 0…1. Отметьте модели для сравнения.</p>
+    <div id="cat-picks"></div>
+    <div class="chart-box" id="chart-cats"></div>
+  </section>
+
+  <section>
+    <h2>Таблица рекордов</h2>
+    <div class="filters">
+      <span>
+        <label><input type="radio" name="f-access" value="all" checked>Все</label>
+        <label><input type="radio" name="f-access" value="free">Только бесплатные</label>
+        <label><input type="radio" name="f-access" value="paid">Только платные</label>
+      </span>
+      <span><label>Движок: <select id="f-engine"></select></label></span>
+      <span><input type="search" id="f-search" placeholder="поиск по названию модели…"></span>
+    </div>
+    <div class="table-scroll">
+      <table id="tbl"><thead></thead><tbody></tbody></table>
+    </div>
+  </section>
+</div>
+
+<script>
+'use strict';
+const CATS = ['instruction','logic','spatial','math','agentic','honesty'];
+const CAT_LABELS = {instruction:'инструкция',logic:'логика',spatial:'пространство',
+                    math:'математика',agentic:'агент',honesty:'честность'};
+const ACCESS_COLOR = {free:'#3b82f6', paid:'#f59e0b', unknown:'#8b93a1'};
+const ACCESS_TEXT  = {free:'free', paid:'paid', unknown:'?'};
+const PALETTE = ['#3b82f6','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#e879f9','#84cc16'];
+let RUNS = [];                       // нормализованные строки данных
+let sortKey = 'score', sortDir = -1; // сортировка таблицы по умолчанию: лучший сверху
+let modelColors = {};                // стабильные цвета моделей
+
+/* ---------- утилиты ---------- */
+const $ = s => document.querySelector(s);
+const nf = new Intl.NumberFormat('ru-RU');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtInt = n => (n==null || isNaN(n)) ? '—' : nf.format(Math.round(n));
+const fmtCost = c => (c==null || isNaN(c)) ? '—' : '$' + (+c).toFixed(2);
+// компактный формат для осей: 900000 -> 900k, 1250000 -> 1.25M
+function fmtCompact(n){
+  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(+((n/1e6)%1!==0)).replace('.',',') + 'M';
+  if (Math.abs(n) >= 1e3) return Math.round(n/1e3) + 'k';
+  return String(n);
+}
+function fmtDur(s){ // секунды -> «30 мин», «2 ч 5 мин»
+  if (s==null || isNaN(s)) return '—';
+  s = Math.round(s);
+  if (s < 60) return s + ' с';
+  const m = Math.floor(s/60);
+  if (m < 60) return m + ' мин';
+  return Math.floor(m/60) + ' ч ' + (m%60) + ' мин';
+}
+function shortModel(m){ return m.includes('/') ? m.split('/').slice(1).join('/') : m; }
+
+/* ---------- SVG-хелперы ---------- */
+function svgEl(tag, attrs, parent){
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// «красивые» деления оси
+function ticks(min, max, count){
+  if (min === max){ min -= 1; max += 1; }
+  const span = max - min, step0 = span / count, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  let step = mag;
+  for (const m of [1,2,5,10]) if (step0 <= m*mag){ step = m*mag; break; }
+  const out = [];
+  for (let v = Math.ceil(min/step)*step; v <= max + step*1e-9; v += step)
+    out.push(+v.toFixed(10));
+  return out;
+}
+
+/* ---------- точечная диаграмма ---------- */
+function drawScatter(containerSel, points, xLabel, xFmt){
+  const box = $(containerSel);
+  box.textContent = '';
+  if (!points.length){
+    box.innerHTML = '<p style="color:var(--muted)">Нет данных для графика.</p>';
+    return;
+  }
+  const W = 800, H = 420, ML = 64, MR = 130, MT = 18, MB = 42;
+  const xs = points.map(p => p.x), ys = points.map(p => p.y);
+  let xMin = Math.min(...xs), xMax = Math.max(...xs);
+  if (xMin === xMax){ xMin -= 1; xMax += 1; } else { const pad=(xMax-xMin)*.06; xMin=Math.max(0,xMin-pad); xMax+=pad; }
+  const yMax = Math.max(...ys)*1.08 || 1;
+  const px = v => ML + (v - xMin)/(xMax - xMin)*(W-ML-MR);
+  const py = v => H - MB - v/yMax*(H-MT-MB);
+
+  const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, role:'img'}, box);
+  // сетка + подписи X
+  for (const t of ticks(xMin, xMax, 6)){
+    svgEl('line', {x1:px(t), y1:MT, x2:px(t), y2:H-MB, stroke:'#22262e'}, svg);
+    const tx = svgEl('text', {x:px(t), y:H-MB+18, 'text-anchor':'middle', 'font-size':11}, svg);
+    tx.textContent = xFmt(t);
+  }
+  // сетка + подписи Y
+  for (const t of ticks(0, yMax, 5)){
+    svgEl('line', {x1:ML, y1:py(t), x2:W-MR, y2:py(t), stroke:'#22262e'}, svg);
+    const ty = svgEl('text', {x:ML-8, y:py(t)+4, 'text-anchor':'end', 'font-size':11}, svg);
+    ty.textContent = fmtCompact(t);
+  }
+  // названия осей
+  const xl = svgEl('text', {x:(ML+W-MR)/2, y:H-6, 'text-anchor':'middle', 'font-size':12, fill:'#9aa3af'}, svg);
+  xl.textContent = xLabel;
+  const yl = svgEl('text', {x:14, y:(H-MB+MT)/2, 'font-size':12, fill:'#9aa3af',
+                            transform:`rotate(-90 14 ${(H-MB+MT)/2})`, 'text-anchor':'middle'}, svg);
+  yl.textContent = 'балл';
+
+  // точки с подписями
+  points.forEach((p,i)=>{
+    svgEl('circle', {cx:px(p.x), cy:py(p.y), r:5, fill:p.color, stroke:'#0f1115', 'stroke-width':1}, svg);
+    const t = svgEl('text', {x:px(p.x)+9, y:py(p.y)+4+(i%2)*11, 'font-size':11,
+                             title:p.label}, svg);
+    t.textContent = shortModel(p.label);
+    const title = svgEl('title', {}, t);
+    title.textContent = `${p.label}: ${xFmt(p.x)}, ${p.y}`;
+  });
+}
+
+/* ---------- график категорий: группированные горизонтальные полосы ---------- */
+function drawCats(){
+  const box = $('#chart-cats');
+  const picked = [...document.querySelectorAll('#cat-picks input:checked')].map(i => i.value);
+  box.textContent = '';
+  if (!picked.length){
+    box.innerHTML = '<p style="color:var(--muted)">Отметьте хотя бы одну модель выше.</p>';
+    return;
+  }
+  const rowH = 22, gapCat = 14, ML = 96, MR = 52;
+  const H = CATS.length*(picked.length*rowH + gapCat) + 10;
+  const W = 800, plotW = W - ML - MR;
+  const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, role:'img'}, box);
+
+  CATS.forEach((cat, ci)=>{
+    const blockTop = 5 + ci*(picked.length*rowH + gapCat);
+    const cl = svgEl('text', {x:ML-10, y:blockTop+picked.length*rowH/2+4,
+                              'text-anchor':'end', 'font-size':12}, svg);
+    cl.textContent = CAT_LABELS[cat];
+    picked.forEach((m, mi)=>{
+      const run = RUNS.find(r => r.model === m);
+      const v = Math.max(0, Math.min(1, (run.per_category||{})[cat] || 0));
+      const y = blockTop + mi*rowH;
+      const bar = svgEl('rect', {x:ML, y:y, width:v*plotW, height:rowH-6, rx:3,
+                                 fill:modelColors[m] || '#3b82f6',
+                                 opacity: run.fabricated>0 ? .55 : 1}, svg);
+      const t = svgEl('title', {}, bar);
+      t.textContent = `${shortModel(m)} · ${CAT_LABELS[cat]}: ${v.toFixed(2)}`
+                      + (run.fabricated>0 ? ` · ВЫДУМАНО: ${run.fabricated}` : '');
+      const vt = svgEl('text', {x:ML+v*plotW+6, y:y+rowH-10, 'font-size':10,
+                                fill:'#9aa3af'}, svg);
+      vt.textContent = v.toFixed(2);
+    });
+  });
+}
+
+/* ---------- плитки-итоги ---------- */
+function renderTiles(){
+  const n = RUNS.length;
+  let bestHtml = '—';
+  if (n){
+    const b = RUNS.reduce((a,r)=> r.score>a.score ? r : a, RUNS[0]);
+    bestHtml = `${b.score.toFixed(1)} / ${b.max_score} — ${esc(b.model)}`;
+  }
+  // средний балл и самая дешёвая модель выше среднего
+  let cheapHtml = '—';
+  const avg = n ? RUNS.reduce((s,r)=>s+r.score,0)/n : 0;
+  const cand = RUNS.filter(r => r.cost!=null && r.score > avg);
+  if (cand.length){
+    const c = cand.reduce((a,r)=> r.cost<a.cost ? r : a, cand[0]);
+    cheapHtml = `${fmtCost(c.cost)} — ${esc(shortModel(c.model))}`;
+  }
+  $('#tiles').innerHTML =
+    `<div class="tile"><div class="k">Моделей протестировано</div><div class="v">${n}</div></div>` +
+    `<div class="tile"><div class="k">Лучший балл</div><div class="v">${bestHtml}</div></div>` +
+    `<div class="tile"><div class="k">Самая дешёвая выше среднего (${avg.toFixed(1)})</div><div class="v">${cheapHtml}</div></div>`;
+}
+
+/* ---------- таблица ---------- */
+const COLS = [
+  {key:'model',          label:'Модель',              num:false},
+  {key:'engine',         label:'Движок',              num:false},
+  {key:'access',         label:'Доступ',              num:false},
+  {key:'score',          label:'Балл',                num:true },
+  {key:'first_try',      label:'С 1-й попытки',       num:true },
+  {key:'fixed',          label:'После правки',        num:true },
+  {key:'failed',         label:'Провалов',            num:true },
+  {key:'fabricated',     label:'ВЫДУМАНО',            num:true },
+  {key:'tokens_net',     label:'Токены чистые',       num:true },
+  {key:'tokens_total',   label:'Токены всего',        num:true },
+  {key:'baseline_tokens',label:'Накладные',           num:true },
+  {key:'cost',           label:'Стоимость',           num:true },
+  {key:'seconds',        label:'Время',               num:true },
+  {key:'date',           label:'Дата',                num:true },
+  {key:'card',           label:'Карточка',            num:false},
+];
+function cellText(r, key){
+  switch(key){
+    case 'model':  return `<td class="model-cell" title="${esc(r.model)}">${esc(r.model)}</td>`;
+    case 'access': return `<td><span class="badge ${r.access}">${ACCESS_TEXT[r.access]||r.access}</span></td>`;
+    case 'score':  return `<td class="num">${r.score.toFixed(1)} / ${r.max_score}</td>`;
+    case 'cost':   return `<td class="num${r.cost_source==='estimated'?' dim':''}">${fmtCost(r.cost)}</td>`;
+    case 'seconds':return `<td class="num">${fmtDur(r.seconds)}</td>`;
+    // Карточка модели — SVG с результатом, годится для README и для репоста.
+    // Собирается на стороне bench/card.py, здесь только ссылки.
+    case 'card':
+      if (!r.card) return '<td>—</td>';
+      return `<td class="card-cell"><a href="${esc(r.card)}" target="_blank" rel="noopener">открыть</a>` +
+             ` · <a href="${esc(r.card)}" download>скачать</a></td>`;
+    case 'fabricated':
+      return `<td class="num${r.fabricated>0?' fab-hot':''}" title="${r.fabricated>0?'Выдуманные ответы вместо честного «не найдено»':'Честно признался, когда не знал'}">${r.fabricated>0?'⚠ '+r.fabricated:'0'}</td>`;
+    default:
+      const v = r[key];
+      return `<td class="num">${v==null?'—':fmtInt(v)}</td>`;
+  }
+}
+function filteredRuns(){
+  const acc = document.querySelector('input[name=f-access]:checked').value;
+  const eng = $('#f-engine').value;
+  const q   = $('#f-search').value.trim().toLowerCase();
+  return RUNS.filter(r =>
+    (acc==='all' || r.access===acc) &&
+    (eng==='all' || r.engine===eng) &&
+    (!q || r.model.toLowerCase().includes(q)));
+}
+function renderTable(){
+  const rows = filteredRuns().slice().sort((a,b)=>{
+    let va=a[sortKey], vb=b[sortKey];
+    if (va==null) va = sortDir>0 ? Infinity : -Infinity;
+    if (vb==null) vb = sortDir>0 ? Infinity : -Infinity;
+    let c;
+    if (typeof va === 'string' && typeof vb === 'string') c = va.localeCompare(vb,'ru');
+    else c = va - vb;
+    return c*sortDir || a.model.localeCompare(b.model,'ru');
+  });
+  $('#tbl thead').innerHTML = '<tr>' + COLS.map(c =>
+    `<th data-key="${c.key}" class="${c.num?'num':''}">${c.label}` +
+    (c.key===sortKey ? `<span class="dir">${sortDir<0?'▼':'▲'}</span>` : '') + '</th>'
+  ).join('') + '</tr>';
+  $('#tbl tbody').innerHTML = rows.length
+    ? rows.map(r => '<tr>' + COLS.map(c=>cellText(r,c.key)).join('') + '</tr>').join('')
+    : '<tr><td class="empty" colspan="'+COLS.length+'">Ничего не найдено</td></tr>';
+  // клики по заголовкам
+  document.querySelectorAll('#tbl thead th').forEach(th =>
+    th.addEventListener('click', ()=>{
+      const k = th.dataset.key;
+      if (k === sortKey) sortDir = -sortDir;
+      else { sortKey = k; sortDir = (COLS.find(c=>c.key===k).num) ? -1 : 1; }
+      renderTable();
+    }));
+}
+
+/* ---------- фильтры и чекбоксы ---------- */
+function initControls(){
+  const engines = [...new Set(RUNS.map(r=>r.engine))].sort();
+  $('#f-engine').innerHTML = '<option value="all">все движки</option>' +
+    engines.map(e=>`<option value="${esc(e)}">${esc(e)}</option>`).join('');
+  $('#cat-picks').innerHTML = RUNS.map((r,i)=>
+    `<label style="color:${modelColors[r.model]}"><input type="checkbox" value="${esc(r.model)}"${i<3?' checked':''}> ${esc(shortModel(r.model))}${r.fabricated>0?` <span style="color:var(--red)">(ВЫДУМАНО ${r.fabricated})</span>`:''}</label>`
+  ).join('');
+  document.querySelectorAll('#cat-picks input').forEach(i=>i.addEventListener('change', drawCats));
+  ['input[name=f-access]','#f-engine','#f-search'].forEach(sel=>{
+    document.querySelectorAll(sel).forEach(el=>el.addEventListener('change', renderTable));
+    document.querySelectorAll(sel).forEach(el=>el.addEventListener('input', renderTable));
+  });
+}
+
+/* ---------- отрисовка всего ---------- */
+function renderAll(){
+  renderTiles();
+  modelColors = {};
+  RUNS.forEach((r,i)=> modelColors[r.model] = PALETTE[i % PALETTE.length]);
+
+  // легенда доступа
+  $('#legend-tokens').innerHTML =
+    Object.entries(ACCESS_COLOR).map(([k,c])=>
+      `<span class="chip"><i style="background:${c}"></i>${k==='free'?'бесплатные':k==='paid'?'платные':'доступ неизвестен'}</span>`).join('');
+
+  drawScatter('#chart-tokens',
+    RUNS.map(r=>({x:r.tokens_net, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
+    'токены чистые (tokens_net)', fmtCompact);
+  drawScatter('#chart-cost',
+    RUNS.filter(r=>r.cost!=null).map(r=>({x:r.cost, y:r.score, label:r.model, color:ACCESS_COLOR[r.access]||'#888'})),
+    'стоимость ($)', v=>'$'+v.toFixed(2));
+
+  // кто остался за бортом стоимостного графика
+  const noc = RUNS.filter(r=>r.cost==null).map(r=>r.model);
+  $('#nocost').textContent = noc.length ? 'Нет данных о стоимости: ' + noc.join(', ') : '';
+
+  drawCats();
+  renderTable();
+}
+
+/* ---------- загрузка данных ---------- */
+async function load(){
+  try {
+    const res = await fetch('results.json');
+    if (!res.ok) throw new Error(res.status);
+    RUNS = (await res.json()).runs || [];
+  } catch (e) {
+    // results.json нет или битый — показываем демо
+    try {
+      const res = await fetch('results.sample.json');
+      RUNS = (await res.json()).runs || [];
+      $('#demo-banner').style.display = 'block';
+    } catch (e2) {
+      document.body.insertAdjacentHTML('afterbegin',
+        '<div style="background:#7f1d1d;color:#fecaca;padding:14px;text-align:center">Не удалось загрузить ни results.json, ни results.sample.json</div>');
+      return;
+    }
+  }
+  // нормализация полей, чтобы страница не падала на неполных данных
+  RUNS.forEach(r=>{
+    r.access = ['free','paid'].includes(r.access) ? r.access : 'unknown';
+    r.score = +r.score || 0; r.max_score = +r.max_score || 50;
+    ['first_try','fixed','failed','fabricated','tokens_total','tokens_net','baseline_tokens','seconds']
+      .forEach(k => r[k] = (r[k]==null ? null : +r[k]));
+    r.cost = (r.cost==null ? null : +r.cost);
+    r.per_category = r.per_category || {};
+  });
+  initControls();
+  renderAll();
+}
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>neoxider-benchmark — form task</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0f1115; color:#e6e6e6; font:15px/1.5 system-ui, sans-serif;
+         margin:0; padding:32px 20px; }
+  .wrap { max-width:560px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:#8b93a1; font-size:13px; margin-bottom:24px; }
+  label { display:block; margin:16px 0 6px; font-weight:600; font-size:13px; }
+  input[type=text], input[type=email], input[type=number], input[type=date],
+  select, textarea {
+    width:100%; box-sizing:border-box; background:#171a21; color:#e6e6e6;
+    border:1px solid #2a2f3a; border-radius:6px; padding:9px 11px; font:inherit; }
+  textarea { min-height:70px; resize:vertical; }
+  .row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  .row label { margin:0; font-weight:400; }
+  button { margin-top:24px; background:#3b82f6; color:#fff; border:0; border-radius:6px;
+           padding:11px 22px; font:inherit; font-weight:600; cursor:pointer; }
+  button:hover { background:#2f6fd8; }
+  .hidden { display:none; }
+  #result { margin-top:24px; padding:16px; border-radius:8px; }
+  #result.ok { background:#0f2a1a; border:1px solid #1f6b3f; }
+  #result.err { background:#2a1414; border:1px solid #6b2020; }
+  code { font-family:ui-monospace, Menlo, Consolas, monospace; font-size:20px;
+         letter-spacing:2px; }
+  .note { color:#8b93a1; font-size:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Benchmark form</h1>
+  <div class="sub">Уровень <span id="lvl">1</span>. Заполните поля значениями из задания
+    и нажмите Submit — страница покажет код подтверждения.</div>
+
+  <form id="f" autocomplete="off">
+    <label for="name">Full name</label>
+    <input type="text" id="name" name="name">
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email">
+
+    <div data-min="2" class="fld">
+      <label for="quantity">Quantity</label>
+      <input type="number" id="quantity" name="quantity" min="1" max="999">
+    </div>
+
+    <div data-min="3" class="fld">
+      <label for="country">Country</label>
+      <select id="country" name="country">
+        <option value="">—</option>
+        <option>Armenia</option><option>Cyprus</option><option>Georgia</option>
+        <option>Kazakhstan</option><option>Portugal</option><option>Serbia</option>
+      </select>
+    </div>
+
+    <div data-min="4" class="fld">
+      <label>Plan</label>
+      <div class="row">
+        <label><input type="radio" name="plan" value="basic"> basic</label>
+        <label><input type="radio" name="plan" value="pro"> pro</label>
+        <label><input type="radio" name="plan" value="team"> team</label>
+      </div>
+    </div>
+
+    <div data-min="5" class="fld">
+      <label>Newsletter</label>
+      <div class="row">
+        <label><input type="checkbox" id="newsletter"> subscribe</label>
+      </div>
+    </div>
+
+    <div data-min="6" class="fld">
+      <label for="comment">Comment</label>
+      <textarea id="comment" name="comment"></textarea>
+    </div>
+
+    <div data-min="7" class="fld hidden" id="freqWrap">
+      <label for="frequency">Frequency</label>
+      <select id="frequency" name="frequency">
+        <option value="">—</option>
+        <option>daily</option><option>weekly</option><option>monthly</option>
+      </select>
+      <div class="note">Появляется только когда включён Newsletter.</div>
+    </div>
+
+    <div data-min="8" class="fld">
+      <label for="startdate">Start date</label>
+      <input type="date" id="startdate" name="startdate">
+    </div>
+
+    <div data-min="9" class="fld">
+      <label>Topics</label>
+      <div class="row">
+        <label><input type="checkbox" class="topic" value="ai"> ai</label>
+        <label><input type="checkbox" class="topic" value="dotnet"> dotnet</label>
+        <label><input type="checkbox" class="topic" value="python"> python</label>
+        <label><input type="checkbox" class="topic" value="unity"> unity</label>
+      </div>
+    </div>
+
+    <div data-min="10" class="fld">
+      <label for="priority">Priority: <span id="prioVal">5</span></label>
+      <input type="range" id="priority" min="1" max="10" value="5" style="width:100%">
+    </div>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="result" class="hidden"></div>
+</div>
+
+<script>
+// Уровень берётся из ?level=N. Поля выше нужного уровня скрываются, чтобы
+// агент не отвлекался на лишнее.
+var level = Math.max(1, Math.min(10, parseInt(
+  new URLSearchParams(location.search).get('level') || '1', 10) || 1));
+document.getElementById('lvl').textContent = level;
+
+document.querySelectorAll('.fld').forEach(function (el) {
+  if (parseInt(el.dataset.min, 10) > level) el.remove();
+});
+
+// Frequency показывается только при включённом Newsletter — проверка того,
+// что агент реально взаимодействует со страницей, а не шлёт значения вслепую.
+var nl = document.getElementById('newsletter');
+if (nl) nl.addEventListener('change', function () {
+  var w = document.getElementById('freqWrap');
+  if (w) w.classList.toggle('hidden', !nl.checked);
+});
+
+var prio = document.getElementById('priority');
+if (prio) prio.addEventListener('input', function () {
+  document.getElementById('prioVal').textContent = prio.value;
+});
+
+// FNV-1a 32 бита. Тот же алгоритм в bench/tasks/t3_webform.py.
+function fnv1a(str) {
+  var bytes = new TextEncoder().encode(str);
+  var h = 0x811C9DC5;
+  for (var i = 0; i < bytes.length; i++) {
+    h ^= bytes[i];
+    // Math.imul обязателен: обычное умножение уводит результат за 2^53
+    // и теряет младшие биты, из-за чего код разошёлся бы с эталоном на Python.
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return ('0000000' + h.toString(16).toUpperCase()).slice(-8);
+}
+
+var ORDER = ['name','email','quantity','country','plan','newsletter',
+             'comment','frequency','startdate','topics','priority'];
+
+function collect() {
+  var v = {};
+  var g = function (id) { var e = document.getElementById(id); return e ? e.value.trim() : null; };
+  v.name = g('name');
+  v.email = g('email');
+  if (level >= 2) v.quantity = g('quantity');
+  if (level >= 3) v.country = g('country');
+  if (level >= 4) {
+    var p = document.querySelector('input[name=plan]:checked');
+    v.plan = p ? p.value : '';
+  }
+  if (level >= 5) v.newsletter = document.getElementById('newsletter').checked ? 'yes' : 'no';
+  if (level >= 6) v.comment = g('comment');
+  if (level >= 7) v.frequency = g('frequency');
+  if (level >= 8) v.startdate = g('startdate');
+  if (level >= 9) {
+    var t = [].slice.call(document.querySelectorAll('.topic:checked')).map(function (c) { return c.value; });
+    v.topics = t.sort().join(',');
+  }
+  if (level >= 10) v.priority = g('priority');
+  return v;
+}
+
+document.getElementById('f').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var v = collect();
+  var box = document.getElementById('result');
+  box.classList.remove('hidden', 'ok', 'err');
+
+  var empty = ORDER.filter(function (k) {
+    return v[k] !== undefined && v[k] !== null && v[k] === '';
+  });
+  if (empty.length) {
+    box.classList.add('err');
+    box.innerHTML = '<b>Не заполнено:</b> ' + empty.join(', ');
+    return;
+  }
+
+  var parts = ORDER.filter(function (k) { return v[k] !== undefined && v[k] !== null; })
+                   .map(function (k) { return k + '=' + v[k]; });
+  var code = fnv1a('L' + level + '|' + parts.join('|'));
+  box.classList.add('ok');
+  box.innerHTML = '<div>Confirmation code</div><code id="code">' + code + '</code>' +
+                  '<div class="note">Верните строку: CODE: ' + code + '</div>';
+});
+</script>
+</body>
+</html>

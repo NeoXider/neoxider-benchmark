@@ -1,0 +1,205 @@
+{
+ "runs": [
+  {
+   "model": "opencode/x-preview-f-free",
+   "engine": "opencode",
+   "access": "free",
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 41.5,
+   "max_score": 60,
+   "passed": 44,
+   "first_try": 38,
+   "fixed": 6,
+   "failed": 16,
+   "fabricated": 2,
+   "seconds": 1830.4,
+   "tokens_total": 1250000,
+   "tokens_net": 900000,
+   "baseline_tokens": 34748,
+   "cost": 0.0,
+   "cost_source": "reported",
+   "per_task": {
+    "count": {
+     "score": 9.5,
+     "passed": 10,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 120.0
+    },
+    "path3d": {
+     "score": 8.0,
+     "passed": 9,
+     "fixed": 2,
+     "total": 10,
+     "seconds": 310.5
+    },
+    "webform": {
+     "score": 7.5,
+     "passed": 8,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 480.2
+    },
+    "spatial": {
+     "score": 9.0,
+     "passed": 9,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 260.7
+    },
+    "honesty": {
+     "score": 7.5,
+     "passed": 8,
+     "fixed": 2,
+     "total": 10,
+     "seconds": 659.0
+    }
+   },
+   "per_category": {
+    "instruction": 0.95,
+    "logic": 0.7,
+    "spatial": 0.4,
+    "math": 0.8,
+    "agentic": 0.3,
+    "honesty": 0.6
+   },
+   "card": "cards/opencode_x-preview-f-free.svg",
+   "levels_done": 60
+  },
+  {
+   "model": "anthropic/claude-opus-5",
+   "engine": "claude",
+   "access": "paid",
+   "seed": 20260823,
+   "date": "2026-08-23",
+   "score": 53.5,
+   "max_score": 60,
+   "passed": 56,
+   "first_try": 49,
+   "fixed": 7,
+   "failed": 4,
+   "fabricated": 0,
+   "seconds": 2410.8,
+   "tokens_total": 2100000,
+   "tokens_net": 1650000,
+   "baseline_tokens": 35200,
+   "cost": 14.37,
+   "cost_source": "priced",
+   "per_task": {
+    "count": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 98.4
+    },
+    "path3d": {
+     "score": 9.5,
+     "passed": 10,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 405.1
+    },
+    "webform": {
+     "score": 9.0,
+     "passed": 9,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 520.6
+    },
+    "spatial": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 300.2
+    },
+    "honesty": {
+     "score": 15.0,
+     "passed": 17,
+     "fixed": 6,
+     "total": 20,
+     "seconds": 1086.5
+    }
+   },
+   "per_category": {
+    "instruction": 1.0,
+    "logic": 0.95,
+    "spatial": 0.9,
+    "math": 0.85,
+    "agentic": 0.9,
+    "honesty": 1.0
+   },
+   "card": "cards/anthropic_claude-opus-5.svg",
+   "levels_done": 60
+  },
+  {
+   "model": "openai/gpt-5.6-sol",
+   "engine": "codex",
+   "access": "paid",
+   "seed": 20260822,
+   "date": "2026-08-22",
+   "score": 46.0,
+   "max_score": 60,
+   "passed": 48,
+   "first_try": 40,
+   "fixed": 8,
+   "failed": 12,
+   "fabricated": 1,
+   "seconds": 2985.2,
+   "tokens_total": 1780000,
+   "tokens_net": 1320000,
+   "baseline_tokens": 36100,
+   "cost": null,
+   "cost_source": null,
+   "per_task": {
+    "count": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 150.3
+    },
+    "path3d": {
+     "score": 8.5,
+     "passed": 9,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 620.9
+    },
+    "webform": {
+     "score": 7.0,
+     "passed": 8,
+     "fixed": 2,
+     "total": 10,
+     "seconds": 700.4
+    },
+    "spatial": {
+     "score": 8.0,
+     "passed": 9,
+     "fixed": 2,
+     "total": 10,
+     "seconds": 380.1
+    },
+    "honesty": {
+     "score": 12.5,
+     "passed": 12,
+     "fixed": 3,
+     "total": 20,
+     "seconds": 1133.5
+    }
+   },
+   "per_category": {
+    "instruction": 0.9,
+    "logic": 0.85,
+    "spatial": 0.55,
+    "math": 0.75,
+    "agentic": 0.6,
+    "honesty": 0.75
+   },
+   "card": "cards/openai_gpt-5.6-sol.svg",
+   "levels_done": 60
+  }
+ ]
+}
