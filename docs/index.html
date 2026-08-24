@@ -105,7 +105,7 @@
 
   <section>
     <h2>Cost → score</h2>
-    <p class="hint">X axis — run cost, Y axis — score. A free tier is not a free model: the open weights behind it carry a public market rate, so cost is computed from the measured tokens at that rate and marked with a <span class="dim">~</span>. Where the CLI reports a real charge it is used as-is. A rate of zero is never treated as a price — it would pin the run to the axis and make any quality look infinitely efficient. Unpriced runs are listed below the chart.</p>
+    <p class="hint">X axis — run cost, Y axis — score. A free tier is a billing arrangement, not a free model — the same model is metered elsewhere — so cost is computed from the measured tokens at the model's published rate and marked with a <span class="dim">~</span>. Where the CLI reports a real charge it is used as-is. A rate of zero is never treated as a price: it would pin the run to the axis and make any quality look infinitely efficient. Unpriced runs are listed below the chart.</p>
     <div class="chart-box"><div id="chart-cost"></div><div id="nocost"></div></div>
   </section>
 
@@ -121,7 +121,7 @@
     <div class="filters">
       <span>
         <label><input type="radio" name="f-weights" value="all" checked>All weights</label>
-        <label><input type="radio" name="f-weights" value="open">Open only</label>
+        <label title="The weights can be downloaded and run yourself"><input type="radio" name="f-weights" value="open">Open only</label>
         <label><input type="radio" name="f-weights" value="closed">Closed only</label>
         <label><input type="checkbox" id="f-local">Local runs only</label>
       </span>
@@ -351,8 +351,16 @@ const COLS = [
 function cellText(r, key){
   switch(key){
     case 'model':  return `<td class="model-cell" title="${esc(r.model)}">${esc(r.model)}</td>`;
-    case 'weights': return `<td><span class="badge ${r.weights}">${WEIGHTS_TEXT[r.weights]||r.weights}`
-                          + `${r.local?'<span class="loc">local</span>':''}</span></td>`;
+    case 'weights': {
+      // Открытость проверяема, поэтому бейдж ведёт на сам репозиторий весов:
+      // утверждение «модель можно скачать» должно быть кликабельным.
+      const label = `${WEIGHTS_TEXT[r.weights]||r.weights}${r.local?'<span class="loc">local</span>':''}`;
+      const badge = `<span class="badge ${r.weights}">${label}</span>`;
+      const ref = (r.weights_ref||'').startsWith('hf:')
+        ? `<a href="https://huggingface.co/${esc(r.weights_ref.slice(3))}" target="_blank" rel="noopener" title="Download the weights">${badge}</a>`
+        : badge;
+      return `<td>${ref}</td>`;
+    }
     case 'score':  return `<td class="num">${r.score.toFixed(1)} / ${r.max_score}</td>`;
     // Порог стабильности считается отдельно от общего балла: он отвечает не
     // на «как далеко модель заходит», а на «можно ли на неё положиться в

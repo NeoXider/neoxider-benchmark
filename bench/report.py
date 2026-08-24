@@ -77,6 +77,7 @@ def collect(results_dir=None):
             # и такой, и сравнивать по этому нечего.
             'weights': meta.get('weights', 'unknown'),
             'local': bool(meta.get('local')),
+            'weights_ref': meta.get('weights_ref'),
             'seed': run.get('seed'),
             'date': (run.get('started_utc') or '')[:10],
             'score': s.get('score'),
