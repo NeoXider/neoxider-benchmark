@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="460" viewBox="0 0 720 460" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<rect width="720" height="460" rx="14" fill="#0f1115"/>
+<rect x="0.5" y="0.5" width="719" height="459" rx="14" fill="none" stroke="#2a2f3a"/>
+<text x="28" y="42" fill="#8b93a1" font-size="13" letter-spacing="2">NEOXIDER BENCHMARK</text>
+<text x="28" y="74" fill="#e6e6e6" font-size="23" font-weight="700">opencode/pickle-rick-free</text>
+<text x="28" y="96" fill="#22c55e" font-size="12">free · engine opencode · seed 20260824</text>
+<text x="692" y="72" text-anchor="end" fill="#3b82f6" font-size="44" font-weight="700">0.0</text>
+<text x="692" y="94" text-anchor="end" fill="#8b93a1" font-size="12">of 24</text>
+<rect x="28" y="118" width="664" height="8" rx="4" fill="#2a2f3a"/>
+<rect x="28" y="118" width="0.0" height="8" rx="4" fill="#3b82f6"/>
+<text x="28" y="158" fill="#8b93a1" font-size="12" letter-spacing="1">BY CATEGORY</text>
+<text x="28" y="187" fill="#e6e6e6" font-size="13">Instruction</text>
+<rect x="150" y="178" width="330" height="10" rx="5" fill="#2a2f3a"/>
+<rect x="150" y="178" width="0.0" height="10" rx="5" fill="#ef4444"/>
+<text x="492" y="187" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
+<text x="28" y="211" fill="#e6e6e6" font-size="13">Logic</text>
+<rect x="150" y="202" width="330" height="10" rx="5" fill="#2a2f3a"/>
+<rect x="150" y="202" width="0.0" height="10" rx="5" fill="#ef4444"/>
+<text x="492" y="211" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
+<text x="28" y="235" fill="#e6e6e6" font-size="13">Spatial</text>
+<rect x="150" y="226" width="330" height="10" rx="5" fill="#2a2f3a"/>
+<rect x="150" y="226" width="0.0" height="10" rx="5" fill="#ef4444"/>
+<text x="492" y="235" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
+<text x="28" y="259" fill="#e6e6e6" font-size="13">Arithmetic</text>
+<rect x="150" y="250" width="330" height="10" rx="5" fill="#2a2f3a"/>
+<rect x="150" y="250" width="0.0" height="10" rx="5" fill="#ef4444"/>
+<text x="492" y="259" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
+<text x="28" y="283" fill="#e6e6e6" font-size="13">Agentic</text>
+<rect x="150" y="274" width="330" height="10" rx="5" fill="#2a2f3a"/>
+<rect x="150" y="274" width="0.0" height="10" rx="5" fill="#ef4444"/>
+<text x="492" y="283" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
+<text x="28" y="307" fill="#e6e6e6" font-size="13">Honesty</text>
+<rect x="150" y="298" width="330" height="10" rx="5" fill="#2a2f3a"/>
+<rect x="150" y="298" width="0.0" height="10" rx="5" fill="#ef4444"/>
+<text x="492" y="307" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.00</text>
+<line x1="28" y1="364" x2="692" y2="364" stroke="#2a2f3a"/>
+<text x="28" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="28" y="408" fill="#8b93a1" font-size="11">first try</text>
+<text x="146" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="146" y="408" fill="#8b93a1" font-size="11">after fix</text>
+<text x="264" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">24</text>
+<text x="264" y="408" fill="#8b93a1" font-size="11">failed</text>
+<text x="382" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="382" y="408" fill="#8b93a1" font-size="11">fabricated</text>
+<text x="692" y="386" text-anchor="end" fill="#e6e6e6" font-size="13" font-family="ui-monospace,Consolas,monospace">— tokens</text>
+<text x="692" y="404" text-anchor="end" fill="#8b93a1" font-size="11">net, overhead —</text>
+<text x="692" y="420" text-anchor="end" fill="#8b93a1" font-size="11">— · 2430 s</text>
+</svg>

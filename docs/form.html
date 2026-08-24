@@ -135,11 +135,11 @@
       </div>
       <div class="tabpanel hidden" data-panel="billing">
         <label for="invoice">Invoice number</label>
-        <input type="text" id="invoice" name="invoice">
+        <input type="text" id="invoice" name="invoice" disabled>
       </div>
       <div class="tabpanel hidden" data-panel="access">
         <label for="seats">Seats</label>
-        <input type="number" id="seats" name="seats" min="1" max="99">
+        <input type="number" id="seats" name="seats" min="1" max="99" disabled>
       </div>
     </div>
 
@@ -193,7 +193,16 @@ document.querySelectorAll('.tab').forEach(function (btn) {
     document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('active'); });
     btn.classList.add('active');
     document.querySelectorAll('.tabpanel').forEach(function (p) {
-      p.classList.toggle('hidden', p.dataset.panel !== btn.dataset.tab);
+      var active = p.dataset.panel === btn.dataset.tab;
+      p.classList.toggle('hidden', !active);
+      // Поля скрытых вкладок ОТКЛЮЧЕНЫ, а не просто спрятаны css-классом.
+      // Иначе значение можно было выставить прямо в DOM, ни разу не кликнув
+      // по вкладке, — и задача проверяла бы не работу с интерфейсом, а умение
+      // писать в document.
+      p.querySelectorAll('input, select, textarea').forEach(function (f) {
+        if (active) { f.removeAttribute('disabled'); }
+        else { f.setAttribute('disabled', 'disabled'); }
+      });
     });
   });
 });
@@ -205,6 +214,10 @@ document.querySelectorAll('.tab').forEach(function (btn) {
   var list = document.getElementById('sortable');
   if (!list) return;
   var dragging = null;
+  // Счётчик настоящих перетаскиваний. Порядок в DOM подделывается одной
+  // строкой appendChild, поэтому итог засчитывается только при реальных
+  // pointer-событиях: иначе задача мерила бы не работу с интерфейсом.
+  window.__dragCount = 0;
 
   function refresh() {
     var out = [].slice.call(list.children).map(function (li) { return li.dataset.key; });
@@ -235,6 +248,7 @@ document.querySelectorAll('.tab').forEach(function (btn) {
     if (!dragging) return;
     dragging.classList.remove('dragging');
     dragging = null;
+    window.__dragCount += 1;
     refresh();
   });
 
@@ -259,7 +273,15 @@ var ORDER = ['name','email','quantity','country','plan','newsletter',
 
 function collect() {
   var v = {};
-  var g = function (id) { var e = document.getElementById(id); return e ? e.value.trim() : null; };
+  // Отключённое поле читается как пустое. Атрибут disabled мешает человеку,
+  // но не скрипту: значение в него записывается свободно, поэтому проверять
+  // надо здесь, при сборе, а не надеяться на браузер.
+  var g = function (id) {
+    var e = document.getElementById(id);
+    if (!e) return null;
+    if (e.disabled || (e.closest && e.closest('.tabpanel.hidden'))) return '';
+    return e.value.trim();
+  };
   v.name = g('name');
   v.email = g('email');
   if (level >= 2) v.quantity = g('quantity');
@@ -278,7 +300,9 @@ function collect() {
   }
   if (level >= 9) {
     var li = [].slice.call(document.querySelectorAll('#sortable li'));
-    v.order = li.map(function (x) { return x.dataset.key; }).join(',');
+    v.order = (window.__dragCount > 0)
+      ? li.map(function (x) { return x.dataset.key; }).join(',')
+      : 'NOT-DRAGGED';
   }
   if (level >= 10) v.priority = g('priority');
   return v;

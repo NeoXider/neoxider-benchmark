@@ -175,6 +175,118 @@
    },
    "levels_done": 24,
    "card": "cards/opencode_muse-spark-1.2-contributor-free.svg"
+  },
+  {
+   "model": "chat/qwen-3.8-max",
+   "engine": null,
+   "access": "unknown",
+   "seed": 20260824,
+   "date": "",
+   "score": null,
+   "max_score": null,
+   "passed": null,
+   "first_try": null,
+   "fixed": null,
+   "failed": null,
+   "fabricated": null,
+   "seconds": null,
+   "tokens_total": null,
+   "tokens_net": null,
+   "baseline_tokens": null,
+   "cost": null,
+   "cost_source": null,
+   "per_task": {},
+   "per_category": {},
+   "levels_done": null,
+   "card": "cards/chat_qwen-3.8-max.svg"
+  },
+  {
+   "model": "opencode/pickle-rick-free",
+   "engine": "opencode",
+   "access": "free",
+   "seed": 20260824,
+   "date": "2026-08-24",
+   "score": 0.0,
+   "max_score": 24.0,
+   "passed": 0,
+   "first_try": 0,
+   "fixed": 0,
+   "failed": 24,
+   "fabricated": 0,
+   "seconds": 2429.9,
+   "tokens_total": null,
+   "tokens_net": null,
+   "baseline_tokens": null,
+   "cost": null,
+   "cost_source": null,
+   "per_task": {
+    "calc": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 391.6
+    },
+    "count": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 255.9
+    },
+    "honesty": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 244.4
+    },
+    "path3d": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 360.7
+    },
+    "pathperf": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 341.9
+    },
+    "spatial": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 254.2
+    },
+    "toolchoice": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 314.0
+    },
+    "webform": {
+     "score": 0.0,
+     "passed": 0,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 267.1
+    }
+   },
+   "per_category": {
+    "math": 0.0,
+    "logic": 0.0,
+    "instruction": 0.0,
+    "honesty": 0.0,
+    "spatial": 0.0,
+    "agentic": 0.0
+   },
+   "levels_done": 24,
+   "card": "cards/opencode_pickle-rick-free.svg"
   }
  ]
 }

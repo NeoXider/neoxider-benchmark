@@ -58,7 +58,16 @@ confirmation code shown afterwards.
 
 There can be no server-side check — GitHub Pages serves static files only — so
 the page computes the code itself: FNV-1a over the normalized values of all
-fields. There is no way to fake it without filling in the form correctly.
+fields.
+
+Be honest about what that does and does not prove. The FNV-1a algorithm is
+public in this repository, and every required value is already in the prompt, so
+a model that wanted to could compute the code without opening a browser at all.
+Closing that needs a server-side receipt, which Pages cannot provide. What the
+page *does* enforce is the interaction: fields behind tabs are `disabled` until
+the tab is clicked and are read as empty otherwise, and the drag list only
+reports an order if real pointer events happened — rearranging the DOM directly
+yields `NOT-DRAGGED`. Both were verified by trying the shortcut.
 
 | Levels | What gets added |
 |---|---|
