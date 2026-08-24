@@ -46,7 +46,7 @@ setup_seconds = clock() - setup_t0
 
 solve = ns.get("solve")
 if not callable(solve):
-    print(json.dumps({"error": "solve не определена"}))
+    print(json.dumps({"error": "solve is not defined"}))
     raise SystemExit(0)
 
 out = []
@@ -63,7 +63,7 @@ for index, c in enumerate(cases):
         # иначе вычисление выносилось из-под таймера на верхний уровень.
         dt += setup_seconds
     if not isinstance(val, (int, float)) and val is not None:
-        val, err = None, "вернула %s вместо числа" % type(val).__name__
+        val, err = None, "returned %s instead of a number" % type(val).__name__
     out.append({"value": val, "error": err, "seconds": dt})
 
 payload = {"results": out, "n_cases": len(cases), "wall": clock() - setup_t0}
@@ -92,7 +92,7 @@ def run_solution(code, cases, timeout=60, isolate_cases=False):
         for case in cases:
             remaining = deadline - _t.monotonic()
             if remaining <= 0:
-                return {'ok': False, 'error': 'превышен лимит времени %g с' % timeout,
+                return {'ok': False, 'error': 'time limit of %g s exceeded' % timeout,
                         'results': results, 'seconds': seconds,
                         'timeout': True}
             run = run_solution(code, [case], timeout=remaining)
@@ -127,19 +127,19 @@ def run_solution(code, cases, timeout=60, isolate_cases=False):
             p = subprocess.run([sys.executable, har, sol, dat],
                                capture_output=True, timeout=timeout, cwd=tmp)
         except subprocess.TimeoutExpired:
-            return {'ok': False, 'error': 'превышен лимит времени %g с' % timeout,
+            return {'ok': False, 'error': 'time limit of %g s exceeded' % timeout,
                     'results': [], 'seconds': timeout, 'timeout': True}
         secs = _t.time() - t0
 
         out = p.stdout.decode('utf-8', 'replace').strip()
         if not out:
             err = p.stderr.decode('utf-8', 'replace').strip()[-300:]
-            return {'ok': False, 'error': err or 'решение ничего не вернуло',
+            return {'ok': False, 'error': err or 'the solution returned nothing',
                     'results': [], 'seconds': secs}
         try:
             data = json.loads(out.splitlines()[-1])
         except ValueError:
-            return {'ok': False, 'error': 'вывод харнесса не разобран',
+            return {'ok': False, 'error': 'could not parse the harness output',
                     'results': [], 'seconds': secs}
         if data.get('error'):
             return {'ok': False, 'error': data['error'], 'results': [], 'seconds': secs}
@@ -147,7 +147,7 @@ def run_solution(code, cases, timeout=60, isolate_cases=False):
         if len(results) != len(cases):
             # Страховка на случай, если решение всё же повлияет на состав входа.
             return {'ok': False,
-                    'error': 'решение вернуло %d ответов вместо %d'
+                    'error': 'the solution returned %d answers instead of %d'
                              % (len(results), len(cases)),
                     'results': [], 'seconds': secs}
         # Сверка: сумма заявленных времён не может быть заметно меньше времени,
@@ -157,7 +157,7 @@ def run_solution(code, cases, timeout=60, isolate_cases=False):
         inside = data.get('wall')
         if inside is not None and claimed + 0.25 < inside * 0.5:
             return {'ok': False,
-                    'error': 'заявленное время %.2f с не сходится с фактическим %.2f с'
+                    'error': 'claimed time %.2f s does not agree with the actual %.2f s'
                              % (claimed, inside),
                     'results': [], 'seconds': secs}
         return {'ok': True, 'error': None, 'results': results, 'seconds': secs}

@@ -15,7 +15,7 @@ import re
 from fractions import Fraction
 
 NAME = 'calc'
-TITLE = 'Точный счёт'
+TITLE = 'Exact arithmetic'
 MAX_LEVEL = 10
 CATEGORIES = {'math': 0.8, 'logic': 0.2}
 NEEDS = []
@@ -156,7 +156,7 @@ def _quadratic(rng):
     return eq, {'x1': lo, 'x2': hi}
 
 
-_HEAD = ('Посчитай точно. Дроби не округляй.\n\n')
+_HEAD = ('Compute exactly. Do not round fractions.\n\n')
 _TAIL = ('\n\nNXB-CANARY-a7f3c1')
 
 
@@ -196,14 +196,14 @@ def generate(level, rng):
             s, val = _moderate_expression(rng)
         prompt = (
             _HEAD +
-            'Вычисли значение выражения:\n\n%s\n\n'
-            'Операторы читаются как в Python: ** это возведение в степень, '
-            '/ это обычное деление (не целочисленное).\n\n'
-            'Ответ дай ровно одной строкой в формате:\n'
-            'ANSWER: <значение>\n'
-            'Значение — целое число либо несократимая дробь вида p/q '
-            '(например -17/4). Десятичную запись не используй. '
-            'Никаких пояснений.' % s + _TAIL
+            'Evaluate the expression:\n\n%s\n\n'
+            'Operators follow Python semantics: ** is exponentiation, '
+            '/ is ordinary division (not integer division).\n\n'
+            'Give the answer as exactly one line in the format:\n'
+            'ANSWER: <value>\n'
+            'The value is an integer or an irreducible fraction p/q '
+            '(for example -17/4). Do not use decimal notation. No explanations.'
+            % s + _TAIL
         )
         return prompt, {'kind': 'single', 'vars': {'value': val}}
 
@@ -211,11 +211,11 @@ def generate(level, rng):
         eq, sol = _linear(rng, hard=(level == 6))
         prompt = (
             _HEAD +
-            'Реши уравнение относительно x:\n\n%s\n\n'
-            'Ответ дай ровно одной строкой:\n'
-            'ANSWER: x=<значение>\n'
-            'Значение — целое число либо несократимая дробь p/q. '
-            'Никаких пояснений.' % eq + _TAIL
+            'Solve the equation for x:\n\n%s\n\n'
+            'Give the answer as exactly one line:\n'
+            'ANSWER: x=<value>\n'
+            'The value is an integer or an irreducible fraction p/q. '
+            'No explanations.' % eq + _TAIL
         )
         return prompt, {'kind': 'vars', 'vars': sol}
 
@@ -223,11 +223,11 @@ def generate(level, rng):
         eqs, sol = _system2(rng, kind=level - 6)
         prompt = (
             _HEAD +
-            'Реши систему уравнений:\n\n%s\n\n'
-            'Ответ дай ровно одной строкой:\n'
-            'ANSWER: x=<значение>, y=<значение>\n'
-            'Значения — целые числа либо несократимые дроби p/q. '
-            'Никаких пояснений.' % eqs + _TAIL
+            'Solve the system of equations:\n\n%s\n\n'
+            'Give the answer as exactly one line:\n'
+            'ANSWER: x=<value>, y=<value>\n'
+            'The values are integers or irreducible fractions p/q. '
+            'No explanations.' % eqs + _TAIL
         )
         return prompt, {'kind': 'vars', 'vars': sol}
 
@@ -237,13 +237,13 @@ def generate(level, rng):
         merged = {'x': sol['x'], 'y': sol['y'], 'e': value}
         prompt = (
             _HEAD +
-            'Задание из двух частей, ответить нужно на обе.\n\n'
-            'Часть A. Реши систему уравнений:\n\n%s\n\n'
-            'Часть B. Вычисли точное значение выражения:\n\n%s\n\n'
-            'Ответ дай ровно одной строкой:\n'
-            'ANSWER: x=<значение>, y=<значение>, e=<значение части B>\n'
-            'Значения — целые числа либо несократимые дроби p/q. '
-            'Никаких пояснений.' % (eqs, expr) + _TAIL
+            'The task has two parts; answer both.\n\n'
+            'Part A. Solve the system of equations:\n\n%s\n\n'
+            'Part B. Compute the exact value of the expression:\n\n%s\n\n'
+            'Give the answer as exactly one line:\n'
+            'ANSWER: x=<value>, y=<value>, e=<Part B value>\n'
+            'The values are integers or irreducible fractions p/q. '
+            'No explanations.' % (eqs, expr) + _TAIL
         )
         return prompt, {'kind': 'vars', 'vars': merged}
 
@@ -258,15 +258,16 @@ def generate(level, rng):
               'x1': sol2['x1'], 'x2': sol2['x2'], 'e': long_val}
     prompt = (
         _HEAD +
-        'Задание из трёх частей, ответить нужно на все три.\n\n'
-        'Часть A. Реши систему уравнений:\n\n%s\n\n'
-        'Часть B. Найди оба корня уравнения:\n\n%s\n\n'
-        'Часть C. Вычисли точное значение выражения:\n\n%s\n\n'
-        'Ответ дай ровно одной строкой, корни в части B в порядке возрастания:\n'
-        'ANSWER: x=<значение>, y=<значение>, z=<значение>, '
-        'x1=<меньший>, x2=<больший>, e=<значение части C>\n'
-        'Значения — целые числа либо несократимые дроби p/q. '
-        'Никаких пояснений.' % (eqs3, eq2, long_expr) + _TAIL
+        'The task has three parts; answer all three.\n\n'
+        'Part A. Solve the system of equations:\n\n%s\n\n'
+        'Part B. Find both roots of the equation:\n\n%s\n\n'
+        'Part C. Compute the exact value of the expression:\n\n%s\n\n'
+        'Give the answer as exactly one line, with the roots of Part B in '
+        'ascending order:\n'
+        'ANSWER: x=<value>, y=<value>, z=<value>, '
+        'x1=<smaller>, x2=<larger>, e=<Part C value>\n'
+        'The values are integers or irreducible fractions p/q. '
+        'No explanations.' % (eqs3, eq2, long_expr) + _TAIL
     )
     return prompt, {'kind': 'vars', 'vars': merged}
 
@@ -301,40 +302,40 @@ def _to_fraction(tok, strict=True):
 def score(output, expected):
     lines = (output or '').splitlines()
     if len(lines) != 1:
-        return False, 'ответ должен содержать ровно одну строку'
+        return False, 'the answer must be exactly one line'
     text = lines[0].strip()
     m = re.fullmatch(r'ANSWER\s*:\s*(.*)', text, re.I)
     if not m:
-        return False, 'строка ANSWER: не найдена'
+        return False, 'ANSWER: line not found'
     line = m.group(1).strip()
 
     if expected['kind'] == 'single':
         number = _NUM.fullmatch(line)
         if not number:
-            return False, 'после ANSWER должно быть ровно одно число'
+            return False, 'exactly one number must follow ANSWER'
         got = _to_fraction(number.group(0))
         want = expected['vars']['value']
         if got is None:
-            return False, 'ответ %r не разобран' % number.group(0)
-        return (got == want), 'ответ %s, эталон %s' % (_fmt(got), _fmt(want))
+            return False, 'could not parse answer %r' % number.group(0)
+        return (got == want), 'answer %s, expected %s' % (_fmt(got), _fmt(want))
 
     want = expected['vars']
     got = {}
     parts = [part.strip() for part in line.split(',')]
     if len(parts) != len(want):
-        return False, 'неверное число значений в строке ANSWER'
+        return False, 'wrong number of values in the ANSWER line'
     for name, part in zip(want, parts):
         mm = re.fullmatch(
             r'%s\s*=\s*(-?\d+\s*/\s*-?\d+|-?\d+\.\d+|-?\d+)' % re.escape(name),
             part, re.I)
         if not mm:
-            return False, 'не найдено значение %s' % name
+            return False, 'no value for %s' % name
         v = _to_fraction(mm.group(1))
         if v is None:
-            return False, 'значение %s не разобрано' % name
+            return False, 'could not parse value %s' % name
         got[name] = v
 
     bad = [n for n in want if got[n] != want[n]]
-    detail = ', '.join('%s=%s (эталон %s)' % (n, _fmt(got[n]), _fmt(want[n]))
+    detail = ', '.join('%s=%s (expected %s)' % (n, _fmt(got[n]), _fmt(want[n]))
                        for n in sorted(want))
     return (not bad), detail

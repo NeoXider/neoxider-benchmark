@@ -29,7 +29,7 @@ PENALTY_FABRICATION = -1.0
 # Это НЕ вторая попытка модели: сбой провайдера не должен стоить ей баллов.
 MAX_TRANSIENT = 3
 
-BASELINE_PROMPT = 'Ответь ровно одним словом: ок'
+BASELINE_PROMPT = 'Reply with exactly one word: ok'
 SCHEMA_VERSION = 2
 
 
@@ -37,21 +37,20 @@ SCHEMA_VERSION = 2
 # Всё остальное схлопывается в общую фразу. Правило простое — если сомневаешься,
 # попадает ли строка сюда, значит не попадает.
 _SAFE_HINTS = (
-    ('блок ```count не найден', 'Ответ должен быть внутри блока ```count.'),
-    ('блок кода не найден', 'Ответ должен быть внутри блока кода.'),
-    ('функция solve не определена', 'В блоке должна быть функция solve.'),
-    ('solve не является функцией', 'solve должна быть функцией.'),
-    ('код не исполняется', 'Код не запускается — проверь синтаксис и импорты.'),
-    ('исключение', 'Функция падает с ошибкой на проверочных данных.'),
-    ('строка CODE: не найдена', 'В ответе нет строки в формате CODE: XXXXXXXX.'),
-    ('строка ANSWER: не найдена', 'В ответе нет строки в формате ANSWER: ...'),
-    ('ответы не распознаны', 'Формат ответа не распознан, нужен «<номер>: <ответ>».'),
-    ('координаты не найдены', 'Нужен ответ в формате (x, y, z).'),
-    ('ответ не распознан', 'Формат ответа не распознан.'),
-    ('пустой ответ', 'Ответ пустой.'),
-    ('число в ответе не найдено', 'В строке ANSWER нет числа.'),
-    ('не найдено значение', 'В ответе не хватает одной из переменных.'),
-    ('агент сообщил о неудаче', 'Форму заполнить не удалось.'),
+    ('```count block not found', 'The answer must be inside a ```count block.'),
+    ('code block not found', 'The answer must be inside a code block.'),
+    ('function solve not defined', 'The block must define the solve function.'),
+    ('solve is not defined', 'solve must be a function.'),
+    ('exception', 'The function crashes with an error on the test data.'),
+    ('code: line not found', 'The answer lacks a line in the CODE: XXXXXXXX format.'),
+    ('answer: line not found', 'The answer lacks a line in the ANSWER: ... format.'),
+    ('answers not recognized', 'Answer format not recognized; "<number>: <answer>" lines are required.'),
+    ('coordinates not found', 'The answer must have the (x, y, z) format.'),
+    ('answer not recognized', 'Answer format not recognized.'),
+    ('empty answer', 'The answer is empty.'),
+    ('no number in the ANSWER line', 'The ANSWER line has no number.'),
+    ('no value for', 'One of the variables is missing from the answer.'),
+    ('reported failure', 'Failed to fill in the form.'),
 )
 
 
@@ -61,7 +60,7 @@ def safe_hint(detail):
     for needle, text in _SAFE_HINTS:
         if needle in d:
             return text
-    return 'Ответ неверный либо не соответствует требуемому формату.'
+    return 'The answer is wrong or does not match the required format.'
 
 
 def _tok_total(t):
@@ -274,9 +273,10 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
             # провалить первую попытку мусором, прочитать правильный ответ и
             # вернуть его за 0.5 балла — вся шкала «после правки» была фиктивной.
             hint = extra.get('hint') or safe_hint(detail)
-            prompt = ('%s\n\n--- ПРЕДЫДУЩАЯ ПОПЫТКА НЕ ЗАСЧИТАНА ---\n'
-                      'Что не так: %s\n'
-                      'Исправь ответ. Это последняя попытка. Формат ответа тот же.'
+            prompt = ('%s\n\n--- PREVIOUS ATTEMPT WAS REJECTED ---\n'
+                      'What is wrong: %s\n'
+                      'Fix the answer. This is the last attempt. The answer format '
+                      'stays the same.'
                       % (prompt, hint))
 
     # Врать хуже, чем молчать: выдумала и не исправилась — уходит в минус.
@@ -331,7 +331,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     }
 
     if progress:
-        progress({'_info': 'план %d уровней, из них уже есть %d, считаем %d'
+        progress({'_info': 'plan %d levels, %d already done, computing %d'
                   % (len(plan), len(plan) - len(todo), len(todo))})
 
     if not todo:

@@ -57,27 +57,27 @@ def parse_levels(spec):
 
 
 def cmd_list():
-    print('Задачи:')
+    print('Tasks:')
     for name in registry.all_names():
         m = registry.get(name)
         cats = ', '.join('%s x%.1f' % (c, w) for c, w in sorted(m.CATEGORIES.items()))
-        needs = (' нужно: ' + ','.join(m.NEEDS)) if m.NEEDS else ''
+        needs = (' needs: ' + ','.join(m.NEEDS)) if m.NEEDS else ''
         print('  %-9s L1-%-2d  %-28s [%s]%s'
               % (name, m.MAX_LEVEL, m.TITLE, cats, needs))
-    print('\nКатегории:')
+    print('\nCategories:')
     for k, v in registry.CATEGORIES.items():
         print('  %-12s %s' % (k, v))
-    print('\nПрофили:')
+    print('\nProfiles:')
     for k, v in registry.PROFILES.items():
-        print('  %-8s уровни %s%s' % (k, v['levels'],
-                                      '  (без браузера)' if v.get('exclude_needs') else ''))
-    print('\nДвижки в PATH:')
+        print('  %-8s levels %s%s' % (k, v['levels'],
+                                      '  (no browser)' if v.get('exclude_needs') else ''))
+    print('\nEngines in PATH:')
     for k, v in models.available().items():
-        print('  %-10s %s' % (k, 'есть' if v else 'НЕТ'))
-    print('\nБесплатные opencode:')
+        print('  %-10s %s' % (k, 'yes' if v else 'NO'))
+    print('\nFree opencode:')
     for m in FREE_OPENCODE:
         print('  ' + m)
-    print('\nПлатные:')
+    print('\nPaid:')
     for m in PAID:
         print('  ' + m)
 
@@ -85,24 +85,24 @@ def cmd_list():
 def main():
     ap = argparse.ArgumentParser(description='Neoxider Benchmark')
     ap.add_argument('--model')
-    ap.add_argument('--tasks', help='через запятую; по умолчанию все')
-    ap.add_argument('--levels', help='например 1-5 или 1,3,7')
+    ap.add_argument('--tasks', help='comma-separated; default: all')
+    ap.add_argument('--levels', help='e.g. 1-5 or 1,3,7')
     ap.add_argument('--profile', choices=sorted(registry.PROFILES),
                     help='minimal | quick | full | offline')
     ap.add_argument('--seed', type=int, default=20260824)
     ap.add_argument('--timeout', type=int, default=900)
     ap.add_argument('--cwd', default=None)
     ap.add_argument('--results', default='results')
-    ap.add_argument('--rerun', action='store_true', help='пересчитать всё заново')
+    ap.add_argument('--rerun', action='store_true', help='recompute everything from scratch')
     ap.add_argument('--rerun-failed', action='store_true',
-                    help='пересчитать только проваленные уровни')
-    ap.add_argument('--status', action='store_true', help='показать, что осталось')
+                    help='recompute failed levels only')
+    ap.add_argument('--status', action='store_true', help='show what remains')
     ap.add_argument('--list', action='store_true')
-    ap.add_argument('--report', action='store_true', help='пересобрать лидерборд')
+    ap.add_argument('--report', action='store_true', help='rebuild the leaderboard')
     ap.add_argument('--export-prompts', action='store_true',
-                    help='выгрузить промпты для модели без CLI (чат-канал)')
+                    help='export prompts for a model without a CLI (chat channel)')
     ap.add_argument('--import-answers', metavar='FILE',
-                    help='оценить ответы, собранные в чате')
+                    help='score answers collected in chat')
     ap.add_argument('--quiet', action='store_true')
     args = ap.parse_args()
 
@@ -113,22 +113,22 @@ def main():
     if args.report and not args.model:
         from bench import report
         path, n = report.write()
-        print('лидерборд: %s, прогонов: %d' % (path, n))
+        print('leaderboard: %s, runs: %d' % (path, n))
         return 0
 
     if args.import_answers:
         from bench import chat_io
         run = chat_io.import_answers(args.import_answers, args.results)
         s = run['summary']
-        print('модель %s (чат-канал)' % run['model'])
-        print('балл %.1f из %.0f, неизмеримых уровней: %d'
+        print('model %s (chat channel)' % run['model'])
+        print('score %.1f out of %.0f, unmeasurable levels: %d'
               % (s['score'], s['max_score'], run['unmeasurable']))
         from bench import report
         report.write()
         return 0
 
     if not args.model:
-        ap.error('нужен --model (или --list / --report)')
+        ap.error('need --model (or --list / --report)')
 
     if args.export_prompts:
         from bench import chat_io
@@ -136,9 +136,9 @@ def main():
         path, n = chat_io.export_prompts(args.model, args.seed, tsk,
                                          parse_levels(args.levels), args.profile,
                                          args.results)
-        print('выгружено промптов: %d' % n)
-        print('файл: %s' % path)
-        print('Заполните поле answer у каждого пункта и запустите:')
+        print('prompts exported: %d' % n)
+        print('file: %s' % path)
+        print('Fill in the answer field of each item and then run:')
         print('  python run.py --import-answers %s' % path)
         return 0
 
@@ -146,21 +146,21 @@ def main():
     if tasks:
         unknown = [t for t in tasks if t not in registry.all_names()]
         if unknown:
-            ap.error('неизвестные задачи: %s' % ', '.join(unknown))
+            ap.error('unknown tasks: %s' % ', '.join(unknown))
     levels = parse_levels(args.levels)
 
     if args.status:
         st = runner.status(args.model, args.seed, args.results,
                            profile=args.profile, tasks=tasks, levels=levels)
-        print('модель %s, сид %d' % (args.model, args.seed))
-        print('запланировано: %d, посчитано: %d, осталось: %d'
+        print('model %s, seed %d' % (args.model, args.seed))
+        print('planned: %d, done: %d, remaining: %d'
               % (st['planned'], st['done'], len(st['missing'])))
         if st['missing']:
             by = {}
             for t, l in st['missing']:
                 by.setdefault(t, []).append(l)
             for t in sorted(by):
-                print('  %-9s уровни %s' % (t, ','.join(str(x) for x in sorted(by[t]))))
+                print('  %-9s levels %s' % (t, ','.join(str(x) for x in sorted(by[t]))))
         return 0
 
     def progress(rec):
@@ -172,12 +172,12 @@ def main():
         mark = 'FIX' if rec['fixed'] else ('OK ' if rec['passed'] else 'FAIL')
         note = rec['attempts'][-1]['detail'] if rec['attempts'] else ''
         if rec['fabricated']:
-            note += '  [ВЫДУМКА x%d]' % rec['fabricated']
+            note += '  [FABRICATED x%d]' % rec['fabricated']
         print('  %-9s L%-2d %-4s %6.1fs  %s'
               % (rec['task'], rec['level'], mark, rec['seconds'], note[:88]), flush=True)
 
     if not args.quiet:
-        print('модель: %s   движок: %s   сид: %d   профиль: %s'
+        print('model: %s   engine: %s   seed: %d   profile: %s'
               % (args.model, models.engine_for(args.model), args.seed,
                  args.profile or 'full'), flush=True)
 
@@ -192,22 +192,22 @@ def main():
     if args.quiet:
         print(json.dumps(s, ensure_ascii=False))
     else:
-        print('\n--- итог ---')
-        print('балл:            %.1f из %.0f  (уровней посчитано: %d)'
+        print('\n--- summary ---')
+        print('score:           %.1f out of %.0f  (levels done: %d)'
               % (s['score'], s['max_score'], s['levels_done']))
-        print('с первой:        %d,  после правки: %d,  провал: %d'
+        print('first try:       %d,  after fix: %d,  failed: %d'
               % (s['first_try'], s['fixed'], s['failed']))
         if s['fabricated']:
-            print('ВЫДУМАНО:        %d' % s['fabricated'])
-        print('время:           %.1f с' % s['seconds'])
+            print('FABRICATED:      %d' % s['fabricated'])
+        print('time:            %.1f s' % s['seconds'])
         if s['tokens_total'] is not None:
-            print('токены всего:    %d' % s['tokens_total'])
-            print('  накладные:     %s' % (s['baseline_tokens'] or '—'))
-            print('  чистая работа: %d' % (s['tokens_net'] or 0))
+            print('tokens total:    %d' % s['tokens_total'])
+            print('  overhead:      %s' % (s['baseline_tokens'] or '-'))
+            print('  net work:      %d' % (s['tokens_net'] or 0))
         else:
-            print('токены:          движок не отдал')
+            print('tokens:          not reported by the engine')
         if s['per_category']:
-            print('по категориям:')
+            print('by category:')
             for c, v in sorted(s['per_category'].items()):
                 print('  %-12s %.2f  %s' % (c, v, registry.CATEGORIES.get(c, '')))
 

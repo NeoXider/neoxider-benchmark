@@ -78,11 +78,11 @@ def import_answers(path, results_dir='results'):
             # Пустой ответ на задачу, требующую инструментов, — это не провал
             # модели, а отсутствие канала. Помечаем неизмеримым.
             if it.get('needs'):
-                rec['unmeasurable'] = 'нет инструментов в чат-канале'
+                rec['unmeasurable'] = 'no tools in the chat channel'
                 skipped += 1
                 levels.append(rec)
                 continue
-            rec['attempts'].append({'n': 1, 'ok': False, 'detail': 'ответ не собран',
+            rec['attempts'].append({'n': 1, 'ok': False, 'detail': 'answer not collected',
                                     'seconds': 0.0, 'error': None, 'output_head': ''})
             levels.append(rec)
             continue
@@ -116,8 +116,8 @@ def import_answers(path, results_dir='results'):
         'baseline': None,
         'levels': counted,
         'unmeasurable': skipped,
-        'note': ('чат-канал: одна попытка, без телеметрии инструментов и токенов; '
-                 'с CLI-прогонами напрямую не сравнивать'),
+        'note': ('chat channel: a single attempt, no tool or token telemetry; '
+                 'do not compare directly with CLI runs'),
     }
     run['summary'] = runner.summarize(run)
     run['summary']['unmeasurable'] = skipped

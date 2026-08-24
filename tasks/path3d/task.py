@@ -15,7 +15,7 @@ import random
 import re
 
 NAME = 'path3d'
-TITLE = 'Поиск пути в 3D'
+TITLE = 'Pathfinding in 3D'
 MAX_LEVEL = 10
 CATEGORIES = {'logic': 0.7, 'spatial': 0.3}
 NEEDS = []
@@ -123,7 +123,7 @@ def _barrier_grid(rng, size, mode, dirs):
     grid[goal[0]][goal[1]][goal[2]] = fill
     best = _reference(grid, start, goal, dirs, mode)
     if best is None:
-        raise RuntimeError('барьерная карта оказалась непроходимой')
+        raise RuntimeError('barrier map turned out to be impassable')
     return grid, start, goal, best
 
 
@@ -184,38 +184,44 @@ def generate(level, rng):
     rng.shuffle(cases)
 
     if mode == 'moves6':
-        rules = ('Перемещаться можно на соседнюю клетку по шести направлениям '
-                 '(вдоль осей X, Y, Z, по одному шагу). Стоимость каждого шага равна 1. '
-                 'Верни длину кратчайшего пути в шагах.')
+        rules = ('Movement is allowed to a neighboring cell along six directions '
+                 '(along the X, Y, Z axes, one step at a time). Each step costs 1. '
+                 'Return the length of the shortest path in steps.')
     elif mode == 'moves26':
-        rules = ('Перемещаться можно на любую из 26 соседних клеток, включая диагональные '
-                 '(любая комбинация смещений -1, 0, +1, кроме нулевой). Стоимость шага '
-                 'равна 1 независимо от диагональности. Верни длину кратчайшего пути в шагах.')
+        rules = ('Movement is allowed to any of the 26 neighboring cells, including '
+                 'diagonals (any combination of offsets -1, 0, +1 except all-zero). '
+                 'A step costs 1 regardless of whether it is diagonal. Return the '
+                 'length of the shortest path in steps.')
     else:
-        rules = ('Перемещаться можно на любую из 26 соседних клеток. Клетки имеют вес: '
-                 'число в клетке — это стоимость входа в неё. Стоимость пути включает '
-                 'вес стартовой клетки и вес финишной. Верни минимальную суммарную стоимость.')
+        rules = ('Movement is allowed to any of the 26 neighboring cells. Cells have '
+                 'weights: the number in a cell is the cost of entering it. The path '
+                 'cost includes the weight of the start cell and the weight of the '
+                 'goal cell. Return the minimal total cost.')
 
     prompt = (
-        'Напиши на Python функцию решения задачи о кратчайшем пути в трёхмерной сетке.\n\n'
-        'Сигнатура ровно такая:\n\n'
+        'Write a Python function that solves the shortest-path problem in a '
+        'three-dimensional grid.\n\n'
+        'The signature is exactly:\n\n'
         '    def solve(grid, start, goal):\n\n'
-        'Аргументы:\n'
-        '- grid — трёхмерный список grid[x][y][z] размером %d x %d x %d;\n'
-        '  значение -1 означает непроходимое препятствие%s;\n'
-        '- start — список [x, y, z] стартовой клетки;\n'
-        '- goal — список [x, y, z] финишной клетки.\n\n'
-        'Правила перемещения: %s\n\n'
-        'Если пути не существует, верни -1. Стартовая и финишная клетки всегда проходимы.\n\n'
-        'ВАЖНО: сами карты ты не видишь — твою функцию запустят на скрытых картах, '
-        'сгенерированных отдельно. Поэтому решай задачу в общем виде, не подгоняй под пример.\n\n'
-        'Ответ дай одним блоком кода, открывающимся ровно ```python и закрывающимся ровно ```. '
-        'В блоке только определение функции solve и, если нужно, импорты. '
-        'Никакого кода вне функции, ничего не печатай, input() не вызывай.\n\n'
+        'Arguments:\n'
+        '- grid is a three-dimensional list grid[x][y][z] of size %d x %d x %d;\n'
+        '  the value -1 means an impassable obstacle%s;\n'
+        '- start is the [x, y, z] list of the start cell;\n'
+        '- goal is the [x, y, z] list of the goal cell.\n\n'
+        'Movement rules: %s\n\n'
+        'If no path exists, return -1. The start and goal cells are always '
+        'passable.\n\n'
+        'IMPORTANT: you do not see the maps themselves — your function will be run '
+        'on hidden maps generated separately. Therefore solve the problem in its '
+        'general form; do not fit it to an example.\n\n'
+        'Give the answer as one code block opening with exactly ```python and '
+        'closing with exactly ```. The block must contain only the definition of '
+        'the solve function and, if needed, imports. No code outside the function, '
+        'print nothing, do not call input().\n\n'
         'NXB-CANARY-a7f3c1'
         % (size, size, size,
-           ', 0 — свободная клетка' if mode != 'weighted'
-           else ', положительное число — вес входа в клетку',
+           ', 0 means a free cell' if mode != 'weighted'
+           else ', a positive number is the weight of entering the cell',
            rules)
     )
     return prompt, {'cases': cases, 'mode': mode}
@@ -227,10 +233,10 @@ _BLOCK = re.compile(r'```(?:python|py)?[ \t]*\r?\n(.*?)```', re.S)
 def score(output, expected):
     m = _BLOCK.search(output or '')
     if not m:
-        return False, 'блок кода не найден'
+        return False, 'code block not found'
     code = m.group(1)
     if 'def solve' not in code:
-        return False, 'функция solve не определена'
+        return False, 'function solve not defined'
 
     # Исполняем в отдельном процессе, а не exec в процессе бенчмарка:
     # чужой код мог добраться до кадра проверяльщика и вытащить эталоны, а
@@ -242,15 +248,15 @@ def score(output, expected):
                                isolate_cases=True)
     if not run['ok']:
         if run.get('timeout'):
-            return False, 'превышен лимит времени', {
-                'hint': 'Решение работает слишком долго.'}
-        return False, run['error'], {'hint': 'Код не запускается либо падает с ошибкой.'}
+            return False, 'time limit exceeded', {
+                'hint': 'The solution runs for too long.'}
+        return False, run['error'], {'hint': 'The code does not run or crashes with an error.'}
 
     for i, (got, c) in enumerate(zip(run['results'], expected['cases']), 1):
         if got['error']:
-            return False, 'карта %d: %s' % (i, got['error']), {
-                'hint': 'Функция падает с ошибкой на проверочных данных.'}
+            return False, 'map %d: %s' % (i, got['error']), {
+                'hint': 'The function crashes with an error on the test data.'}
         if got['value'] != c['best']:
-            return False, 'карта %d: ответ неверный' % i, {
-                'hint': 'Ответ неверный хотя бы на одной карте.'}
-    return True, 'все %d карт пройдены' % len(expected['cases'])
+            return False, 'map %d: wrong answer' % i, {
+                'hint': 'The answer is wrong on at least one map.'}
+    return True, 'all %d maps passed' % len(expected['cases'])

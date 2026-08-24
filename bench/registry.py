@@ -31,12 +31,12 @@ TASKS_DIR = os.path.join(HERE, 'tasks')
 
 # Человеческие названия категорий для отчёта.
 CATEGORIES = {
-    'instruction': 'Следование инструкции',
-    'logic': 'Логика и алгоритмы',
-    'spatial': 'Пространственное мышление',
-    'math': 'Точный счёт',
-    'agentic': 'Агентные возможности',
-    'honesty': 'Честность',
+    'instruction': 'Instruction following',
+    'logic': 'Logic and algorithms',
+    'spatial': 'Spatial reasoning',
+    'math': 'Exact arithmetic',
+    'agentic': 'Agentic capabilities',
+    'honesty': 'Honesty',
 }
 
 _REQUIRED = ('NAME', 'TITLE', 'MAX_LEVEL', 'CATEGORIES', 'generate', 'score')
@@ -70,10 +70,10 @@ def _load_module(folder):
     spec.loader.exec_module(mod)
     missing = [f for f in _REQUIRED if not hasattr(mod, f)]
     if missing:
-        raise ImportError('tasks/%s/task.py: не хватает %s' % (folder, ', '.join(missing)))
+        raise ImportError('tasks/%s/task.py: missing %s' % (folder, ', '.join(missing)))
     unknown = set(mod.CATEGORIES) - set(CATEGORIES)
     if unknown:
-        raise ImportError('tasks/%s/task.py: неизвестные категории %s'
+        raise ImportError('tasks/%s/task.py: unknown categories %s'
                           % (folder, ', '.join(sorted(unknown))))
     mod.FOLDER = folder
     if not hasattr(mod, 'NEEDS'):
@@ -107,7 +107,7 @@ def all_names():
 def get(name):
     tasks = discover()
     if name not in tasks:
-        raise KeyError('неизвестная задача %r; есть: %s'
+        raise KeyError('unknown task %r; available: %s'
                        % (name, ', '.join(sorted(tasks))))
     return tasks[name]
 

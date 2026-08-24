@@ -23,7 +23,7 @@ import re
 import time
 
 NAME = 'pathperf'
-TITLE = 'Эффективность решения'
+TITLE = 'Solution efficiency'
 MAX_LEVEL = 10
 CATEGORIES = {'logic': 0.6, 'agentic': 0.4}
 NEEDS = []
@@ -97,7 +97,7 @@ def _barrier_grid(rng, size, offset):
     grid[goal[0]][goal[1]][goal[2]] = 0
     best = _reference(grid, start, goal)
     if best < 0:
-        raise RuntimeError('барьерная карта оказалась непроходимой')
+        raise RuntimeError('barrier map turned out to be impassable')
     return grid, start, goal, best
 
 def generate(level, rng):
@@ -145,22 +145,23 @@ def generate(level, rng):
                           'best': best})
 
     if len(answers) != len(cases):
-        raise RuntimeError('ответы pathperf должны быть попарно различны')
+        raise RuntimeError('pathperf answers must be pairwise distinct')
 
     prompt = (
-        'Напиши на Python функцию:\n\n'
+        'Write a Python function:\n\n'
         '    def solve(grid, start, goal):\n\n'
-        'grid — трёхмерный список grid[x][y][z] размером %d x %d x %d. '
-        'Значение -1 означает непроходимую клетку, 0 — свободную. '
-        'start и goal — списки [x, y, z].\n\n'
-        'Перемещаться можно на соседнюю клетку по шести направлениям вдоль осей, '
-        'по одному шагу, стоимость каждого шага равна 1. Верни длину кратчайшего '
-        'пути в шагах, а если пути нет — верни -1. Стартовая и финишная клетки '
-        'всегда проходимы.\n\n'
-        'Карты ты не видишь: функцию запустят на скрытых картах указанного размера.\n\n'
-        'Ответ дай одним блоком кода, открывающимся ровно ```python и закрывающимся '
-        'ровно ```. В блоке только импорты и определение функции solve. '
-        'Ничего не печатай, input() не вызывай.\n\n'
+        'grid is a three-dimensional list grid[x][y][z] of size %d x %d x %d. '
+        'The value -1 means an impassable cell, 0 a free cell. '
+        'start and goal are [x, y, z] lists.\n\n'
+        'Movement is allowed to a neighboring cell along six directions parallel '
+        'to the axes, one step at a time; each step costs 1. Return the length of '
+        'the shortest path in steps, or -1 if no path exists. The start and goal '
+        'cells are always passable.\n\n'
+        'You do not see the maps: the function will be run on hidden maps of the '
+        'specified size.\n\n'
+        'Give the answer as one code block opening with exactly ```python and '
+        'closing with exactly ```. The block must contain only imports and the '
+        'definition of the solve function. Print nothing, do not call input().\n\n'
         'NXB-CANARY-a7f3c1'
         % (size, size, size)
     )
@@ -186,7 +187,7 @@ def _measure_reference(cases, repeats=REPEATS):
         for c in cases:
             got = _reference(c['grid'], c['start'], c['goal'])
             if got != c['best']:
-                raise RuntimeError('эталон pathperf изменился после генерации')
+                raise RuntimeError('pathperf reference changed after generation')
         dt = time.perf_counter() - t0
         best_run = dt if best_run is None else min(best_run, dt)
     return best_run
@@ -210,11 +211,11 @@ def _efficiency_grade(ratio):
 def score(output, expected):
     m = _BLOCK.search(output or '')
     if not m:
-        return False, 'блок кода не найден', {'hint': 'Ответ должен быть внутри блока ```python.'}
+        return False, 'code block not found', {'hint': 'The answer must be inside a ```python block.'}
     code = m.group(1)
     if 'def solve' not in code:
-        return False, 'функция solve не определена', {
-            'hint': 'В блоке должна быть функция solve.'}
+        return False, 'function solve not defined', {
+            'hint': 'The block must define a solve function.'}
 
     from bench import sandbox
     # Первый замер даёт безопасный process timeout. Второй делается сразу
@@ -227,10 +228,10 @@ def score(output, expected):
 
     if not run['ok']:
         if run.get('timeout'):
-            return False, 'не уложилась в лимит времени', {
-                'hint': 'Решение работает слишком долго на картах такого размера.',
+            return False, 'did not fit into the time limit', {
+                'hint': 'The solution runs too long on maps of this size.',
                 'slow': True}
-        return False, run['error'], {'hint': 'Код не запускается либо падает с ошибкой.'}
+        return False, run['error'], {'hint': 'The code does not run or crashes with an error.'}
 
     ref_after = _measure_reference(expected['cases'])
     ref_seconds = (ref_before + ref_after) / 2.0
@@ -239,11 +240,11 @@ def score(output, expected):
     total = 0.0
     for i, (got, c) in enumerate(zip(run['results'], expected['cases']), 1):
         if got['error']:
-            return False, 'карта %d: %s' % (i, got['error']), {
-                'hint': 'Функция падает с ошибкой на проверочных данных.'}
+            return False, 'map %d: %s' % (i, got['error']), {
+                'hint': 'The function crashes with an error on the test data.'}
         if got['value'] != c['best']:
-            return False, 'карта %d: ответ неверный' % i, {
-                'hint': 'Ответ неверный хотя бы на одной карте.'}
+            return False, 'map %d: wrong answer' % i, {
+                'hint': 'The answer is wrong on at least one map.'}
         total += got['seconds']
 
     ratio = total / max(ref_seconds, 1e-6)
@@ -253,11 +254,11 @@ def score(output, expected):
 
     if total > budget:
         extra['slow'] = True
-        extra['hint'] = ('Ответы верные, но решение слишком медленное для карт '
-                         'такого размера. Нужен более эффективный подход.')
-        return False, ('верно, но медленно: %.2f с при бюджете %.2f с (x%.1f от эталона)'
+        extra['hint'] = ('The answers are correct, but the solution is too slow for '
+                         'maps of this size. A more efficient approach is required.')
+        return False, ('correct but slow: %.2f s against a budget of %.2f s (x%.1f of reference)'
                        % (total, budget, ratio)), extra
 
-    extra['hint'] = 'Проверка пройдена.'
-    return True, ('верно за %.2f с, x%.1f от эталона — %s'
+    extra['hint'] = 'Check passed.'
+    return True, ('correct in %.2f s, x%.1f of reference — %s'
                   % (total, ratio, extra['efficiency'])), extra

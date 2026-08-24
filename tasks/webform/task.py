@@ -16,7 +16,7 @@
 import re
 
 NAME = 'webform'
-TITLE = 'Заполнение формы в браузере'
+TITLE = 'Browser form filling'
 MAX_LEVEL = 10
 CATEGORIES = {'agentic': 1.0}
 NEEDS = ['browser', 'network']
@@ -85,21 +85,21 @@ ORDER = ['name', 'email', 'quantity', 'country', 'plan', 'newsletter',
          'order', 'priority']
 
 LABELS = {
-    'name': 'Full name (текстовое поле)',
-    'email': 'Email (текстовое поле)',
-    'quantity': 'Quantity (числовое поле)',
-    'country': 'Country (выпадающий список)',
-    'plan': 'Plan (радиокнопки)',
-    'newsletter': 'Newsletter (флажок; yes — включить, no — оставить выключенным)',
-    'comment': 'Comment (многострочное поле)',
-    'frequency': 'Frequency (выпадающий список; появляется только когда включён флажок Newsletter)',
-    'startdate': 'Start date (поле даты, формат ГГГГ-ММ-ДД)',
-    'invoice': 'Invoice number (текстовое поле на вкладке Billing)',
-    'seats': 'Seats (числовое поле на вкладке Access)',
-    'topics': 'Topics (флажки, отметить перечисленные)',
-    'order': 'Priority order (список с перетаскиванием — расставить элементы '
-             'в указанном порядке сверху вниз)',
-    'priority': 'Priority (ползунок от 1 до 10)',
+    'name': 'Full name (text field)',
+    'email': 'Email (text field)',
+    'quantity': 'Quantity (numeric field)',
+    'country': 'Country (dropdown list)',
+    'plan': 'Plan (radio buttons)',
+    'newsletter': 'Newsletter (checkbox; yes — turn it on, no — leave it off)',
+    'comment': 'Comment (multiline field)',
+    'frequency': 'Frequency (dropdown list; appears only when the Newsletter checkbox is on)',
+    'startdate': 'Start date (date field, YYYY-MM-DD format)',
+    'invoice': 'Invoice number (text field on the Billing tab)',
+    'seats': 'Seats (numeric field on the Access tab)',
+    'topics': 'Topics (checkboxes, tick the listed ones)',
+    'order': 'Priority order (drag-and-drop list — arrange the items in the '
+             'given order top to bottom)',
+    'priority': 'Priority (slider from 1 to 10)',
 }
 
 
@@ -116,16 +116,16 @@ def generate(level, rng):
             lines.append('- %s: %s' % (LABELS[k], fields[k]))
 
     prompt = (
-        'Открой в браузере страницу %s?level=%d\n\n'
-        'На странице форма. Заполни её ровно этими значениями:\n\n%s\n\n'
-        'После заполнения нажми кнопку Submit. Страница проверит введённое и покажет '
-        'код подтверждения — строку из восьми шестнадцатеричных символов в блоке '
-        'с заголовком «Confirmation code».\n\n'
-        'Верни ответ ровно в формате:\n'
+        'Open the page %s?level=%d in a browser\n\n'
+        'The page contains a form. Fill it in with exactly these values:\n\n%s\n\n'
+        'After filling it in, click the Submit button. The page validates the input '
+        'and shows a confirmation code — a string of eight hexadecimal characters '
+        'in the block titled "Confirmation code".\n\n'
+        'Return the answer exactly in the format:\n'
         'CODE: XXXXXXXX\n\n'
-        'Если форму заполнить не удалось, напиши ровно:\n'
+        'If filling in the form failed, write exactly:\n'
         'CODE: FAILED\n'
-        'и одной строкой причину. Выдумывать код нельзя — он проверяется.\n\n'
+        'and the reason on one line. Making up a code is forbidden — it is verified.\n\n'
         'NXB-CANARY-a7f3c1'
         % (BASE_URL, level, '\n'.join(lines))
     )
@@ -138,10 +138,10 @@ _CODE = re.compile(r'CODE:\s*([0-9A-Fa-f]{8}|FAILED)')
 def score(output, expected):
     m = _CODE.search(output or '')
     if not m:
-        return False, 'строка CODE: не найдена'
+        return False, 'CODE: line not found'
     got = m.group(1).upper()
     if got == 'FAILED':
-        return False, 'агент сообщил о неудаче (честно)'
+        return False, 'agent reported failure (honestly)'
     if got == expected['code']:
-        return True, 'код совпал'
-    return False, 'код %s, ожидался %s' % (got, expected['code'])
+        return True, 'code matches'
+    return False, 'code %s, expected %s' % (got, expected['code'])

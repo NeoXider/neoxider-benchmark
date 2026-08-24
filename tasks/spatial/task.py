@@ -12,7 +12,7 @@ import random
 import re
 
 NAME = 'spatial'
-TITLE = 'Пространственное мышление'
+TITLE = 'Spatial reasoning'
 MAX_LEVEL = 10
 CATEGORIES = {'spatial': 1.0}
 NEEDS = []
@@ -26,18 +26,18 @@ FACES = ('U', 'D', 'F', 'B', 'L', 'R')
 # наблюдатель?), и модель могла бы рассуждать верно, но получить незачёт.
 # Значение — новое содержимое (U, D, F, B, L, R) из старого (u, d, f, b, l, r).
 MOVES = {
-    'наклонить вперёд':  ('верхняя грань становится передней',
-                          lambda u, d, f, b, l, r: (b, f, u, d, l, r)),
-    'наклонить назад':   ('верхняя грань становится задней',
-                          lambda u, d, f, b, l, r: (f, b, d, u, l, r)),
-    'повернуть вправо':  ('передняя грань становится правой',
-                          lambda u, d, f, b, l, r: (u, d, l, r, b, f)),
-    'повернуть влево':   ('передняя грань становится левой',
-                          lambda u, d, f, b, l, r: (u, d, r, l, f, b)),
-    'наклонить вправо':  ('верхняя грань становится правой',
-                          lambda u, d, f, b, l, r: (l, r, f, b, d, u)),
-    'наклонить влево':   ('верхняя грань становится левой',
-                          lambda u, d, f, b, l, r: (r, l, f, b, u, d)),
+    'tip forward':    ('the top face becomes the front face',
+                       lambda u, d, f, b, l, r: (b, f, u, d, l, r)),
+    'tip backward':   ('the top face becomes the back face',
+                       lambda u, d, f, b, l, r: (f, b, d, u, l, r)),
+    'turn right':     ('the front face becomes the right face',
+                       lambda u, d, f, b, l, r: (u, d, l, r, b, f)),
+    'turn left':      ('the front face becomes the left face',
+                       lambda u, d, f, b, l, r: (u, d, r, l, f, b)),
+    'roll right':     ('the top face becomes the right face',
+                       lambda u, d, f, b, l, r: (l, r, f, b, d, u)),
+    'roll left':      ('the top face becomes the left face',
+                       lambda u, d, f, b, l, r: (r, l, f, b, u, d)),
 }
 
 
@@ -51,13 +51,13 @@ def _apply_move(state, name):
 # а вычисляется свёрткой — иначе легко ошибиться, что и произошло при первой
 # попытке задать таблицу вручную.
 _NETS = [
-    ('A B C D в ряд, E сверху над B, F снизу под B',
+    ('A B C D in a row, E above B, F below B',
      {'A': (0, 1), 'B': (1, 1), 'C': (2, 1), 'D': (3, 1), 'E': (1, 0), 'F': (1, 2)}),
-    ('A B C D в ряд, E сверху над C, F снизу под C',
+    ('A B C D in a row, E above C, F below C',
      {'A': (0, 1), 'B': (1, 1), 'C': (2, 1), 'D': (3, 1), 'E': (2, 0), 'F': (2, 2)}),
-    ('A B C в ряд, D сверху над A, E снизу под C, F справа от C',
+    ('A B C in a row, D above A, E below C, F to the right of C',
      {'A': (0, 1), 'B': (1, 1), 'C': (2, 1), 'F': (3, 1), 'D': (0, 0), 'E': (2, 2)}),
-    ('A B в ряд, C сверху над B, D снизу под B, E снизу под D, F справа от E',
+    ('A B in a row, C above B, D below B, E below D, F to the right of E',
      {'A': (0, 1), 'B': (1, 1), 'C': (1, 0), 'D': (1, 2), 'E': (1, 3), 'F': (2, 3)}),
 ]
 
@@ -112,25 +112,27 @@ def _fold(cells):
 def generate(level, rng):
     if level <= 4:
         n_moves = [2, 3, 4, 6][level - 1]
-        labels = {'U': 'красная', 'D': 'синяя', 'F': 'зелёная', 'B': 'жёлтая',
-                  'L': 'белая', 'R': 'чёрная'}
+        labels = {'U': 'red', 'D': 'blue', 'F': 'green', 'B': 'yellow',
+                  'L': 'white', 'R': 'black'}
         state = dict(labels)
         names = sorted(MOVES.keys())
         seq = [rng.choice(names) for _ in range(n_moves)]
         for s in seq:
             state = _apply_move(state, s)
         asked = rng.choice(['U', 'F', 'R', 'L', 'D'])
-        pos = {'U': 'сверху', 'D': 'снизу', 'F': 'спереди',
-               'L': 'слева', 'R': 'справа'}[asked]
+        pos = {'U': 'on top', 'D': 'at the bottom', 'F': 'in front',
+               'L': 'on the left', 'R': 'on the right'}[asked]
         legend = '\n'.join('- %s: %s' % (n, MOVES[n][0]) for n in names)
         prompt = (
-            'Куб лежит перед тобой. Его грани окрашены так: сверху красная, снизу синяя, '
-            'спереди зелёная, сзади жёлтая, слева белая, справа чёрная.\n\n'
-            'Куб поворачивают целиком на 90 градусов. Движения определены так:\n%s\n\n'
-            'Выполни последовательность:\n%s\n\n'
-            'Какая грань окажется %s?\n\n'
-            'Ответь ровно одним словом — названием цвета в именительном падеже женского рода '
-            '(например: зелёная). Ничего больше не пиши.\n\n'
+            'A cube lies in front of you. Its faces are colored as follows: red on '
+            'top, blue on the bottom, green in front, yellow at the back, white on '
+            'the left, black on the right.\n\n'
+            'The cube is rotated as a whole by 90 degrees. The moves are defined as '
+            'follows:\n%s\n\n'
+            'Perform the sequence:\n%s\n\n'
+            'Which face ends up %s?\n\n'
+            'Answer with exactly one word — the name of the color '
+            '(for example: green). Write nothing else.\n\n'
             'NXB-CANARY-a7f3c1'
             % (legend,
                '\n'.join('%d. %s' % (i, s) for i, s in enumerate(seq, 1)),
@@ -144,11 +146,11 @@ def generate(level, rng):
         a = rng.choice(sorted(pairs.keys()))
         b = pairs[a]
         prompt = (
-            'Дана развёртка куба из шести квадратов, обозначенных буквами A, B, C, D, E, F.\n'
-            'Расположение квадратов: %s.\n\n'
-            'Развёртку сворачивают в куб. Какой квадрат окажется на грани, '
-            'противоположной квадрату %s?\n\n'
-            'Ответь ровно одной заглавной буквой. Ничего больше не пиши.\n\n'
+            'Given is a net of a cube made of six squares labeled A, B, C, D, E, F.\n'
+            'Arrangement of the squares: %s.\n\n'
+            'The net is folded into a cube. Which square ends up on the face '
+            'opposite square %s?\n\n'
+            'Answer with exactly one capital letter. Write nothing else.\n\n'
             'NXB-CANARY-a7f3c1' % (desc, a)
         )
         return prompt, {'kind': 'word', 'answer': b}
@@ -159,7 +161,7 @@ def generate(level, rng):
     pos = [rng.randrange(size), rng.randrange(size), rng.randrange(size)]
     start = list(pos)
     moves = []
-    axis_names = {0: ('вправо', 'влево'), 1: ('вверх', 'вниз'), 2: ('вперёд', 'назад')}
+    axis_names = {0: ('right', 'left'), 1: ('up', 'down'), 2: ('forward', 'backward')}
     for _ in range(steps):
         ax = rng.randrange(3)
         d = rng.choice([1, -1])
@@ -170,12 +172,13 @@ def generate(level, rng):
         pos[ax] = nv
         moves.append(axis_names[ax][0 if d > 0 else 1])
     prompt = (
-        'Представь куб %d x %d x %d из клеток. Координаты клетки — (x, y, z), '
-        'где x растёт вправо, y растёт вверх, z растёт вперёд. Отсчёт с нуля.\n\n'
-        'Точка стоит в клетке (%d, %d, %d) и делает шаги по одной клетке:\n%s\n\n'
-        'В какой клетке окажется точка?\n\n'
-        'Ответь ровно в формате (x, y, z) — три числа в скобках через запятую и пробел. '
-        'Ничего больше не пиши.\n\n'
+        'Picture a %d x %d x %d cube made of cells. Cell coordinates are (x, y, z), '
+        'where x grows to the right, y grows upward, z grows forward. Counting '
+        'starts at zero.\n\n'
+        'A point stands in cell (%d, %d, %d) and makes single-cell steps:\n%s\n\n'
+        'In which cell does the point end up?\n\n'
+        'Answer exactly in the format (x, y, z) — three numbers in parentheses, '
+        'comma- and space-separated. Write nothing else.\n\n'
         'NXB-CANARY-a7f3c1'
         % (size, size, size, start[0], start[1], start[2],
            '\n'.join('%d. %s' % (i, m) for i, m in enumerate(moves, 1)))
@@ -186,22 +189,22 @@ def generate(level, rng):
 def score(output, expected):
     lines = (output or '').splitlines()
     if len(lines) != 1:
-        return False, 'ответ должен содержать ровно одну строку'
+        return False, 'the answer must be exactly one line'
     text = lines[0].strip()
     if not text:
-        return False, 'пустой ответ'
+        return False, 'empty answer'
     if expected['kind'] == 'coord':
         m = re.fullmatch(r'\(\s*-?\d+\s*,\s*-?\d+\s*,\s*-?\d+\s*\)', text)
         if not m:
-            return False, 'координаты не найдены в ответе'
+            return False, 'coordinates not found in the answer'
         got = re.sub(r'\s+', '', m.group(0))
         want = re.sub(r'\s+', '', expected['answer'])
-        return (got == want), 'ответ %s, эталон %s' % (got, want)
+        return (got == want), 'answer %s, expected %s' % (got, want)
 
     want = expected['answer']
-    token = re.fullmatch(r'[A-FА-Яа-яЁё]+', text)
+    token = re.fullmatch(r'[A-Za-zА-Яа-яЁё]+', text)
     if not token:
-        return False, 'ответ не распознан'
+        return False, 'answer not recognized'
     got = token.group(0)
     ok = got.lower() == want.lower()
-    return ok, 'ответ %r, эталон %r' % (got, want)
+    return ok, 'answer %r, expected %r' % (got, want)

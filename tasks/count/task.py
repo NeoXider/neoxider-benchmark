@@ -12,7 +12,7 @@ import random
 import re
 
 NAME = 'count'
-TITLE = 'Следование инструкции'
+TITLE = 'Instruction following'
 MAX_LEVEL = 10
 CATEGORIES = {'instruction': 1.0}
 NEEDS = []
@@ -33,46 +33,47 @@ def generate(level, rng):
     primes = _primes_below(hi + 1)
 
     if level == 1:
-        rule = 'Выведи числа от 1 до %d, по одному в строке.' % hi
+        rule = 'Output the numbers from 1 to %d, one per line.' % hi
         exp = [str(i) for i in range(1, hi + 1)]
 
     elif level == 2:
-        rule = 'Выведи числа от %d до 1 в убывающем порядке, по одному в строке.' % hi
+        rule = ('Output the numbers from %d down to 1 in descending order, '
+                'one per line.' % hi)
         exp = [str(i) for i in range(hi, 0, -1)]
 
     elif level == 3:
         k = rng.choice([3, 4, 7])
-        rule = ('Выведи числа от 1 до %d по одному в строке, но каждое число, '
-                'кратное %d, замени на слово skip.' % (hi, k))
+        rule = ('Output the numbers from 1 to %d one per line, but replace every '
+                'number divisible by %d with the word skip.' % (hi, k))
         exp = ['skip' if i % k == 0 else str(i) for i in range(1, hi + 1)]
 
     elif level == 4:
-        rule = ('Выведи числа от 1 до %d по одному в строке. Каждое чётное число '
-                'выведи в скобках, например (2).' % hi)
+        rule = ('Output the numbers from 1 to %d one per line. Print every even '
+                'number in parentheses, for example (2).' % hi)
         exp = ['(%d)' % i if i % 2 == 0 else str(i) for i in range(1, hi + 1)]
 
     elif level == 5:
         per = rng.choice([5, 8])
-        rule = ('Выведи числа от 1 до %d, по %d штук в строке, разделяя их одним '
-                'пробелом. Последняя строка может быть короче.' % (hi, per))
+        rule = ('Output the numbers from 1 to %d, %d per line, separated by a '
+                'single space. The last line may be shorter.' % (hi, per))
         nums = [str(i) for i in range(1, hi + 1)]
         exp = [' '.join(nums[i:i + per]) for i in range(0, len(nums), per)]
 
     elif level == 6:
-        rule = ('Выведи числа от 1 до %d по одному в строке, пропустив все простые '
-                'числа целиком (строк для них быть не должно).' % hi)
+        rule = ('Output the numbers from 1 to %d one per line, omitting all prime '
+                'numbers entirely (there must be no lines for them).' % hi)
         exp = [str(i) for i in range(1, hi + 1) if i not in primes]
 
     elif level == 7:
-        rule = ('Выведи числа от 1 до %d по одному в строке в формате NNN:X, где '
-                'NNN — число, дополненное нулями слева до трёх знаков, а X — буква '
-                'E для чётных и O для нечётных. Пример: 007:O' % hi)
+        rule = ('Output the numbers from 1 to %d one per line in the format NNN:X, '
+                'where NNN is the number zero-padded on the left to three digits and '
+                'X is the letter E for even and O for odd. Example: 007:O' % hi)
         exp = ['%03d:%s' % (i, 'E' if i % 2 == 0 else 'O') for i in range(1, hi + 1)]
 
     elif level == 8:
-        rule = ('Выведи числа от 1 до %d по одному в строке. Если число делится на 3 — '
-                'выведи Fizz, если на 5 — Buzz, если и на 3 и на 5 — FizzBuzz, '
-                'иначе само число.' % hi)
+        rule = ('Output the numbers from 1 to %d one per line. If a number is '
+                'divisible by 3 — print Fizz; if by 5 — Buzz; if by both 3 and 5 — '
+                'FizzBuzz; otherwise the number itself.' % hi)
         def fb(i):
             if i % 15 == 0: return 'FizzBuzz'
             if i % 3 == 0: return 'Fizz'
@@ -81,17 +82,18 @@ def generate(level, rng):
         exp = [fb(i) for i in range(1, hi + 1)]
 
     elif level == 9:
-        rule = ('Выведи числа от 1 до %d по одному в строке, но в обратном порядке '
-                'цифр внутри каждого числа: 12 станет 21, 100 станет 001. '
-                'Ведущие нули сохраняй.' % hi)
+        rule = ('Output the numbers from 1 to %d one per line, but with the digits '
+                'reversed inside each number: 12 becomes 21, 100 becomes 001. '
+                'Keep leading zeros.' % hi)
         exp = [str(i)[::-1] for i in range(1, hi + 1)]
 
     else:
         step = rng.choice([3, 7])
-        rule = ('Выведи числа от 1 до %d по одному в строке. Каждое число, кратное %d, '
-                'замени на сумму его цифр в квадратных скобках, например [7]. '
-                'Простые числа выводи с восклицательным знаком в конце, например 13!. '
-                'Если число одновременно простое и кратное %d — приоритет у скобок.'
+        rule = ('Output the numbers from 1 to %d one per line. Replace every number '
+                'divisible by %d with the sum of its digits in square brackets, for '
+                'example [7]. Print prime numbers with an exclamation mark at the '
+                'end, for example 13!. If a number is both prime and divisible by %d '
+                '— the brackets take priority.'
                 % (hi, step, step))
         def f(i):
             if i % step == 0:
@@ -103,10 +105,10 @@ def generate(level, rng):
 
     prompt = (
         '%s\n\n'
-        'Весь вывод помести в один блок кода, открывающийся ровно строкой ```count '
-        'и закрывающийся ровно строкой ```. Внутри блока не должно быть ничего, '
-        'кроме требуемых строк: ни нумерации, ни комментариев, ни пустых строк. '
-        'До и после блока ничего не пиши.\n\n'
+        'Place the entire output in a single code block that opens with exactly the '
+        'line ```count and closes with exactly the line ```. Inside the block there '
+        'must be nothing but the required lines: no numbering, no comments, no blank '
+        'lines. Write nothing before or after the block.\n\n'
         'NXB-CANARY-a7f3c1' % rule
     )
     return prompt, exp
@@ -128,14 +130,14 @@ def score(output, expected):
     if not m:
         loose = _BLOCK.search(text)
         if loose:
-            return False, 'вне блока ```count есть лишний текст'
-        return False, 'блок ```count не найден'
+            return False, 'extra text outside the ```count block'
+        return False, '```count block not found'
     got = m.group(1).strip('\n').split('\n')
     if got == expected:
-        return True, 'совпало, строк: %d' % len(got)
+        return True, 'match, %d lines' % len(got)
     if len(got) != len(expected):
-        return False, 'строк %d, ожидалось %d' % (len(got), len(expected))
+        return False, '%d lines, expected %d' % (len(got), len(expected))
     for i, (a, b) in enumerate(zip(got, expected)):
         if a != b:
-            return False, 'строка %d: %r вместо %r' % (i + 1, a, b)
-    return False, 'содержимое не совпало'
+            return False, 'line %d: %r instead of %r' % (i + 1, a, b)
+    return False, 'content mismatch'

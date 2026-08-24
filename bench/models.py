@@ -103,7 +103,7 @@ def _run(cmd, timeout, cwd=None):
     t0 = time.time()
     real = _resolve(cmd)
     if not real:
-        return '', '', time.time() - t0, 'CLI не найден в PATH: %s' % cmd[0]
+        return '', '', time.time() - t0, 'CLI not found in PATH: %s' % cmd[0]
     try:
         p = subprocess.run(real, capture_output=True, timeout=timeout, cwd=cwd)
         return p.stdout.decode('utf-8', 'replace'), p.stderr.decode('utf-8', 'replace'), \
@@ -111,7 +111,7 @@ def _run(cmd, timeout, cwd=None):
     except subprocess.TimeoutExpired:
         return '', '', time.time() - t0, 'timeout %ds' % timeout
     except OSError as e:
-        return '', '', time.time() - t0, 'не удалось запустить %s: %s' % (cmd[0], e)
+        return '', '', time.time() - t0, 'could not launch %s: %s' % (cmd[0], e)
 
 
 # ------------------------------------------------------------------ opencode
@@ -186,7 +186,7 @@ def run_claude(model, prompt, timeout=900, cwd=None):
         data = json.loads(out)
     except ValueError:
         return Result(text=out, seconds=secs,
-                      error='ответ не разобран как JSON' if not out.strip() else None)
+                      error='could not parse the output as JSON' if not out.strip() else None)
 
     if isinstance(data, list):
         data = data[-1] if data else {}
