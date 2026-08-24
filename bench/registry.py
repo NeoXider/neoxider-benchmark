@@ -112,6 +112,17 @@ def get(name):
     return tasks[name]
 
 
+def version_of(name):
+    """Версия задачи. Её обязан поднимать тот, кто меняет generate или score.
+
+    Без версии допрогон не отличает пройденный уровень от пройденного по старым
+    правилам, и накопительный файл потихоньку превращается в смесь двух разных
+    бенчмарков. Задача без объявленной версии считается первой — так старые
+    файлы результатов остаются валидными.
+    """
+    return getattr(get(name), 'VERSION', 1)
+
+
 def resolve(tasks=None, levels=None, profile=None, exclude_needs=None):
     """Возвращает список пар (имя задачи, уровень) для прогона."""
     prof = PROFILES.get(profile or 'full', PROFILES['full'])

@@ -14,6 +14,9 @@ import re
 NAME = 'count'
 TITLE = 'Instruction following'
 MAX_LEVEL = 10
+# Версию поднимает тот, кто меняет generate или score: иначе допрогон
+# подмешает к новым уровням старые, посчитанные по другим правилам.
+VERSION = 1
 CATEGORIES = {'instruction': 1.0}
 NEEDS = []
 

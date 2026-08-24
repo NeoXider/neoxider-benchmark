@@ -25,6 +25,9 @@ import time
 NAME = 'pathperf'
 TITLE = 'Solution efficiency'
 MAX_LEVEL = 10
+# Версию поднимает тот, кто меняет generate или score: иначе допрогон
+# подмешает к новым уровням старые, посчитанные по другим правилам.
+VERSION = 1
 CATEGORIES = {'logic': 0.6, 'agentic': 0.4}
 NEEDS = []
 

@@ -97,8 +97,28 @@ def render(run, pricing=None):
     add('<rect x="28" y="%d" width="%.1f" height="8" rx="4" fill="%s"/>'
         % (y, (W - 56) * pct, ACCENT))
 
-    # категории
-    y = 158
+    # Отдельная строка про минимальный набор. Общий балл и порог стабильности
+    # отвечают на разные вопросы: «насколько далеко модель заходит» и «можно ли
+    # на неё положиться в простом». Модель может взять сложный уровень и при
+    # этом развалиться на нижнем — одно число это скрывает.
+    st, st_max = s.get('stability_score'), s.get('stability_max')
+    if st is not None and st_max:
+        st_pct = max(0.0, min(1.0, st / st_max))
+        ok = st_pct >= 0.999
+        add('<text x="28" y="%d" fill="%s" font-size="12">'
+            'Stability floor (minimal set) %.1f of %.0f</text>'
+            % (y + 26, MUTED, st, st_max))
+        add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="12" '
+            'font-weight="600">%s</text>'
+            % (W - 28, y + 26, GOOD if ok else BAD,
+               'all clear' if ok else '%d missed' % (s.get('stability_failed') or 0)))
+        add('<rect x="28" y="%d" width="%d" height="4" rx="2" fill="%s"/>'
+            % (y + 34, W - 56, LINE))
+        add('<rect x="28" y="%d" width="%.1f" height="4" rx="2" fill="%s"/>'
+            % (y + 34, (W - 56) * st_pct, GOOD if ok else BAD))
+
+    # категории (сдвинуты ниже: над ними теперь строка порога стабильности)
+    y = 176
     add('<text x="28" y="%d" fill="%s" font-size="12" letter-spacing="1">'
         'BY CATEGORY</text>' % (y, MUTED))
     y += 18

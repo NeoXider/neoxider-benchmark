@@ -14,6 +14,9 @@ import re
 NAME = 'spatial'
 TITLE = 'Spatial reasoning'
 MAX_LEVEL = 10
+# Версию поднимает тот, кто меняет generate или score: иначе допрогон
+# подмешает к новым уровням старые, посчитанные по другим правилам.
+VERSION = 2
 CATEGORIES = {'spatial': 1.0}
 NEEDS = []
 

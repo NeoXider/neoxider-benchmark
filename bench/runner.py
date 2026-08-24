@@ -205,6 +205,7 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
     owns_workspace = cwd is None
 
     rec = {'task': task.NAME, 'level': level, 'attempts': [],
+           'task_version': getattr(task, 'VERSION', 1),
            'score': SCORE_FAIL, 'fixed': False, 'passed': False,
            'fabricated': 0, 'seconds': 0.0, 'peeked': False, 'peek_calls': [],
            'ts': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
@@ -317,6 +318,23 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
         done = {k: v for k, v in done.items()
                 if k not in plan_keys or v.get('passed')}
 
+    # Допрогон обязан отличать «уровень уже пройден» от «уровень пройден по
+    # ДРУГИМ правилам». Задача может измениться — сместиться генератор, ослабнуть
+    # или ужесточиться разбор ответа, — и тогда её старые уровни несравнимы с
+    # новыми. Смешать их в одном прогоне значит сложить два разных бенчмарка и
+    # выдать сумму за результат. Версия задачи снимает это молча и точечно:
+    # устаревают только уровни изменившейся задачи, остальные докатываются как
+    # обычно, ради чего накопительный файл и заведён.
+    stale = [(t, l) for (t, l) in done
+             if (t, l) in plan_keys
+             and done[(t, l)].get('task_version') != registry.version_of(t)]
+    for key in stale:
+        done.pop(key, None)
+    if stale and progress:
+        by_task = sorted({t for t, _ in stale})
+        progress({'_info': 'task changed since the stored run, recomputing '
+                           '%d level(s): %s' % (len(stale), ', '.join(by_task))})
+
     todo = [(t, l) for (t, l) in plan if (t, l) not in done]
 
     out = {
@@ -393,9 +411,21 @@ def summarize(run):
         if r.get('cost'):
             cost += r['cost']
 
+    # Минимальный набор — отдельная оценка, а не часть общей. Он и задуман как
+    # порог стабильной агентской работы: нижние уровни каждой задачи, которые
+    # рабочая модель обязана брать все. Поэтому 100% здесь — нормальный, ожидаемый
+    # результат, тогда как 100% по всему бенчмарку означал бы, что мерить больше
+    # нечего. Смешивать их в одно число нельзя: провал на потолке и провал на полу
+    # говорят о модели совершенно разное.
+    min_levels = set(registry.PROFILES['minimal']['levels'])
+    mlv = [r for r in lv if r['level'] in min_levels]
+
     return {
         'score': round(sum(r['score'] for r in lv), 2),
         'max_score': float(len(lv)),
+        'stability_score': round(sum(r['score'] for r in mlv), 2) if mlv else None,
+        'stability_max': float(len(mlv)) if mlv else None,
+        'stability_failed': sum(1 for r in mlv if not r['passed']) if mlv else None,
         'levels_done': len(lv),
         'passed': sum(1 for r in lv if r['passed']),
         'first_try': sum(1 for r in lv if r['passed'] and not r['fixed']),

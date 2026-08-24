@@ -48,10 +48,10 @@ def estimate_cost(model, tokens_breakdown, pricing):
     return round(t_in / 1e6 * inp + t_out / 1e6 * out, 6)
 
 
-def collect():
+def collect(results_dir=None):
     pricing = load_pricing()
     rows = []
-    for path in sorted(glob.glob(os.path.join(RESULTS, '*.json'))):
+    for path in sorted(glob.glob(os.path.join(results_dir or RESULTS, '*.json'))):
         if os.path.basename(path) == 'index.json':
             continue
         try:
@@ -76,6 +76,10 @@ def collect():
             'date': (run.get('started_utc') or '')[:10],
             'score': s.get('score'),
             'max_score': s.get('max_score'),
+            # порог стабильности: минимальный набор, считается отдельно
+            'stability_score': s.get('stability_score'),
+            'stability_max': s.get('stability_max'),
+            'stability_failed': s.get('stability_failed'),
             'passed': s.get('passed'),
             'first_try': s.get('first_try'),
             'fixed': s.get('fixed'),
@@ -97,12 +101,12 @@ def collect():
     return rows
 
 
-def write_cards():
+def write_cards(results_dir=None):
     """Карточка на каждый прогон — SVG в docs/cards/."""
     from . import card
     pricing = load_pricing()
     made = []
-    for path in sorted(glob.glob(os.path.join(RESULTS, '*.json'))):
+    for path in sorted(glob.glob(os.path.join(results_dir or RESULTS, '*.json'))):
         if os.path.basename(path) == 'index.json':
             continue
         try:
@@ -116,10 +120,16 @@ def write_cards():
     return made
 
 
-def write():
-    rows = collect()
+def write(results_dir=None):
+    """results_dir=None — каталог по умолчанию рядом с бенчмарком.
+
+    Каталог обязан пробрасываться: с --results прогон пишется в свою папку, а
+    отчёт молча собирался из каталога по умолчанию и показывал чужие числа.
+    """
+    results_dir = results_dir or RESULTS
+    rows = collect(results_dir)
     os.makedirs(DOCS, exist_ok=True)
-    write_cards()
+    write_cards(results_dir)
     # Тот же приём, что в runner: параллельные прогоны пересобирают лидерборд
     # одновременно, поэтому пишем через уникальный временный файл и подменяем
     # атомарно. Иначе читатель мог поймать наполовину записанный JSON.
@@ -131,8 +141,8 @@ def write():
 
     out = os.path.join(DOCS, 'results.json')
     _atomic(out, {'runs': rows})
-    os.makedirs(RESULTS, exist_ok=True)
-    _atomic(os.path.join(RESULTS, 'index.json'), {'runs': rows})
+    os.makedirs(results_dir, exist_ok=True)
+    _atomic(os.path.join(results_dir, 'index.json'), {'runs': rows})
     return out, len(rows)
 
 

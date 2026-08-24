@@ -112,7 +112,7 @@ def main():
 
     if args.report and not args.model:
         from bench import report
-        path, n = report.write()
+        path, n = report.write(args.results)
         print('leaderboard: %s, runs: %d' % (path, n))
         return 0
 
@@ -124,7 +124,7 @@ def main():
         print('score %.1f out of %.0f, unmeasurable levels: %d'
               % (s['score'], s['max_score'], run['unmeasurable']))
         from bench import report
-        report.write()
+        report.write(args.results)
         return 0
 
     if not args.model:
@@ -212,7 +212,7 @@ def main():
                 print('  %-12s %.2f  %s' % (c, v, registry.CATEGORIES.get(c, '')))
 
     from bench import report
-    report.write()
+    report.write(args.results)
     return 0
 
 

@@ -17,6 +17,9 @@ import re
 NAME = 'path3d'
 TITLE = 'Pathfinding in 3D'
 MAX_LEVEL = 10
+# Версию поднимает тот, кто меняет generate или score: иначе допрогон
+# подмешает к новым уровням старые, посчитанные по другим правилам.
+VERSION = 1
 CATEGORIES = {'logic': 0.7, 'spatial': 0.3}
 NEEDS = []
 

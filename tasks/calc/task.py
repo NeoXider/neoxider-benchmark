@@ -17,6 +17,9 @@ from fractions import Fraction
 NAME = 'calc'
 TITLE = 'Exact arithmetic'
 MAX_LEVEL = 10
+# Версию поднимает тот, кто меняет generate или score: иначе допрогон
+# подмешает к новым уровням старые, посчитанные по другим правилам.
+VERSION = 2
 CATEGORIES = {'math': 0.8, 'logic': 0.2}
 NEEDS = []
 

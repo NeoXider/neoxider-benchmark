@@ -18,6 +18,9 @@ import re
 NAME = 'webform'
 TITLE = 'Browser form filling'
 MAX_LEVEL = 10
+# Версию поднимает тот, кто меняет generate или score: иначе допрогон
+# подмешает к новым уровням старые, посчитанные по другим правилам.
+VERSION = 1
 CATEGORIES = {'agentic': 1.0}
 NEEDS = ['browser', 'network']
 

@@ -48,6 +48,13 @@
   #cat-picks{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;font-size:14px}
   #cat-picks label{cursor:pointer;white-space:nowrap}
   #nocost{color:var(--muted);font-size:13px;margin-top:8px}
+  pre.run{background:#0b0d12;border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;overflow-x:auto;margin:12px 0}
+  pre.run code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;line-height:1.7;color:var(--text);white-space:pre}
+  .hint code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px;background:#0b0d12;border:1px solid var(--line);
+    border-radius:4px;padding:1px 5px}
 
   /* Фильтры и таблица */
   .filters{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:10px 0 12px;
@@ -71,6 +78,8 @@
   .badge.free{color:var(--free);border-color:var(--free)}
   .badge.paid{color:var(--paid);border-color:var(--paid)}
   .badge.unknown{color:var(--unknown);border-color:var(--unknown)}
+  td .ok{color:var(--green);font-weight:700}
+  td .bad{color:var(--red);font-weight:700}
   tfoot td,td.empty{color:var(--muted);padding:14px;text-align:center}
 </style>
 </head>
@@ -120,6 +129,33 @@
     <div class="table-scroll">
       <table id="tbl"><thead></thead><tbody></tbody></table>
     </div>
+  </section>
+
+  <section>
+    <h2>Run it yourself</h2>
+    <p class="hint">Every number on this page is reproducible: tasks are generated from the seed, so a given model gets exactly the task set shown here. Add your own model and it lands in the same table.</p>
+    <pre class="run"><code>git clone https://github.com/NeoXider/neoxider-benchmark
+cd neoxider-benchmark
+
+python run.py --list                        # tasks, levels, categories
+python run.py --model opencode/hy3-free --profile minimal
+python run.py --model claude/claude-opus-5 --profile full
+python run.py --model codex/gpt-5.6-terra --tasks calc,spatial --levels 1-5
+
+python run.py --model &lt;id&gt; --status         # what is still missing
+python run.py --report                      # rebuild this page</code></pre>
+    <p class="hint">A run is cumulative. Start with <code>--profile minimal</code>, top it up to <code>--profile full</code> later, and only the missing levels are computed. Change a task and raise its <code>VERSION</code>, and just that task's stored levels are recomputed — the rest stand.</p>
+    <p class="hint">Raw data:
+      <a href="results.json">results.json</a> ·
+      <a href="TASKS.md">what each task measures</a> ·
+      <a href="TODO.md">what is planned</a> ·
+      <a href="form.html?level=1">the browser task itself</a> ·
+      <a href="https://github.com/NeoXider/neoxider-benchmark">source</a>
+    </p>
+    <p class="hint">Tooling used for the runs:
+      <a href="https://github.com/NeoXider/neoxider-agents">neoxider-agents</a> drives the CLI models,
+      <a href="https://github.com/NeoXider/web-search-neo">web-search-neo</a> drives the browser task.
+    </p>
   </section>
 </div>
 
@@ -294,6 +330,7 @@ const COLS = [
   {key:'engine',         label:'Engine',              num:false},
   {key:'access',         label:'Access',              num:false},
   {key:'score',          label:'Score',               num:true },
+  {key:'stability',      label:'Stability',           num:true },
   {key:'first_try',      label:'First try',           num:true },
   {key:'fixed',          label:'After fix',           num:true },
   {key:'failed',         label:'Failures',            num:true },
@@ -311,6 +348,16 @@ function cellText(r, key){
     case 'model':  return `<td class="model-cell" title="${esc(r.model)}">${esc(r.model)}</td>`;
     case 'access': return `<td><span class="badge ${r.access}">${ACCESS_TEXT[r.access]||r.access}</span></td>`;
     case 'score':  return `<td class="num">${r.score.toFixed(1)} / ${r.max_score}</td>`;
+    // Порог стабильности считается отдельно от общего балла: он отвечает не
+    // на «как далеко модель заходит», а на «можно ли на неё положиться в
+    // простом». Полный набор брать на 100% и не нужно, минимальный — нужно.
+    case 'stability': {
+      if (r.stability_score==null || !r.stability_max) return '<td class="num">—</td>';
+      const full = r.stability_score >= r.stability_max - 1e-9;
+      const t = `${r.stability_score.toFixed(1)} / ${r.stability_max}`;
+      return `<td class="num" title="Lower levels of every task - the floor a working agent is expected to clear in full">`
+           + `<span class="${full?'ok':'bad'}">${full?'✓':'✗'}</span> ${t}</td>`;
+    }
     case 'cost':   return `<td class="num${r.cost_source==='estimated'?' dim':''}">${fmtCost(r.cost, r.cost_source)}</td>`;
     case 'seconds':return `<td class="num">${fmtDur(r.seconds)}</td>`;
     // Карточка модели — SVG с результатом, годится для README и для репоста.
