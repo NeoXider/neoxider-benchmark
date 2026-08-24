@@ -14,6 +14,8 @@
 import json
 import os
 import random
+import shutil
+import tempfile
 import time
 
 from . import models, registry
@@ -59,17 +61,45 @@ def safe_hint(detail):
 
 
 def _tok_total(t):
+    """Все токены, прошедшие через модель, включая прочитанные из кэша.
+
+    Кэш обязательно учитывать. Системный промпт и описания инструментов — это
+    примерно 52 тысячи токенов, и в зависимости от попадания в кэш движок
+    кладёт их либо в input, либо в cache_read. Считая только input, мы получали
+    для одной задачи 216 токенов, а для соседней — 53 423 при одинаковой
+    нагрузке. Сравнивать такое нельзя.
+    """
     if not t:
         return None
-    return t.get('input', 0) + t.get('output', 0) + t.get('reasoning', 0)
+    return (t.get('input', 0) + t.get('cache_read', 0) + t.get('cache_write', 0)
+            + t.get('output', 0) + t.get('reasoning', 0))
 
 
-def _sub(a, b):
-    if a is None:
+def _context(t):
+    """Токены промпта: и свежие, и прочитанные из кэша."""
+    if not t:
+        return 0
+    return t.get('input', 0) + t.get('cache_read', 0) + t.get('cache_write', 0)
+
+
+def _generated(t):
+    if not t:
+        return 0
+    return t.get('output', 0) + t.get('reasoning', 0)
+
+
+def _net_total(raw, baseline_tokens):
+    """Чистая работа = (контекст сверх накладного) + сгенерированное.
+
+    Вычитать надо СУММАРНЫЙ контекст, а не каждое поле по отдельности:
+    движок распределяет одни и те же 52 тысячи токенов системного промпта
+    между input и cache_read по-разному от вызова к вызову. Поле за полем
+    получалось, что у задачи с непопавшим кэшем «чистых» 53 406 вместо двухсот.
+    """
+    if raw is None:
         return None
-    if b is None:
-        return dict(a)
-    return {k: max(0, a.get(k, 0) - b.get(k, 0)) for k in a}
+    over = max(0, _context(raw) - _context(baseline_tokens))
+    return over + _generated(raw)
 
 
 def result_path(results_dir, model, seed):
@@ -88,20 +118,39 @@ def load_existing(results_dir, model, seed):
         return None
 
 
-def measure_baseline(model_id, timeout, cwd):
+def measure_baseline(model_id, timeout, cwd=None):
     """Накладные расходы движка: системный промпт, описания инструментов, правила.
 
     Без этого замера сравнение нечестное: у разных харнессов стартовый контекст
     отличается в разы, и он попадает в счёт каждой задачи. Измеряется один раз
     на модель и переиспользуется при докатывании.
     """
-    r = models.call(model_id, BASELINE_PROMPT, timeout=min(timeout, 180), cwd=cwd)
+    ws = cwd or _fresh_workspace()
+    try:
+        r = models.call(model_id, BASELINE_PROMPT, timeout=min(timeout, 180), cwd=ws)
+    finally:
+        if cwd is None:
+            shutil.rmtree(ws, ignore_errors=True)
     return {'tokens': r.tokens, 'cost': r.cost, 'seconds': round(r.seconds, 2),
             'error': r.error, 'sample': (r.text or '')[:80]}
 
 
+def _fresh_workspace():
+    """Пустой каталог для агента, вне репозитория бенчмарка.
+
+    Обязательно: при запуске с cwd внутри репозитория агент уходит читать сам
+    бенчмарк. Это не гипотеза — в первом живом прогоне модель вместо счёта
+    открыла docs/results.json и начала пересказывать чужие результаты, а на
+    втором заходе прямо написала, что «ищет задачу calc в структуре проекта».
+    Такие цифры не значат ничего, поэтому каждый уровень получает чистую папку.
+    """
+    return tempfile.mkdtemp(prefix='nxb_ws_')
+
+
 def run_level(model_id, task, level, rng, timeout, cwd, baseline):
     prompt, expected = task.generate(level, rng)
+    workspace = cwd or _fresh_workspace()
+    owns_workspace = cwd is None
 
     rec = {'task': task.NAME, 'level': level, 'attempts': [],
            'score': SCORE_FAIL, 'fixed': False, 'passed': False,
@@ -113,7 +162,7 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
     have_tokens = False
 
     for attempt in (1, 2):
-        res = models.call(model_id, prompt, timeout=timeout, cwd=cwd)
+        res = models.call(model_id, prompt, timeout=timeout, cwd=workspace)
         rec['seconds'] += res.seconds
         if res.tokens:
             have_tokens = True
@@ -122,7 +171,15 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
         if res.cost:
             cost_acc += res.cost
 
-        scored = task.score(res.text, expected)
+        # Задача может попросить сведения о самом вызове — например, чтобы
+        # понять, брала ли модель инструмент. Объявляется флагом WANTS_META,
+        # чтобы не менять сигнатуру всех остальных задач.
+        if getattr(task, 'WANTS_META', False):
+            scored = task.score(res.text, expected,
+                                {'tools': res.tools, 'seconds': res.seconds,
+                                 'tokens': res.tokens})
+        else:
+            scored = task.score(res.text, expected)
         ok, detail = scored[0], scored[1]
         extra = scored[2] if len(scored) > 2 else {}
         # выдумки считаем по ПОСЛЕДНЕЙ попытке: одумалась — не штрафуем
@@ -156,8 +213,11 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
     if rec['fabricated'] and not rec['passed']:
         rec['score'] = PENALTY_FABRICATION
 
+    if owns_workspace:
+        shutil.rmtree(workspace, ignore_errors=True)
+
     rec['tokens_raw'] = tokens_acc if have_tokens else None
-    rec['tokens_net'] = _sub(tokens_acc, (baseline or {}).get('tokens')) if have_tokens else None
+    rec['tokens_net'] = _net_total(tokens_acc, (baseline or {}).get('tokens')) if have_tokens else None
     rec['cost'] = round(cost_acc, 6) if have_tokens else None
     rec['seconds'] = round(rec['seconds'], 2)
     return rec
@@ -243,7 +303,7 @@ def summarize(run):
         d['score'] = round(d['score'], 2)
 
     tok = models._zero_tokens()
-    tok_net = models._zero_tokens()
+    net_sum = 0
     have = False
     cost = 0.0
     for r in lv:
@@ -251,7 +311,7 @@ def summarize(run):
             have = True
             for k in tok:
                 tok[k] += r['tokens_raw'].get(k, 0)
-                tok_net[k] += (r.get('tokens_net') or {}).get(k, 0)
+            net_sum += r.get('tokens_net') or 0
         if r.get('cost'):
             cost += r['cost']
 
@@ -266,9 +326,10 @@ def summarize(run):
         'fabricated': sum(r['fabricated'] for r in lv),
         'seconds': round(sum(r['seconds'] for r in lv), 1),
         'tokens_total': _tok_total(tok) if have else None,
-        'tokens_net': _tok_total(tok_net) if have else None,
+        'tokens_net': net_sum if have else None,
         'tokens_breakdown': tok if have else None,
         'baseline_tokens': _tok_total((run.get('baseline') or {}).get('tokens')),
+        'baseline_context': _context((run.get('baseline') or {}).get('tokens')),
         'cost_reported': round(cost, 6) if have else None,
         'per_task': per_task,
         'per_category': registry.category_scores(lv),

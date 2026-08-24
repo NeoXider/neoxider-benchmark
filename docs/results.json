@@ -6,57 +6,41 @@
    "access": "free",
    "seed": 20260824,
    "date": "2026-08-24",
-   "score": 0.0,
-   "max_score": 8.0,
-   "passed": 0,
-   "first_try": 0,
+   "score": 2.0,
+   "max_score": 2.0,
+   "passed": 2,
+   "first_try": 2,
    "fixed": 0,
-   "failed": 8,
+   "failed": 0,
    "fabricated": 0,
-   "seconds": 702.7,
-   "tokens_total": 543340,
-   "tokens_net": 542836,
-   "baseline_tokens": 63,
+   "seconds": 96.1,
+   "tokens_total": 53639,
+   "tokens_net": 53605,
+   "baseline_tokens": 17,
    "cost": 0.0,
    "cost_source": "priced",
    "per_task": {
     "calc": {
-     "score": 0.0,
-     "passed": 0,
+     "score": 1.0,
+     "passed": 1,
      "fixed": 0,
-     "total": 2,
-     "seconds": 310.8
-    },
-    "count": {
-     "score": 0.0,
-     "passed": 0,
-     "fixed": 0,
-     "total": 2,
-     "seconds": 137.7
-    },
-    "honesty": {
-     "score": 0.0,
-     "passed": 0,
-     "fixed": 0,
-     "total": 2,
-     "seconds": 117.6
+     "total": 1,
+     "seconds": 40.6
     },
     "spatial": {
-     "score": 0.0,
-     "passed": 0,
+     "score": 1.0,
+     "passed": 1,
      "fixed": 0,
-     "total": 2,
-     "seconds": 136.5
+     "total": 1,
+     "seconds": 55.5
     }
    },
    "per_category": {
-    "math": 0.0,
-    "logic": 0.0,
-    "instruction": 0.0,
-    "honesty": 0.0,
-    "spatial": 0.0
+    "math": 1.0,
+    "logic": 1.0,
+    "spatial": 1.0
    },
-   "levels_done": 8,
+   "levels_done": 2,
    "card": "cards/opencode_x-preview-f-free.svg"
   }
  ]

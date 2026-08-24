@@ -15,35 +15,84 @@ import time
 
 class Result(object):
     def __init__(self, text='', tokens=None, cost=None, seconds=0.0,
-                 error=None, raw_meta=None):
+                 error=None, raw_meta=None, tools=None):
         self.text = text or ''
         self.tokens = tokens          # dict или None
         self.cost = cost              # float или None
         self.seconds = seconds
         self.error = error
         self.raw_meta = raw_meta or {}
+        # Имена вызванных инструментов, по порядку. None означает «движок не
+        # сообщает», и это НЕ то же самое, что «инструментов не было»:
+        # задача toolchoice в таком случае не делает вывода, а помечает
+        # результат как неизмеримый.
+        self.tools = tools
 
     def as_dict(self):
         return {'tokens': self.tokens, 'cost': self.cost,
-                'seconds': round(self.seconds, 2), 'error': self.error}
+                'seconds': round(self.seconds, 2), 'error': self.error,
+                'tools': self.tools}
 
 
 def _zero_tokens():
     return {'input': 0, 'output': 0, 'reasoning': 0, 'cache_read': 0, 'cache_write': 0}
 
 
-def _resolve(cmd):
-    """Разворачивает имя CLI в исполняемый путь.
+_EXE_IN_CMD = re.compile(r'"([^"]+\.exe)"', re.I)
+_JS_IN_CMD = re.compile(r'"([^"]+\.js)"', re.I)
 
-    На Windows npm-обёртки — это .CMD, а CreateProcess их по голому имени не
-    находит и запускать напрямую не умеет: нужен cmd.exe. Без этого любой вызов
-    падал мгновенно с «CLI не найден», а в отчёте это выглядело как ноль баллов
-    у модели.
+
+def _unwrap_windows_shim(path):
+    """Достаёт настоящий .exe из npm-обёртки .CMD.
+
+    Две попытки запустить иначе провалились, и обе тихо:
+      - по голому имени CreateProcess .CMD не находит вовсе — вызов падал
+        мгновенно, а в отчёте это выглядело как ноль баллов у модели;
+      - через `cmd.exe /c` многострочный промпт разрушается интерпретатором,
+        и модель получала пустое задание, отвечая «а что нужно сделать?».
+    Сама обёртка всего лишь вызывает соседний .exe, поэтому берём его напрямую:
+    ни оболочки, ни экранирования, аргументы уходят как есть.
     """
+    try:
+        with open(path, encoding='utf-8', errors='replace') as fh:
+            body = fh.read()
+    except OSError:
+        return None
+    here = os.path.dirname(path) + os.sep
+
+    def expand(p):
+        return os.path.normpath(p.replace('%~dp0', here).replace('%dp0%', here))
+
+    for m in _EXE_IN_CMD.finditer(body):
+        target = expand(m.group(1))
+        if os.path.isfile(target):
+            return target
+
+    # Обёртки вида `node ... foo.js %*` — запускаем скрипт через node.
+    for m in _JS_IN_CMD.finditer(body):
+        script = expand(m.group(1))
+        if os.path.isfile(script):
+            node = os.path.join(here, 'node.exe')
+            if not os.path.isfile(node):
+                node = shutil.which('node')
+            if node:
+                return [node, script]
+    return None
+
+
+def _resolve(cmd):
+    """Разворачивает имя CLI в исполняемый путь."""
     exe = shutil.which(cmd[0])
     if not exe:
         return None
     if os.name == 'nt' and exe.lower().endswith(('.cmd', '.bat')):
+        real = _unwrap_windows_shim(exe)
+        if isinstance(real, list):
+            return real + list(cmd[1:])
+        if real:
+            return [real] + list(cmd[1:])
+        # запасной путь: через оболочку. Промпт передавать так ненадёжно,
+        # поэтому это крайний случай, а не основной режим.
         comspec = os.environ.get('COMSPEC', 'cmd.exe')
         return [comspec, '/c', exe] + list(cmd[1:])
     return [exe] + list(cmd[1:])
@@ -76,6 +125,7 @@ def run_opencode(model, prompt, timeout=900, cwd=None):
     tokens = _zero_tokens()
     cost = 0.0
     chunks = []
+    tools = []
     seen_any = False
     for line in out.splitlines():
         line = line.strip()
@@ -89,6 +139,10 @@ def run_opencode(model, prompt, timeout=900, cwd=None):
         part = ev.get('part') or {}
         if typ == 'text':
             chunks.append(part.get('text') or '')
+        elif typ == 'tool_use' or (typ or '').startswith('tool'):
+            name = part.get('tool') or part.get('name')
+            if name:
+                tools.append(name)
         elif typ == 'step_finish':
             seen_any = True
             t = part.get('tokens') or {}
@@ -106,7 +160,8 @@ def run_opencode(model, prompt, timeout=900, cwd=None):
     if not text and err.strip():
         error = error or err.strip()[-300:]
     return Result(text=text, tokens=tokens if seen_any else None,
-                  cost=cost if seen_any else None, seconds=secs, error=error)
+                  cost=cost if seen_any else None, seconds=secs, error=error,
+                  tools=tools if seen_any else None)
 
 
 # -------------------------------------------------------------------- claude
