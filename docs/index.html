@@ -99,13 +99,13 @@
 
   <section>
     <h2>Tokens → score</h2>
-    <p class="hint">X axis — net tokens (tokens_net), Y axis — final score. Each point is labeled.</p>
+    <p class="hint">X axis — net tokens (tokens_net), Y axis — percentage of the measurable levels cleared. The axis is a percentage rather than a raw score on purpose: runs use different profiles — 24 levels against 80 — and plotting the absolute put a model at 93.8% three times higher than one at 85.4%. That chart compared the length of the distance while reading as a difference in strength.</p>
     <div class="chart-box"><div id="legend-tokens" class="legend"></div><div id="chart-tokens"></div></div>
   </section>
 
   <section>
     <h2>Cost → score</h2>
-    <p class="hint">X axis — run cost, Y axis — score. A free tier is a billing arrangement, not a free model — the same model is metered elsewhere — so cost is computed from the measured tokens at the model's published rate and marked with a <span class="dim">~</span>. Where the CLI reports a real charge it is used as-is. A rate of zero is never treated as a price: it would pin the run to the axis and make any quality look infinitely efficient. Unpriced runs are listed below the chart.</p>
+    <p class="hint">X axis — run cost, Y axis — percentage of the measurable levels cleared. A free tier is a billing arrangement, not a free model — the same model is metered elsewhere — so cost is computed from the measured tokens at the model's published rate and marked with a <span class="dim">~</span>. Where the CLI reports a real charge it is used as-is. A rate of zero is never treated as a price: it would pin the run to the axis and make any quality look infinitely efficient. Unpriced runs are listed below the chart.</p>
     <div class="chart-box"><div id="chart-cost"></div><div id="nocost"></div></div>
   </section>
 
@@ -266,7 +266,7 @@ function drawScatter(containerSel, points, xLabel, xFmt){
   xl.textContent = xLabel;
   const yl = svgEl('text', {x:14, y:(H-MB+MT)/2, 'font-size':12, fill:'#9aa3af',
                             transform:`rotate(-90 14 ${(H-MB+MT)/2})`, 'text-anchor':'middle'}, svg);
-  yl.textContent = 'score';
+  yl.textContent = '% of levels cleared';
 
   // Точки и подписи. Раньше подпись просто ставилась справа от точки со
   // сдвигом через одну — при близких точках надписи наезжали друг на друга и
@@ -534,12 +534,18 @@ function renderAll(){
     Object.entries(WEIGHTS_COLOR).map(([k,c])=>
       `<span class="chip"><i style="background:${c}"></i>${k==='open'?'open weights':k==='closed'?'closed weights':'weights unknown'}</span>`).join('');
 
+  // Ось Y — доля, а не абсолют. Профили у прогонов разные: 24 уровня против 80,
+  // и абсолютный балл рисовал Sonnet (75.0) втрое выше Sol (20.5) там, где по
+  // доле пройденного это 93.8% против 85.4%. График сравнивал длину дистанции,
+  // а читался как разница в силе моделей.
   drawScatter('#chart-tokens',
-    RUNS.map(r=>({x:r.tokens_net, y:r.score, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
+    RUNS.filter(r=>r.score_pct!=null)
+        .map(r=>({x:r.tokens_net, y:r.score_pct, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
     'net tokens (tokens_net)', fmtCompact);
   drawScatter('#chart-cost',
     // ноль ценой не считается: см. пояснение над графиком
-    RUNS.filter(r=>r.cost!=null && r.cost>0).map(r=>({x:r.cost, y:r.score, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
+    RUNS.filter(r=>r.cost!=null && r.cost>0 && r.score_pct!=null)
+        .map(r=>({x:r.cost, y:r.score_pct, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
     'cost ($)', v=>'$'+v.toFixed(2));
 
   // кто остался за бортом стоимостного графика — и почему именно

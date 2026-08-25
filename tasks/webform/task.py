@@ -133,8 +133,16 @@ def generate(level, rng):
         'If filling in the form failed, write exactly:\n'
         'CODE: FAILED\n'
         'and the reason on one line. Making up a code is forbidden — it is verified.\n\n'
-        'When you are done, close the browser session you opened. Leaving tabs '
-        "behind in someone else's browser counts against you.\n\n"
+        # Про «отцепиться — не значит закрыть» сказано прямо: это ровно та
+        # ошибка, на которой мусор и копился. Сессия закрывалась, вкладка
+        # оставалась, и человек, просто запустивший бенчмарк, получал свой
+        # браузер, забитый группами вкладок.
+        'Work in a browser session of your own, not in the user\'s everyday '
+        'browser: do not attach to their existing tabs and do not drive their '
+        'current profile.\n\n'
+        'When you are done, close every tab you opened. Detaching from a tab is '
+        'not the same as closing it, so check that the tabs are actually gone. '
+        "Leaving pages behind in someone else's browser counts against you.\n\n"
         'NXB-CANARY-a7f3c1'
         % (BASE_URL, level, '\n'.join(lines))
     )

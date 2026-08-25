@@ -19,7 +19,7 @@ import shutil
 import tempfile
 import time
 
-from . import models, registry
+from . import browser_cleanup, models, registry
 
 SCORE_FIRST = 1.0
 SCORE_FIXED = 0.5
@@ -415,6 +415,17 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
         # ОДИНАКОВЫЕ задачи, а добавление новой задачи не сдвигает старые
         rng = random.Random('%d|%s|%d' % (seed, tname, lvl))
         rec = run_level(model_id, task, lvl, rng, timeout, cwd, out['baseline'])
+        if 'browser' in (getattr(task, 'NEEDS', None) or []):
+            # Убирает прогон, а не модель. Промпт просит её закрыть за собой
+            # вкладки, но полагаться на это нельзя: слабая модель уборку не
+            # сделает, а расплачивается за это человек, чей браузер зарастает
+            # группами вкладок. Закрываются только страницы самого бенчмарка.
+            try:
+                closed = browser_cleanup.sweep()
+                if closed:
+                    rec['tabs_swept'] = closed
+            except Exception:      # noqa: BLE001 - уборка не роняет прогон
+                pass
         out['levels'].append(rec)
         if progress:
             progress(rec)
