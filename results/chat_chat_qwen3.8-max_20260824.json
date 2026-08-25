@@ -360,7 +360,7 @@
    "level": 5,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 36 x 36 x 36. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Write a Python function:\r\n\r\n    def solve(grid, start, goal):\r\n\r\ngrid is a three-dimensional list grid[x][y][z] of size 36 x 36 x 36. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\r\n\r\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\r\n\r\nYou do not see the maps: the function will be run on hidden maps of the specified size.\r\n\r\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\r\n\r\nNXB-CANARY-a7f3c1ANARY-a7f3c1"
   },
   {
    "task": "pathperf",
@@ -381,7 +381,7 @@
    "level": 8,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 52 x 52 x 52. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Output the numbers from 1 to 180 one per line, but with the digits reversed inside each number: 12 becomes 21, 100 becomes 001. Keep leading zeros.\r\n\r\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\r\n\r\nNXB-CANARY-a7f3c1"
   },
   {
    "task": "pathperf",

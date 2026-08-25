@@ -235,6 +235,45 @@ _REFUSAL = re.compile(
     "не могу|не знаю|не удалось)", re.I)
 
 
+# Как выглядит сбой ТРАНСПОРТА, пришедший текстом. Движок не всегда сообщает
+# о нём кодом возврата: и claude, и codex спокойно печатают сообщение об обрыве
+# в поток ответа, и оно попадает в оценку как реплика модели.
+#
+# Так Sonnet и Sol «провалили» webform L9 и L10 — на деле
+# UNKNOWN_CERTIFICATE_VERIFICATION_ERROR и os error 11001, то есть TLS и DNS.
+# Opus те же уровни прошёл, так что задача проходима, а мерилась сеть.
+_TRANSPORT = (
+    'unknown_certificate_verification_error',
+    'unable to connect to api',
+    'stream disconnected before completion',
+    'connection reset',
+    'os error 11001',
+    'econnreset',
+    'etimedout',
+)
+
+
+def looks_like_transport_failure(text):
+    """Ответ целиком состоит из жалобы движка на связь.
+
+    Проверяется вместе с «ответ не разобран»: если разбор удался, текст — это
+    ответ модели, чем бы он ни был. Совпадение по маркеру одного этого мало,
+    иначе модель, рассуждающая про TLS вслух, лишилась бы засчитанного уровня.
+    """
+    body = (text or '').strip()
+    if not body:
+        return False
+    # Жалоба транспорта коротка и стоит вместо ответа. Длинный текст — это
+    # работа модели, даже если она по дороге упомянула обрыв связи, и отменять
+    # такой уровень нельзя: пропадёт настоящий результат.
+    if len(body) > 600:
+        return False
+    low = body.lower()
+    if 'answer:' in low or 'code:' in low or '```' in body:
+        return False
+    return any(m in low for m in _TRANSPORT)
+
+
 def looks_like_refusal(text):
     """Ответ целиком является признанием, что модель не справилась.
 
@@ -288,7 +327,11 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline, heartbeat=None
         # оценивался как провал: попытка сгорала, модель получала подсказку
         # «почини» на задание, которого не видела, и теряла полбалла за чужой
         # сетевой сбой. Такой вызов повторяется, не тратя попытку.
-        blank_failure = res.error and not (res.text or '').strip()
+        # Сбой связи бывает двух видов: движок вернул пустоту с ошибкой, и
+        # движок напечатал жалобу на обрыв прямо в ответ. Второй вид долго
+        # засчитывался модели как неудачная попытка.
+        blank_failure = ((res.error and not (res.text or '').strip())
+                         or looks_like_transport_failure(res.text))
         if blank_failure and transient < MAX_TRANSIENT:
             transient += 1
             rec.setdefault('transient_errors', []).append(str(res.error)[:200])
