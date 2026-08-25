@@ -8,7 +8,7 @@
    "level": 1,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n15 + 2 * 6\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Compute exactly. Do not round fractions.\r\n\r\nEvaluate the expression:\r\n\r\n15 + 2 * 6\r\n\r\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\r\n\r\nGive the answer as exactly one line in the format:\r\nANSWER: <value>\r\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\r\n\r\nNXB-CANARY-a7f3c1"
   },
   {
    "task": "calc",
@@ -652,5 +652,7 @@
    "answer": "",
    "unmeasurable": "no tools in the chat channel"
   }
- ]
+ ],
+ "ui_model": "Qwen3.8-Max",
+ "model_unverified": false
 }

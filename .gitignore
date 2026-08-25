@@ -3,3 +3,11 @@ __pycache__/
 _selftest*/
 results/*.tmp
 .DS_Store
+
+# Мусор, который модели оставляют в рабочем каталоге во время прогона.
+# Ловится именно так: агент пишет решение в файл, а каталог у него — этот.
+answers.txt
+b64.txt
+solve*.py
+form[0-9]*.html
+form_temp.html
