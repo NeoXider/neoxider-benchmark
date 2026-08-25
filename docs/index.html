@@ -99,7 +99,7 @@
 
   <section>
     <h2>Tokens → score</h2>
-    <p class="hint">X axis — net tokens (tokens_net), Y axis — percentage of the measurable levels cleared. The axis is a percentage rather than a raw score on purpose: runs use different profiles — 24 levels against 80 — and plotting the absolute put a model at 93.8% three times higher than one at 85.4%. That chart compared the length of the distance while reading as a difference in strength.</p>
+    <p class="hint">X axis — net tokens, on a log scale because token spend differs by multiples rather than by percentages. Y axis — percentage of the measurable levels cleared, ranged to the data rather than from zero: models cluster near the top, and a fixed 0–100 spends half the chart on empty space. The axis is a percentage rather than a raw score on purpose: runs use different profiles — 24 levels against 82 — and plotting the absolute put a model at 93.8% three times higher than one at 85.4%, comparing the length of the distance while reading as a difference in strength.</p>
     <div class="chart-box"><div id="legend-tokens" class="legend"></div><div id="chart-tokens"></div></div>
   </section>
 
@@ -231,24 +231,58 @@ function ticks(min, max, count){
 }
 
 /* ---------- точечная диаграмма ---------- */
-function drawScatter(containerSel, points, xLabel, xFmt){
+function logTicks(lo, hi){
+  // 1, 2, 5 на каждой декаде — привычный набор, который не сливается на глаз.
+  const out = [];
+  for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++){
+    for (const m of [1, 2, 5]){
+      const v = m * Math.pow(10, e);
+      if (v >= lo && v <= hi) out.push(v);
+    }
+  }
+  return out.length >= 2 ? out : [lo, hi];
+}
+
+function drawScatter(containerSel, points, xLabel, xFmt, opts){
   const box = $(containerSel);
   box.textContent = '';
   if (!points.length){
     box.innerHTML = '<p style="color:var(--muted)">No data for this chart.</p>';
     return;
   }
+  opts = opts || {};
   const W = 800, H = 420, ML = 64, MR = 130, MT = 18, MB = 42;
   const xs = points.map(p => p.x), ys = points.map(p => p.y);
-  let xMin = Math.min(...xs), xMax = Math.max(...xs);
-  if (xMin === xMax){ xMin -= 1; xMax += 1; } else { const pad=(xMax-xMin)*.06; xMin=Math.max(0,xMin-pad); xMax+=pad; }
-  const yMax = Math.max(...ys)*1.08 || 1;
-  const px = v => ML + (v - xMin)/(xMax - xMin)*(W-ML-MR);
-  const py = v => H - MB - v/yMax*(H-MT-MB);
+
+  // Ось X логарифмическая: расход токенов различается в разы, а не на проценты,
+  // и на линейной шкале дешёвые модели слипались у нуля.
+  const logX = opts.logX && Math.min(...xs) > 0;
+  const lx = v => logX ? Math.log10(v) : v;
+  let xMin = lx(Math.min(...xs)), xMax = lx(Math.max(...xs));
+  if (xMin === xMax){ xMin -= 1; xMax += 1; }
+  else { const pad=(xMax-xMin)*.06; xMin = logX ? xMin-pad : Math.max(0,xMin-pad); xMax+=pad; }
+
+  // Ось Y подстраивается под данные, а не тянется от нуля. Логарифм по доле,
+  // упёртой в 100%, верх не растянет — сжимает он как раз низ, — а вот пустая
+  // половина графика мешает: если все модели между 80 и 100, именно этот
+  // промежуток и надо показать крупно. Ноль остаётся, когда данные его задевают.
+  let yLo = Math.min(...ys), yHi = Math.max(...ys);
+  if (opts.fitY && yLo > 0){
+    const pad = Math.max(2, (yHi - yLo) * 0.15);
+    yLo = Math.max(0, yLo - pad); yHi = Math.min(opts.yCap || Infinity, yHi + pad);
+  } else { yLo = 0; yHi = yHi * 1.08 || 1; }
+  if (yHi === yLo){ yHi = yLo + 1; }
+
+  const px = v => ML + (lx(v) - xMin)/(xMax - xMin)*(W-ML-MR);
+  const py = v => H - MB - (v - yLo)/(yHi - yLo)*(H-MT-MB);
 
   const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, role:'img'}, box);
   // сетка + подписи X
-  for (const t of ticks(xMin, xMax, 6)){
+  // На логарифмической оси засечки ставятся по степеням десяти, иначе подписи
+  // идут через равные промежутки значения, а не экрана.
+  const xTicks = logX ? logTicks(Math.pow(10,xMin), Math.pow(10,xMax))
+                      : ticks(xMin, xMax, 6);
+  for (const t of xTicks){
     svgEl('line', {x1:px(t), y1:MT, x2:px(t), y2:H-MB, stroke:'#22262e'}, svg);
     const tx = svgEl('text', {x:px(t), y:H-MB+18, 'text-anchor':'middle', 'font-size':11}, svg);
     tx.textContent = xFmt(t);
@@ -256,7 +290,7 @@ function drawScatter(containerSel, points, xLabel, xFmt){
   // сетка + подписи Y. Линий больше, чем было: с двумя-тремя по высоте
   // прочитать значение точки на глаз невозможно, а именно за этим на график
   // и смотрят.
-  for (const t of ticks(0, yMax, 9)){
+  for (const t of ticks(yLo, yHi, 9)){
     svgEl('line', {x1:ML, y1:py(t), x2:W-MR, y2:py(t), stroke:'#22262e'}, svg);
     const ty = svgEl('text', {x:ML-8, y:py(t)+4, 'text-anchor':'end', 'font-size':11}, svg);
     ty.textContent = fmtCompact(t);
@@ -541,12 +575,14 @@ function renderAll(){
   drawScatter('#chart-tokens',
     RUNS.filter(r=>r.score_pct!=null)
         .map(r=>({x:r.tokens_net, y:r.score_pct, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
-    'net tokens (tokens_net)', fmtCompact);
+    'net tokens (tokens_net, log scale)', fmtCompact,
+    {logX: true, fitY: true, yCap: 100});
   drawScatter('#chart-cost',
     // ноль ценой не считается: см. пояснение над графиком
     RUNS.filter(r=>r.cost!=null && r.cost>0 && r.score_pct!=null)
         .map(r=>({x:r.cost, y:r.score_pct, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
-    'cost ($)', v=>'$'+v.toFixed(2));
+    'cost ($, log scale)', v=>'$'+(v<1?v.toFixed(2):v.toFixed(v<10?1:0)),
+    {logX: true, fitY: true, yCap: 100});
 
   // кто остался за бортом стоимостного графика — и почему именно
   const off   = RUNS.filter(r=>!(r.cost!=null && r.cost>0));
