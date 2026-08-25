@@ -295,298 +295,102 @@
    "card": "cards/claude_claude-haiku-4-5-20251001.svg"
   },
   {
-   "model": "codex/gpt-5.6-luna",
-   "engine": "codex",
-   "weights": "closed",
+   "model": "opencode/hy3-free",
+   "engine": "opencode",
+   "weights": "open",
    "local": false,
-   "weights_ref": null,
+   "weights_ref": "hf:tencent/Hy3",
    "seed": 20260824,
-   "date": "2026-08-24",
-   "score": 19.0,
-   "max_score": 82.0,
-   "score_pct": 23.2,
+   "date": "2026-08-25",
+   "score": 21.0,
+   "max_score": 24.0,
+   "score_pct": 87.5,
    "coverage": 1.0,
    "incomplete": false,
-   "stability_score": 19.0,
+   "stability_score": 21.0,
    "stability_max": 24.0,
-   "stability_failed": 5,
+   "stability_failed": 0,
    "unmeasurable": 0,
-   "passed": 19,
-   "first_try": 19,
+   "passed": 24,
+   "first_try": 24,
    "fixed": 0,
-   "failed": 63,
+   "failed": 0,
    "fabricated": 0,
-   "seconds": 810.3,
-   "tokens_total": 2927182,
-   "tokens_net": 2473236,
-   "baseline_tokens": 20642,
-   "cost": null,
-   "cost_source": null,
-   "price_ref": null,
+   "seconds": 1996.9,
+   "tokens_total": 628725,
+   "tokens_net": 384069,
+   "baseline_tokens": 10197,
+   "cost": 0.087365,
+   "cost_source": "estimated",
+   "price_ref": "openrouter:tencent/hy3",
    "per_task": {
     "calc": {
-     "score": 1.0,
-     "passed": 1,
+     "score": 3.0,
+     "passed": 3,
      "fixed": 0,
-     "total": 12,
-     "seconds": 129.3
+     "total": 3,
+     "seconds": 252.0
     },
     "count": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 10,
-     "seconds": 63.7
+     "total": 3,
+     "seconds": 242.0
     },
     "honesty": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 10,
-     "seconds": 85.5
+     "total": 3,
+     "seconds": 399.1
     },
     "path3d": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 10,
-     "seconds": 64.8
+     "total": 3,
+     "seconds": 247.5
     },
     "pathperf": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 10,
-     "seconds": 58.4
+     "total": 3,
+     "seconds": 234.8
     },
     "spatial": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 10,
-     "seconds": 45.3
+     "total": 3,
+     "seconds": 144.6
     },
     "toolchoice": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 10,
-     "seconds": 47.2
+     "total": 3,
+     "seconds": 198.5
     },
     "webform": {
      "score": 0.0,
-     "passed": 0,
+     "passed": 3,
      "fixed": 0,
-     "total": 10,
-     "seconds": 315.9
+     "total": 3,
+     "seconds": 278.1
     }
    },
    "per_category": {
-    "math": 0.083,
-    "logic": 0.273,
-    "instruction": 0.3,
-    "honesty": 0.3,
-    "spatial": 0.3,
-    "agentic": 0.15
+    "math": 1.0,
+    "logic": 1.0,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 0.5
    },
-   "levels_done": 82,
-   "card": "cards/codex_gpt-5.6-luna.svg"
-  },
-  {
-   "model": "codex/gpt-5.6-terra",
-   "engine": "codex",
-   "weights": "closed",
-   "local": false,
-   "weights_ref": null,
-   "seed": 20260824,
-   "date": "2026-08-24",
-   "score": 19.0,
-   "max_score": 82.0,
-   "score_pct": 23.2,
-   "coverage": 1.0,
-   "incomplete": false,
-   "stability_score": 19.0,
-   "stability_max": 24.0,
-   "stability_failed": 4,
-   "unmeasurable": 0,
-   "passed": 20,
-   "first_try": 18,
-   "fixed": 2,
-   "failed": 62,
-   "fabricated": 0,
-   "seconds": 833.0,
-   "tokens_total": 3727732,
-   "tokens_net": 2997222,
-   "baseline_tokens": 33210,
-   "cost": null,
-   "cost_source": null,
-   "price_ref": null,
-   "per_task": {
-    "calc": {
-     "score": 1.0,
-     "passed": 1,
-     "fixed": 0,
-     "total": 12,
-     "seconds": 130.0
-    },
-    "count": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 61.6
-    },
-    "honesty": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 78.0
-    },
-    "path3d": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 64.3
-    },
-    "pathperf": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 65.0
-    },
-    "spatial": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 41.5
-    },
-    "toolchoice": {
-     "score": 2.5,
-     "passed": 3,
-     "fixed": 1,
-     "total": 10,
-     "seconds": 57.9
-    },
-    "webform": {
-     "score": 0.5,
-     "passed": 1,
-     "fixed": 1,
-     "total": 10,
-     "seconds": 334.0
-    }
-   },
-   "per_category": {
-    "math": 0.083,
-    "logic": 0.263,
-    "instruction": 0.3,
-    "honesty": 0.3,
-    "spatial": 0.3,
-    "agentic": 0.16
-   },
-   "levels_done": 82,
-   "card": "cards/codex_gpt-5.6-terra.svg"
-  },
-  {
-   "model": "codex/gpt-5.6-sol",
-   "engine": "codex",
-   "weights": "closed",
-   "local": false,
-   "weights_ref": null,
-   "seed": 20260824,
-   "date": "2026-08-24",
-   "score": 18.5,
-   "max_score": 82.0,
-   "score_pct": 22.6,
-   "coverage": 1.0,
-   "incomplete": false,
-   "stability_score": 18.5,
-   "stability_max": 24.0,
-   "stability_failed": 5,
-   "unmeasurable": 0,
-   "passed": 19,
-   "first_try": 18,
-   "fixed": 1,
-   "failed": 63,
-   "fabricated": 0,
-   "seconds": 2016.6,
-   "tokens_total": 2642379,
-   "tokens_net": 1945204,
-   "baseline_tokens": 33208,
-   "cost": null,
-   "cost_source": null,
-   "price_ref": null,
-   "per_task": {
-    "calc": {
-     "score": 1.0,
-     "passed": 1,
-     "fixed": 0,
-     "total": 12,
-     "seconds": 134.8
-    },
-    "count": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 62.8
-    },
-    "honesty": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 75.7
-    },
-    "path3d": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 63.1
-    },
-    "pathperf": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 59.8
-    },
-    "spatial": {
-     "score": 2.5,
-     "passed": 3,
-     "fixed": 1,
-     "total": 10,
-     "seconds": 53.2
-    },
-    "toolchoice": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 53.9
-    },
-    "webform": {
-     "score": 0.0,
-     "passed": 0,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 1512.6
-    }
-   },
-   "per_category": {
-    "math": 0.083,
-    "logic": 0.273,
-    "instruction": 0.3,
-    "honesty": 0.3,
-    "spatial": 0.262,
-    "agentic": 0.15
-   },
-   "levels_done": 82,
-   "card": "cards/codex_gpt-5.6-sol.svg"
+   "levels_done": 24,
+   "card": "cards/opencode_hy3-free.svg"
   },
   {
    "model": "chat/deepseek-v4",

@@ -99,13 +99,29 @@ def _resolve(cmd):
     return [exe] + list(cmd[1:])
 
 
+# Прогон обязан идти в СВОЁМ браузере, а не в том, где человек работает.
+# Просить об этом модель бесполезно: profile_mode по умолчанию — «current», то
+# есть рабочий Chrome пользователя, и модель, ни разу не упомянувшая режим,
+# попадает именно туда. Переменная включает запрет на стороне web-search-neo:
+# любой запрос в рабочий профиль понижается до одноразового браузера.
+BENCH_ENV = {'WSN_FORBID_CURRENT_PROFILE': '1'}
+
+
+def _child_env():
+    import os as _os
+    env = dict(_os.environ)
+    env.update(BENCH_ENV)
+    return env
+
+
 def _run(cmd, timeout, cwd=None):
     t0 = time.time()
     real = _resolve(cmd)
     if not real:
         return '', '', time.time() - t0, 'CLI not found in PATH: %s' % cmd[0]
     try:
-        p = subprocess.run(real, capture_output=True, timeout=timeout, cwd=cwd)
+        p = subprocess.run(real, capture_output=True, timeout=timeout, cwd=cwd,
+                           env=_child_env())
         return p.stdout.decode('utf-8', 'replace'), p.stderr.decode('utf-8', 'replace'), \
             time.time() - t0, None
     except subprocess.TimeoutExpired:

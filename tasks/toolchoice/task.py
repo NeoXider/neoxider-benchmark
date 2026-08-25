@@ -30,7 +30,12 @@ MAX_LEVEL = 10
 VERSION = 1
 CATEGORIES = {'agentic': 0.6, 'logic': 0.4}
 NEEDS = []
-WANTS_META = True          # задаче нужны сведения о вызовах инструментов
+WANTS_META = True
+# С какого уровня инструменты запрещены. Отдельной константой, чтобы
+# узнать это можно было не вызывая generate(): на верхних уровнях он
+# считает решето до девяти миллионов, и один справочный вызов вешал
+# выгрузку промптов на минуты.
+NO_TOOLS_FROM = 6          # задаче нужны сведения о вызовах инструментов
 
 
 def _primes_upto(n):
@@ -40,6 +45,60 @@ def _primes_upto(n):
         if sieve[i]:
             sieve[i * i::i] = bytearray(len(sieve[i * i::i]))
     return sieve
+
+
+
+def _digit_sum_upto(n):
+    """Сумма цифр всех чисел от 1 до n — разрядным счётом, а не перебором.
+
+    Перебор с str() по каждому числу означал десять миллионов преобразований
+    на верхних уровнях: генерация одного задания занимала минуты, и это время
+    платил каждый прогон каждой модели. Здесь считается за десяток шагов.
+    """
+    total = 0
+    power = 1
+    while power <= n:
+        higher, current = divmod(n, power * 10)
+        cur, low = divmod(current, power)
+        # полные циклы старших разрядов
+        total += higher * 45 * power
+        # вклад текущей цифры
+        total += (cur * (cur - 1) // 2) * power + cur * (low + 1)
+        power *= 10
+    return total
+
+
+def _palindromes_upto(n):
+    """Все палиндромы от 1 до n, по возрастанию длины.
+
+    Их порядка 2*sqrt(n), тогда как проверка каждого числа подряд — это n
+    разворотов строки. На девяти миллионах разница между мгновением и минутой.
+    """
+    out = []
+    length = 1
+    while True:
+        half = (length + 1) // 2
+        start, stop = 10 ** (half - 1), 10 ** half
+        if length == 1:
+            start = 1
+        made_any = False
+        for head in range(start, stop):
+            sh = str(head)
+            body = sh + (sh[-2::-1] if length % 2 else sh[::-1])
+            value = int(body)
+            if value > n:
+                if length % 2 == 0 or head > start:
+                    break
+                continue
+            if value >= 1:
+                out.append(value)
+                made_any = True
+        if 10 ** (length - 1) > n and not made_any:
+            break
+        length += 1
+        if 10 ** (length - 1) > n:
+            break
+    return out
 
 
 def _kind(level, rng):
@@ -60,18 +119,18 @@ def _kind(level, rng):
              'divisible by 3 or 7?' % n)
     elif variant == 2:
         n = scale
-        ans = sum(1 for i in range(1, n + 1) if str(i) == str(i)[::-1])
+        ans = len(_palindromes_upto(n))
         q = ('How many integers from 1 to %d inclusive are palindromes in '
              'decimal notation?' % n)
     elif variant == 3:
         n = scale
-        ans = sum(int(c) for i in range(1, n + 1) for c in str(i))
+        ans = _digit_sum_upto(n)
         q = ('What is the sum of all digits of all integers from 1 to %d '
              'inclusive?' % n)
     else:
         n = scale
         sieve = _primes_upto(n)
-        ans = sum(i for i in range(n + 1) if sieve[i] and str(i) == str(i)[::-1])
+        ans = sum(p for p in _palindromes_upto(n) if sieve[p])
         q = ('What is the sum of all primes not greater than %d that are '
              'palindromes?' % n)
     return q, ans
@@ -79,7 +138,7 @@ def _kind(level, rng):
 
 def generate(level, rng):
     q, ans = _kind(level, rng)
-    no_tools = level >= 6
+    no_tools = level >= NO_TOOLS_FROM
 
     if no_tools:
         # Запрет ПРОВЕРЯЕМ: любой вызов инструмента виден в телеметрии, и это

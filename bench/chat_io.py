@@ -26,6 +26,26 @@ import time
 from . import registry, runner
 
 
+def unmeasurable_in_chat(task, level):
+    """Почему уровень нельзя честно померить в чате. None — можно.
+
+    В чате нет инструментов, и это не недостаток модели, а отсутствие канала.
+    Две разные причины:
+
+    * задача требует браузера или сети — выполнить её в окне чата нечем;
+    * нижние уровни toolchoice проверяют, догадается ли модель ВЗЯТЬ
+      инструмент. Без инструментов вопрос теряет смысл. Верхние уровни, где
+      инструменты, наоборот, запрещены, в чате измеримы прекрасно — там нечего
+      нарушать, и они остаются.
+    """
+    if getattr(task, 'NEEDS', None):
+        return 'no tools in the chat channel'
+    floor = getattr(task, 'NO_TOOLS_FROM', None)
+    if floor is not None and level < floor:
+        return 'this level scores whether the model reaches for a tool'
+    return None
+
+
 def export_prompts(model, seed=20260824, tasks=None, levels=None, profile=None,
                    out_dir='results'):
     """Складывает промпты в файл для ручного или макросного прогона."""
@@ -33,6 +53,15 @@ def export_prompts(model, seed=20260824, tasks=None, levels=None, profile=None,
     items = []
     for name, lvl in plan:
         task = registry.get(name)
+        why = unmeasurable_in_chat(task, lvl)
+        if why:
+            # Не выгружаем вовсе, а не собираем пустой ответ задним числом:
+            # человеку незачем нести в чат задание, которое там физически
+            # невыполнимо, и видеть его в списке как «не собрано».
+            items.append({'task': name, 'level': lvl,
+                          'needs': list(getattr(task, 'NEEDS', [])),
+                          'prompt': '', 'answer': '', 'unmeasurable': why})
+            continue
         rng = random.Random('%d|%s|%d' % (seed, name, lvl))
         prompt, _ = task.generate(lvl, rng)
         items.append({
@@ -72,6 +101,12 @@ def import_answers(path, results_dir='results'):
                'fabricated': 0, 'seconds': 0.0, 'peeked': False,
                'channel': 'chat',
                'ts': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+
+        if it.get('unmeasurable'):
+            rec['unmeasurable'] = it['unmeasurable']
+            skipped += 1
+            levels.append(rec)
+            continue
 
         answer = (it.get('answer') or '').strip()
         if not answer:
