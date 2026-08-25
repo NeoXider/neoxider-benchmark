@@ -576,7 +576,20 @@ def note_progress(run, planned, current=None, finished=False, plan_keys=None):
             'score': round(sum(r.get('score') or 0 for r in lv), 2),
             'seconds': round(sum(r.get('seconds') or 0 for r in lv), 1),
             'current': current,
+            # Сколько ещё и сколько это займёт. Без остатка и оценки времени
+            # видно только «идёт», и понять, ждать минуту или час, нельзя.
+            'remaining': max(0, planned - len(lv)),
+            'unmeasurable': sum(1 for r in lv if 'unmeasurable' in r),
+            'eta_seconds': (round((planned - len(lv)) *
+                                  (sum(r.get('seconds') or 0 for r in lv) / len(lv)))
+                            if lv and planned > len(lv) else (0 if finished else None)),
             'finished': bool(finished),
+            # Итог по ВСЕМУ накопленному файлу, а не только по текущему плану.
+            # Точечный перезапуск на два уровня показывал Opus как «2/2, 0.0»,
+            # и модель с 77.5 из 82 читалась в сводке как полный ноль.
+            'total_levels': len(run.get('levels') or []),
+            'total_score': round(sum(r.get('score') or 0
+                                     for r in (run.get('levels') or [])), 2),
             'started_utc': run.get('started_utc'),
             'updated_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
         })

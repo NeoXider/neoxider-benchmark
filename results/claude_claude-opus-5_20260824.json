@@ -339,6 +339,86 @@
    "cost": 0.20152
   },
   {
+   "task": "calc",
+   "level": 11,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": false,
+     "detail": "ANSWER: line not found",
+     "seconds": 188.91,
+     "error": null,
+     "output_head": "API Error: Unable to connect to API (UNKNOWN_CERTIFICATE_VERIFICATION_ERROR)"
+    },
+    {
+     "n": 2,
+     "ok": false,
+     "detail": "ANSWER: line not found",
+     "seconds": 190.96,
+     "error": null,
+     "output_head": "API Error: Unable to connect to API (UNKNOWN_CERTIFICATE_VERIFICATION_ERROR)"
+    }
+   ],
+   "task_version": 3,
+   "score": 0.0,
+   "fixed": false,
+   "passed": false,
+   "fabricated": 0,
+   "seconds": 379.88,
+   "peeked": false,
+   "peek_calls": [],
+   "ts": "2026-08-25T07:44:33Z",
+   "tokens_raw": {
+    "input": 0,
+    "output": 0,
+    "reasoning": 0,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "tokens_net": 0,
+   "cost": 0.0
+  },
+  {
+   "task": "calc",
+   "level": 12,
+   "attempts": [
+    {
+     "n": 1,
+     "ok": false,
+     "detail": "ANSWER: line not found",
+     "seconds": 183.39,
+     "error": null,
+     "output_head": "API Error: Unable to connect to API (UNKNOWN_CERTIFICATE_VERIFICATION_ERROR)"
+    },
+    {
+     "n": 2,
+     "ok": false,
+     "detail": "ANSWER: line not found",
+     "seconds": 177.66,
+     "error": null,
+     "output_head": "API Error: Unable to connect to API (UNKNOWN_CERTIFICATE_VERIFICATION_ERROR)"
+    }
+   ],
+   "task_version": 3,
+   "score": 0.0,
+   "fixed": false,
+   "passed": false,
+   "fabricated": 0,
+   "seconds": 361.05,
+   "peeked": false,
+   "peek_calls": [],
+   "ts": "2026-08-25T07:50:53Z",
+   "tokens_raw": {
+    "input": 0,
+    "output": 0,
+    "reasoning": 0,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "tokens_net": 0,
+   "cost": 0.0
+  },
+  {
    "task": "count",
    "level": 1,
    "attempts": [
@@ -2605,19 +2685,21 @@
  ],
  "summary": {
   "score": 77.5,
-  "max_score": 80.0,
+  "max_score": 82.0,
   "unmeasurable": 0,
+  "coverage": 1.0,
+  "incomplete": false,
   "stability_score": 24.0,
   "stability_max": 24.0,
   "stability_failed": 0,
-  "levels_done": 80,
+  "levels_done": 82,
   "passed": 78,
   "first_try": 77,
   "fixed": 1,
-  "failed": 2,
+  "failed": 4,
   "fabricated": 0,
   "peeked": 0,
-  "seconds": 2798.2,
+  "seconds": 3539.2,
   "tokens_total": 8307403,
   "tokens_net": 6496203,
   "tokens_breakdown": {
@@ -2635,8 +2717,8 @@
     "score": 10.0,
     "passed": 10,
     "fixed": 0,
-    "total": 10,
-    "seconds": 117.0
+    "total": 12,
+    "seconds": 858.0
    },
    "count": {
     "score": 10.0,
@@ -2689,13 +2771,13 @@
    }
   },
   "per_category": {
-   "math": 1.0,
-   "logic": 0.958,
+   "math": 0.833,
+   "logic": 0.938,
    "instruction": 1.0,
    "honesty": 0.95,
    "spatial": 1.0,
    "agentic": 0.94
   }
  },
- "finished_utc": "2026-08-24T21:10:00Z"
+ "finished_utc": "2026-08-25T07:56:54Z"
 }

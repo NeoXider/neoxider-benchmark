@@ -16,10 +16,10 @@ from fractions import Fraction
 
 NAME = 'calc'
 TITLE = 'Exact arithmetic'
-MAX_LEVEL = 10
+MAX_LEVEL = 12
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 2
+VERSION = 3
 CATEGORIES = {'math': 0.8, 'logic': 0.2}
 NEEDS = []
 
@@ -159,6 +159,40 @@ def _quadratic(rng):
     return eq, {'x1': lo, 'x2': hi}
 
 
+
+def _chained(rng, links):
+    """Цепочка, где каждое звено считается по ответу предыдущего.
+
+    Это другой род трудности, чем «то же самое, но длиннее». Длинное задание
+    можно разбить и считать куски независимо; здесь нельзя: следующее звено
+    берёт значение предыдущего, поэтому ошибка в начале делает весь остаток
+    заведомо неверным, а проверить себя можно только пройдя цепь целиком.
+    Модель, аккуратная на любой отдельной операции, ломается именно тут.
+    """
+    parts = []
+    cur = Fraction(rng.randrange(2, 9))
+    parts.append('Step 1. Let t1 = %s.' % _fmt(cur))
+    for i in range(2, links + 1):
+        a = rng.randrange(2, 7)
+        b = rng.randrange(-9, 10)
+        c = rng.choice([2, 3, 4, 5])
+        style = rng.randrange(3)
+        if style == 0:
+            cur = (a * cur + b) / Fraction(c)
+            parts.append('Step %d. t%d = (%d*t%d + (%d)) / %d.'
+                         % (i, i, a, i - 1, b, c))
+        elif style == 1:
+            parts.append('Step %d. t%d = t%d**2 - (%d).' % (i, i, i - 1, b))
+            cur = cur * cur - Fraction(b)
+        else:
+            # ноль в знаменателе недопустим — сдвигаем b, пока он не безопасен
+            while cur + b == 0:
+                b += 1
+            parts.append('Step %d. t%d = %d / (t%d + (%d)).' % (i, i, a, i - 1, b))
+            cur = Fraction(a) / (cur + b)
+    return chr(10).join(parts), cur
+
+
 _HEAD = ('Compute exactly. Do not round fractions.\n\n')
 _TAIL = ('\n\nNXB-CANARY-a7f3c1')
 
@@ -250,29 +284,76 @@ def generate(level, rng):
         )
         return prompt, {'kind': 'vars', 'vars': merged}
 
-    # Уровень 10 — финал: три разные задачи в одном задании, каждая с точной
-    # рациональной арифметикой. Верхний уровень намеренно тяжёлый: бенчмарк,
-    # который берут на 100%, перестаёт мерить. Здесь ломаются и на длине
-    # вычисления, и на том, что бросают недорешанной последнюю часть.
+    if level == 10:
+        # Уровень 10 — финал: три разные задачи в одном задании, каждая с точной
+        # рациональной арифметикой. Верхний уровень намеренно тяжёлый: бенчмарк,
+        # который берут на 100%, перестаёт мерить. Здесь ломаются и на длине
+        # вычисления, и на том, что бросают недорешанной последнюю часть.
+        eqs3, sol3 = _system3(rng)
+        eq2, sol2 = _quadratic(rng)
+        long_expr, long_val = _expr(rng, 6, allow_frac=True)
+        merged = {'x': sol3['x'], 'y': sol3['y'], 'z': sol3['z'],
+                  'x1': sol2['x1'], 'x2': sol2['x2'], 'e': long_val}
+        prompt = (
+            _HEAD +
+            'The task has three parts; answer all three.\n\n'
+            'Part A. Solve the system of equations:\n\n%s\n\n'
+            'Part B. Find both roots of the equation:\n\n%s\n\n'
+            'Part C. Compute the exact value of the expression:\n\n%s\n\n'
+            'Give the answer as exactly one line, with the roots of Part B in '
+            'ascending order:\n'
+            'ANSWER: x=<value>, y=<value>, z=<value>, '
+            'x1=<smaller>, x2=<larger>, e=<Part C value>\n'
+            'The values are integers or irreducible fractions p/q. '
+            'No explanations.' % (eqs3, eq2, long_expr) + _TAIL
+        )
+        return prompt, {'kind': 'vars', 'vars': merged}
+
+    if level == 11:
+        # Цепочка плюс система: последняя часть считается по собственным
+        # ответам модели, поэтому части нельзя решать независимо.
+        chain, tval = _chained(rng, 5)
+        eqs3, sol3 = _system3(rng)
+        final = tval + sol3['x'] * sol3['y'] - sol3['z']
+        merged = {'t5': tval, 'x': sol3['x'], 'y': sol3['y'], 'z': sol3['z'],
+                  'r': final}
+        prompt = (
+            _HEAD +
+            'The parts depend on one another; work through them in order.\n\n'
+            'Part A. Follow the chain and report the final value t5:\n\n%s\n\n'
+            'Part B. Solve the system:\n\n%s\n\n'
+            'Part C. Compute r = t5 + x*y - z from your own answers above.\n\n'
+            'Give the answer as exactly one line:\n'
+            'ANSWER: t5=<value>, x=<value>, y=<value>, z=<value>, r=<value>\n'
+            'The values are integers or irreducible fractions p/q. '
+            'No explanations.' % (chain, eqs3) + _TAIL
+        )
+        return prompt, {'kind': 'vars', 'vars': merged}
+
+    # Уровень 12 — потолок: восемь звеньев цепи, система, и квадратное
+    # уравнение, коэффициенты которого берутся из первых двух частей.
+    chain, tval = _chained(rng, 8)
     eqs3, sol3 = _system3(rng)
-    eq2, sol2 = _quadratic(rng)
-    long_expr, long_val = _expr(rng, 6, allow_frac=True)
-    merged = {'x': sol3['x'], 'y': sol3['y'], 'z': sol3['z'],
-              'x1': sol2['x1'], 'x2': sol2['x2'], 'e': long_val}
+    lo, hi2 = sorted([tval, sol3['x']])
+    merged = {'t8': tval, 'x': sol3['x'], 'y': sol3['y'], 'z': sol3['z'],
+              'x1': lo, 'x2': hi2}
     prompt = (
         _HEAD +
-        'The task has three parts; answer all three.\n\n'
-        'Part A. Solve the system of equations:\n\n%s\n\n'
-        'Part B. Find both roots of the equation:\n\n%s\n\n'
-        'Part C. Compute the exact value of the expression:\n\n%s\n\n'
-        'Give the answer as exactly one line, with the roots of Part B in '
-        'ascending order:\n'
-        'ANSWER: x=<value>, y=<value>, z=<value>, '
-        'x1=<smaller>, x2=<larger>, e=<Part C value>\n'
+        'Every part depends on the one before it: a later part cannot be '
+        'checked without finishing the earlier ones.\n\n'
+        'Part A. Follow the chain and report the final value t8:\n\n%s\n\n'
+        'Part B. Solve the system:\n\n%s\n\n'
+        'Part C. Build the equation u**2 + p*u + q = 0 where p = -(t8 + x) and '
+        'q = t8 * x, using your own answers, and give both roots in ascending '
+        'order.\n\n'
+        'Give the answer as exactly one line:\n'
+        'ANSWER: t8=<value>, x=<value>, y=<value>, z=<value>, '
+        'x1=<smaller>, x2=<larger>\n'
         'The values are integers or irreducible fractions p/q. '
-        'No explanations.' % (eqs3, eq2, long_expr) + _TAIL
+        'No explanations.' % (chain, eqs3) + _TAIL
     )
     return prompt, {'kind': 'vars', 'vars': merged}
+
 
 
 _NUM = re.compile(r'-?\d+\s*/\s*-?\d+|-?\d+\.\d+|-?\d+')

@@ -54,8 +54,12 @@ _REQUIRED = ('NAME', 'TITLE', 'MAX_LEVEL', 'CATEGORIES', 'generate', 'score')
 PROFILES = {
     'minimal': {'levels': [1, 2, 3], 'tasks': None},
     'quick':   {'levels': [1, 3, 5, 7], 'tasks': None},
-    'full':    {'levels': list(range(1, 11)), 'tasks': None},
-    'offline': {'levels': list(range(1, 11)), 'tasks': None, 'exclude_needs': ['browser']},
+    # До 12: потолок поднят там, где задача это поддерживает. Уровни 1-10
+    # не изменились и остаются сравнимыми со старыми прогонами, а resolve
+    # отсекает лишнее по MAX_LEVEL каждой задачи — так что допрогон просто
+    # дописывает новые уровни, ничего не пересчитывая.
+    'full':    {'levels': list(range(1, 13)), 'tasks': None},
+    'offline': {'levels': list(range(1, 13)), 'tasks': None, 'exclude_needs': ['browser']},
 }
 
 _cache = None

@@ -104,9 +104,25 @@ def cmd_progress():
         except (TypeError, ValueError):
             return None
 
+    # У заметок, написанных прошлой версией, накопительного итога нет. Брать его
+    # из файла результата надёжнее, чем показывать ноль: заметка описывает один
+    # запуск, а файл — всё, что модель прошла.
+    for r in rows:
+        if r.get('total_score') is None:
+            try:
+                safe = str(r.get('model', '')).replace('/', '_').replace(':', '_')
+                with open(os.path.join('results', '%s_%s.json' % (safe, r.get('seed'))),
+                          encoding='utf-8') as fh:
+                    saved = json.load(fh)
+                r['total_score'] = (saved.get('summary') or {}).get('score')
+                r['total_levels'] = len(saved.get('levels') or [])
+            except (IOError, ValueError, OSError):
+                pass
+
     rows.sort(key=lambda r: (r.get('finished'), -(r.get('done') or 0)))
-    print('%-42s %8s %7s %7s %-14s %9s %s'
-          % ('model', 'progress', 'score', 'failed', 'current', 'elapsed', 'state'))
+    print('%-42s %9s %5s %6s %6s %-14s %8s %8s %s'
+          % ('model', 'progress', 'left', 'total', 'failed', 'current',
+             'elapsed', 'eta', 'state'))
     for r in rows:
         done, planned = r.get('done') or 0, r.get('planned') or 0
         idle = _age(r.get('updated_utc'))
@@ -118,13 +134,37 @@ def cmd_progress():
         else:
             state = 'running'
         secs = r.get('seconds') or 0
-        print('%-42s %4d/%-3d %7.1f %7d %-14s %5.0f min %s'
-              % (r.get('model', '?'), done, planned, r.get('score') or 0,
-                 r.get('failed') or 0, (r.get('current') or '-')[:14],
-                 secs / 60.0, state))
+        eta = r.get('eta_seconds')
+        eta_s = '-' if eta is None else ('%.0f min' % (eta / 60.0) if eta else '-')
+        # Зажим обязателен: файл накопительный, и после точечного перепрогона
+        # done бывает больше planned — полоса уезжала на пол-экрана.
+        bar_n = max(0, min(10, int(round(10.0 * done / planned)))) if planned else 0
+        bar = '#' * bar_n + '.' * (10 - bar_n)
+        print('%-42s %s %4d/%-3d %5d %6.1f %6d %-14s %4.0f min %8s %s'
+              % (r.get('model', '?')[:42], bar, done, planned,
+                 max(0, r.get('remaining') if r.get('remaining') is not None
+                        else planned - done),
+                 # Итог по всему файлу, а не по текущему плану: перезапуск на
+                 # два уровня иначе показывал «0.0» у модели с 77.5 из 82.
+                 (r.get('total_score') if r.get('total_score') is not None
+                  else r.get('score') or 0),
+                 r.get('failed') or 0,
+                 (r.get('current') or '-')[:14], secs / 60.0, eta_s, state))
     live = [r for r in rows if not r.get('finished')]
+    # Тот же расчёт, что в строке: у заметок, написанных прошлой версией,
+    # поля remaining нет, и сумма по нему давала «0 уровней осталось»
+    # рядом с тремя идущими прогонами.
+    left = sum(max(0, (r.get('remaining') if r.get('remaining') is not None
+                       else (r.get('planned') or 0) - (r.get('done') or 0)))
+               for r in live)
+    etas = [r.get('eta_seconds') for r in live if r.get('eta_seconds')]
     print()
-    print('%d in flight, %d finished' % (len(live), len(rows) - len(live)))
+    # Сводка одной строкой: сколько ещё уровней всего и когда ждать конца.
+    # Прогоны идут параллельно, поэтому общее время — максимум из оценок,
+    # а не их сумма.
+    print('%d in flight, %d finished, %d levels left%s'
+          % (len(live), len(rows) - len(live), left,
+             (', about %.0f min to go' % (max(etas) / 60.0)) if etas else ''))
 
 
 def main():
