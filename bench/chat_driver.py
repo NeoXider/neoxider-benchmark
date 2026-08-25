@@ -147,6 +147,15 @@ def ask(cfg, prompt, session='nxb-chat'):
         args=[prompt], session=session, await_promise=True)
     browser_tools.click(cfg['input'], session_id=session, trusted=True)
     time.sleep(0.4)
+    # Освободить всё удержанное ПЕРЕД вставкой. Комбинация держит CONTROL, и
+    # если предыдущий промпт оборвался между «hold» и «release», клавиша
+    # остаётся зажатой — а следующая вставка падает с «key is already held».
+    # Так и потерялось 40 ответов DeepSeek из 49: одна осечка, и весь остаток
+    # прогона писался как «модель не ответила».
+    try:
+        browser_tools.release_inputs(session_id=session)
+    except Exception:      # noqa: BLE001
+        pass
     # Комбинация собирается по шагам: press_keys принимает одиночные клавиши,
     # а 'CONTROL+V' одной строкой он не понимает.
     browser_tools.input_batch(key_actions=[
@@ -226,6 +235,12 @@ def run(path, site, limit=None, session='nxb-chat', wanted=None):
         except Exception as exc:                    # noqa: BLE001
             print('  %-10s L%-2d ERROR %s' % (item['task'], item['level'], exc), flush=True)
             answer = None
+            # Сбой мог оставить клавишу зажатой; без этого падает и всё
+            # последующее, а в отчёт уходит «модель молчала».
+            try:
+                browser_tools.release_inputs(session_id=session)
+            except Exception:      # noqa: BLE001
+                pass
         item['answer'] = answer or ''
         # Пишем после КАЖДОГО ответа: прогон длинный, и обрыв на сороковом
         # промпте не должен стоить тридцати девяти собранных.

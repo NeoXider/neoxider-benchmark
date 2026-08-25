@@ -358,6 +358,18 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
               rerun=False, rerun_failed=False, progress=None, save_every=True):
     plan = registry.resolve(tasks=tasks, levels=levels, profile=profile)
 
+    # Два прогона одной модели с одним сидом пишут ОДИН файл результата, и
+    # побеждает тот, кто закончил позже. Так и потерялись 72 уровня luna:
+    # точечный перепрогон webform стартовал поверх ещё идущего полного прогона
+    # и записал сверху свои десять. Молча, без единой ошибки.
+    busy = _running_elsewhere(model_id, seed)
+    if busy is not None:
+        raise SystemExit(
+            'a run of %s (seed %s) is already in progress, last seen %d s ago. '
+            'Two runs share one result file and the later one overwrites the '
+            'other. Wait for it, or use --results to give this one its own '
+            'directory.' % (model_id, seed, busy))
+
     prev = load_existing(results_dir, model_id, seed) or {}
     done = {(r['task'], r['level']): r for r in prev.get('levels', [])}
 
@@ -640,6 +652,31 @@ def progress_dir():
 def _progress_path(model, seed):
     safe = str(model).replace('/', '_').replace(':', '_')
     return os.path.join(progress_dir(), '%s_%s.json' % (safe, seed))
+
+
+def _running_elsewhere(model_id, seed, fresh_seconds=180):
+    """Секунд назад отмечался другой живой прогон этой модели, или None.
+
+    Признак — отметка о ходе работы: её пишет только идущий прогон, и пишет
+    часто. Отметка старше нескольких минут означает, что тот прогон уже не
+    обновляется, и мешать он не может.
+    """
+    import calendar
+    now = calendar.timegm(time.gmtime())
+    for note in read_progress():
+        if note.get('model') != model_id or str(note.get('seed')) != str(seed):
+            continue
+        if note.get('finished'):
+            continue
+        try:
+            then = calendar.timegm(time.strptime(note.get('updated_utc'),
+                                                 '%Y-%m-%dT%H:%M:%SZ'))
+        except (TypeError, ValueError):
+            continue
+        age = now - then
+        if 0 <= age < fresh_seconds:
+            return age
+    return None
 
 
 def note_progress(run, planned, current=None, finished=False, plan_keys=None,
