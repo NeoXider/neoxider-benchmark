@@ -2,8 +2,8 @@
 <rect width="720" height="460" rx="14" fill="#0f1115"/>
 <rect x="0.5" y="0.5" width="719" height="459" rx="14" fill="none" stroke="#2a2f3a"/>
 <text x="28" y="42" fill="#8b93a1" font-size="13" letter-spacing="2">NEOXIDER BENCHMARK</text>
-<text x="28" y="74" fill="#e6e6e6" font-size="23" font-weight="700">opencode/pickle-rick-free</text>
-<text x="28" y="96" fill="#8b93a1" font-size="12">weights unknown · engine opencode · seed 20260824</text>
+<text x="28" y="74" fill="#e6e6e6" font-size="23" font-weight="700">opencode/nemotron-ultra-free</text>
+<text x="28" y="96" fill="#22c55e" font-size="12">open weights · engine opencode · seed 20260824</text>
 <text x="692" y="72" text-anchor="end" fill="#3b82f6" font-size="44" font-weight="700">0.0</text>
 <text x="692" y="94" text-anchor="end" fill="#8b93a1" font-size="12">of 1</text>
 <rect x="28" y="118" width="664" height="8" rx="4" fill="#2a2f3a"/>

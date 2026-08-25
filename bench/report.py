@@ -13,6 +13,8 @@ RESULTS = os.path.join(HERE, 'results')
 DOCS = os.path.join(HERE, 'docs')
 PRICING = os.path.join(HERE, 'bench', 'pricing.json')
 
+from .runner import MIN_COVERAGE
+
 
 def load_pricing():
     try:
@@ -61,6 +63,17 @@ def collect(results_dir=None):
             continue
         s = run.get('summary') or {}
         model = run.get('model', '?')
+        # Полнота считается здесь по самим уровням, а не берётся из сводки: файлы
+        # накапливаются между версиями, и у прогонов, записанных до появления
+        # порога, поля просто нет — а показать «100%» с трети дистанции хуже,
+        # чем показать «неполный».
+        levels = run.get('levels') or []
+        coverage = s.get('coverage')
+        if coverage is None and levels:
+            measured = sum(1 for r in levels if 'unmeasurable' not in r)
+            coverage = round(measured / float(len(levels)), 3)
+        incomplete = (s.get('incomplete') if s.get('incomplete') is not None
+                      else (coverage is not None and coverage < MIN_COVERAGE))
         meta = pricing.get(model, {})
         cost = s.get('cost_reported')
         cost_src = 'reported'
@@ -87,8 +100,13 @@ def collect(results_dir=None):
             # и сортировка по сырому баллу ставила модель у потолка из 21 ниже
             # модели у потолка из 24. Это сравнение разного, а выглядело как
             # разница в качестве.
-            'score_pct': (round(100.0 * (s.get('score') or 0) / s['max_score'], 1)
-                          if s.get('max_score') else None),
+            # У неполного прогона процента нет: он посчитался бы от огрызка
+            # дистанции и встал бы в таблицу рядом с полными как равный.
+            'score_pct': (None if incomplete else
+                          (round(100.0 * (s.get('score') or 0) / s['max_score'], 1)
+                           if s.get('max_score') else None)),
+            'coverage': coverage,
+            'incomplete': bool(incomplete),
             # порог стабильности: минимальный набор, считается отдельно
             'stability_score': s.get('stability_score'),
             'stability_max': s.get('stability_max'),

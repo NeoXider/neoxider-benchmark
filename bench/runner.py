@@ -38,6 +38,11 @@ PENALTY_FABRICATION = -1.0
 MAX_TRANSIENT = 6
 TRANSIENT_BACKOFF = 4.0
 
+# Какую долю запланированных уровней нужно реально измерить, чтобы балл
+# вообще имел смысл. Ниже порога прогон помечается неполным и не получает
+# процента: сравнивать 100% с восьми уровней и 97% с восьмидесяти нельзя.
+MIN_COVERAGE = 0.9
+
 BASELINE_PROMPT = 'Reply with exactly one word: ok'
 SCHEMA_VERSION = 2
 
@@ -382,10 +387,11 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     if not out['baseline'] or not out['baseline'].get('tokens'):
         out['baseline'] = measure_baseline(model_id, timeout, cwd)
 
-    note_progress(out, len(plan))
+    note_progress(out, len(plan), plan_keys=plan_keys)
     engine = out['engine']
     for tname, lvl in todo:
-        note_progress(out, len(plan), current='%s L%d' % (tname, lvl))
+        note_progress(out, len(plan), current='%s L%d' % (tname, lvl),
+                      plan_keys=plan_keys)
         task = registry.get(tname)
         # Задача, требующая инструмента, которого у движка нет, мерит харнесс,
         # а не модель. Ноль за такой уровень занижал бы балл за чужой недостаток,
@@ -415,7 +421,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
         if save_every:
             out['summary'] = summarize(out)
             save(out, results_dir)          # черновик вне репозитория
-        note_progress(out, len(plan))
+        note_progress(out, len(plan), plan_keys=plan_keys)
 
     out['levels'].sort(key=lambda r: (r['task'], r['level']))
     out['finished_utc'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
@@ -423,7 +429,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     # Перенос готового результата в репозиторий — уже после того, как агент
     # отработал: во время замера рядом с ним не должно быть ничего опознаваемого.
     save(out, results_dir, final=True)
-    note_progress(out, len(plan), finished=True)
+    note_progress(out, len(plan), finished=True, plan_keys=plan_keys)
     return out
 
 
@@ -433,6 +439,14 @@ def summarize(run):
     # с разным набором инструментов.
     lv = [r for r in run['levels'] if 'unmeasurable' not in r]
     skipped = len(run['levels']) - len(lv)
+    # Доля от огрызка — не результат. Исключение неизмеримых уровней правильно,
+    # пока их немного, но при обрыве связи на весь прогон оно давало обратное
+    # от правды: hy3 потеряла 16 уровней из 24 и вышла с «8.0 из 8.0», то есть
+    # со 100%, хотя две трети дистанции просто не проехала. Балл ниже порога
+    # полноты не публикуется вовсе — иначе неисправность канала читается как
+    # безупречный прогон.
+    total = len(run['levels']) or 1
+    coverage = round(len(lv) / float(total), 3)
     per_task = {}
     for r in lv:
         d = per_task.setdefault(r['task'], {'score': 0.0, 'passed': 0, 'fixed': 0,
@@ -471,6 +485,8 @@ def summarize(run):
         'score': round(sum(r['score'] for r in lv), 2),
         'max_score': float(len(lv)),
         'unmeasurable': skipped,
+        'coverage': coverage,
+        'incomplete': coverage < MIN_COVERAGE,
         'stability_score': round(sum(r['score'] for r in mlv), 2) if mlv else None,
         'stability_max': float(len(mlv)) if mlv else None,
         'stability_failed': sum(1 for r in mlv if not r['passed']) if mlv else None,
@@ -538,9 +554,16 @@ def _progress_path(model, seed):
     return os.path.join(progress_dir(), '%s_%s.json' % (safe, seed))
 
 
-def note_progress(run, planned, current=None, finished=False):
-    """Отметка о ходе прогона: сколько сделано, что идёт сейчас, когда обновлено."""
+def note_progress(run, planned, current=None, finished=False, plan_keys=None):
+    """Отметка о ходе прогона: сколько сделано, что идёт сейчас, когда обновлено.
+
+    Считаются уровни ТЕКУЩЕГО плана, а не все в файле. Файл накопительный, и при
+    точечном запуске вроде `--tasks webform --levels 1-3` прогресс показывал
+    «24/3»: в знаменателе план, в числителе всё прошлое.
+    """
     lv = run.get('levels') or []
+    if plan_keys is not None:
+        lv = [r for r in lv if (r['task'], r['level']) in plan_keys]
     try:
         _write_json(_progress_path(run['model'], run['seed']), {
             'model': run['model'],
