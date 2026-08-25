@@ -417,6 +417,110 @@
    "card": "cards/codex_gpt-5.6-terra.svg"
   },
   {
+   "model": "codex/gpt-5.6-luna",
+   "engine": "codex",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "params_b": null,
+   "tier": "medium",
+   "tier_source": "vendor positioning",
+   "seed": 20260824,
+   "date": "2026-08-25",
+   "score": 73.0,
+   "max_score": 82.0,
+   "score_pct": 89.0,
+   "coverage": 1.0,
+   "incomplete": false,
+   "stability_score": 23.5,
+   "stability_max": 24.0,
+   "stability_failed": 0,
+   "unmeasurable": 0,
+   "passed": 75,
+   "first_try": 72,
+   "fixed": 3,
+   "failed": 7,
+   "fabricated": 0,
+   "honesty": 0.286,
+   "refused": 2,
+   "wrong": 5,
+   "seconds": 4861.0,
+   "tokens_total": 25881678,
+   "tokens_net": 24230585,
+   "baseline_tokens": 20644,
+   "cost": 5.39756,
+   "cost_source": "estimated",
+   "price_ref": "openrouter:openai/gpt-5.6-luna",
+   "per_task": {
+    "calc": {
+     "score": 11.5,
+     "passed": 12,
+     "fixed": 1,
+     "total": 12,
+     "seconds": 266.5
+    },
+    "count": {
+     "score": 8.5,
+     "passed": 9,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 285.9
+    },
+    "honesty": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 303.8
+    },
+    "path3d": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 183.3
+    },
+    "pathperf": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 215.5
+    },
+    "spatial": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 186.9
+    },
+    "toolchoice": {
+     "score": 7.5,
+     "passed": 8,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 493.4
+    },
+    "webform": {
+     "score": 5.5,
+     "passed": 6,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 2925.5
+    }
+   },
+   "per_category": {
+    "math": 0.958,
+    "logic": 0.943,
+    "instruction": 0.9,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 0.7
+   },
+   "levels_done": 82,
+   "card": "cards/codex_gpt-5.6-luna.svg"
+  },
+  {
    "model": "claude/claude-haiku-4-5-20251001",
    "engine": "claude",
    "weights": "closed",
@@ -831,56 +935,6 @@
    },
    "levels_done": 24,
    "card": "cards/opencode_muse-spark-1.2-contributor-free.svg"
-  },
-  {
-   "model": "codex/gpt-5.6-luna",
-   "engine": "codex",
-   "weights": "closed",
-   "local": false,
-   "weights_ref": null,
-   "params_b": null,
-   "tier": "medium",
-   "tier_source": "vendor positioning",
-   "seed": 20260824,
-   "date": "2026-08-25",
-   "score": 5.5,
-   "max_score": 10.0,
-   "score_pct": 55.0,
-   "coverage": 1.0,
-   "incomplete": false,
-   "stability_score": 2.5,
-   "stability_max": 3.0,
-   "stability_failed": 0,
-   "unmeasurable": 0,
-   "passed": 6,
-   "first_try": 5,
-   "fixed": 1,
-   "failed": 4,
-   "fabricated": 0,
-   "honesty": null,
-   "refused": null,
-   "wrong": null,
-   "seconds": 2925.4,
-   "tokens_total": 22309976,
-   "tokens_net": 22144864,
-   "baseline_tokens": 20644,
-   "cost": 4.599972,
-   "cost_source": "estimated",
-   "price_ref": "openrouter:openai/gpt-5.6-luna",
-   "per_task": {
-    "webform": {
-     "score": 5.5,
-     "passed": 6,
-     "fixed": 1,
-     "total": 10,
-     "seconds": 2925.5
-    }
-   },
-   "per_category": {
-    "agentic": 0.55
-   },
-   "levels_done": 10,
-   "card": "cards/codex_gpt-5.6-luna.svg"
   },
   {
    "model": "lmstudio-local/qwen_qwen3.5-2b",

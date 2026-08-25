@@ -106,7 +106,7 @@
    "level": 3,
    "needs": [],
    "prompt": "Output the numbers from 1 to 180 one per line, but replace every number divisible by 4 with the word skip.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "count\nCopy\nDownload\n1\n2\n3\nskip\n5\n6\n7\nskip\n9\n10\n11\nskip\n13\n14\n15\nskip\n17\n18\n19\nskip\n21\n22\n23\nskip\n25\n26\n27\nskip\n29\n30\n31\nskip\n33\n34\n35\nskip\n37\n38\n39\nskip\n41\n42\n43\nskip\n45\n46\n47\nskip\n49\n50\n51\nskip\n53\n54\n55\nskip\n57\n58\n59\nskip\n61\n62\n63\nskip\n65\n66\n67\nskip\n69\n70\n71\nskip\n73\n74\n75\nskip\n77\n78\n79\nskip\n81\n82\n83\nskip\n85\n86\n87\nskip\n89\n90\n91\nskip\n93\n94\n95\nskip\n97\n98\n99\nskip\n101\n102\n103\nskip\n105\n106\n107\nskip\n109\n110\n111\nskip\n113\n114\n115\nskip\n117\n118\n119\nskip\n121\n122\n123\nskip\n125\n126\n127\nskip\n129\n130\n131\nskip\n133\n134\n135\nskip\n137\n138\n139\nskip\n141\n142\n143\nskip\n145\n146\n147\nskip\n149\n150\n151\nskip\n153\n154\n155\nskip\n157\n158\n159\nskip\n161\n162\n163\nskip\n165\n166\n167\nskip\n169\n170\n171\nskip\n173\n174\n175\nskip\n177\n178\n179\nskip"
   },
   {
    "task": "count",
