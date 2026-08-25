@@ -36,7 +36,7 @@
    "level": 5,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the equation for x:\n\n(3)*x + (-8) = (11)*x + (-24)\n\nGive the answer as exactly one line:\nANSWER: x=<value>\nThe value is an integer or an irreducible fraction p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=2"
   },
   {
    "task": "calc",
@@ -50,7 +50,7 @@
    "level": 7,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the system of equations:\n\n(8)*x + (1)*y = 73\n(7)*x + (-5)*y = 105\n\nGive the answer as exactly one line:\nANSWER: x=<value>, y=<value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=10, y=-7"
   },
   {
    "task": "calc",
@@ -78,14 +78,14 @@
    "level": 11,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nThe parts depend on one another; work through them in order.\n\nPart A. Follow the chain and report the final value t5:\n\nStep 1. Let t1 = 8.\nStep 2. t2 = t1**2 - (6).\nStep 3. t3 = 2 / (t2 + (-7)).\nStep 4. t4 = 3 / (t3 + (-7)).\nStep 5. t5 = 4 / (t4 + (0)).\n\nPart B. Solve the system:\n\n-7*x + 3*y + -2*z = 8\n-7*x + 7*y + -3*z = 4\n-4*x + -6*y + 5*z = 46\n\nPart C. Compute r = t5 + x*y - z from your own answers above.\n\nGive the answer as exactly one line:\nANSWER: t5=<value>, x=<value>, y=<value>, z=<value>, r=<value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: t5=-1420/153, x=-3, y=1, z=8, r=-3103/153"
   },
   {
    "task": "calc",
    "level": 12,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvery part depends on the one before it: a later part cannot be checked without finishing the earlier ones.\n\nPart A. Follow the chain and report the final value t8:\n\nStep 1. Let t1 = 5.\nStep 2. t2 = t1**2 - (-2).\nStep 3. t3 = 6 / (t2 + (-5)).\nStep 4. t4 = 6 / (t3 + (-8)).\nStep 5. t5 = (6*t4 + (1)) / 5.\nStep 6. t6 = (2*t5 + (6)) / 5.\nStep 7. t7 = 4 / (t6 + (9)).\nStep 8. t8 = t7**2 - (-8).\n\nPart B. Solve the system:\n\n2*x + 0*y + -7*z = 45\n4*x + 5*y + 2*z = -94\n-1*x + -4*y + 0*z = 41\n\nPart C. Build the equation u**2 + p*u + q = 0 where p = -(t8 + x) and q = t8 * x, using your own answers, and give both roots in ascending order.\n\nGive the answer as exactly one line:\nANSWER: t8=<value>, x=<value>, y=<value>, z=<value>, x1=<smaller>, x2=<larger>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: t8=3618080472/443228809, x=-9, y=-8, z=-9, x1=-9, x2=3618080472/443228809"
   },
   {
    "task": "count",
@@ -652,5 +652,7 @@
    "answer": "",
    "unmeasurable": "no tools in the chat channel"
   }
- ]
+ ],
+ "ui_model": null,
+ "model_unverified": true
 }

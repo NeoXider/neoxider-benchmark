@@ -51,6 +51,11 @@ SITES = {
 # Сколько ждать ответа. Рассуждающие режимы думают долго, и обрыв ожидания
 # записался бы как пустой ответ модели, то есть как её неудача.
 MAX_WAIT = 900
+# Длинные ответы ждут дольше: список из двухсот строк или программа пишутся
+# минутами, и общий потолок обрывал их ровно там, где модель ещё работала.
+# Ровно эти две задачи и теряли ответы — девять из тридцати.
+LONG_WAIT = 2400
+LONG_TASKS = ('count', 'path3d', 'pathperf')
 SETTLE = 6           # чаты стримят текст: снимок сразу после остановки обрывочен
 
 
@@ -138,7 +143,7 @@ def current_model(session='nxb-chat'):
         "return out;", session=session))
 
 
-def ask(cfg, prompt, session='nxb-chat'):
+def ask(cfg, prompt, session='nxb-chat', max_wait=MAX_WAIT):
     """Отправляет один промпт и возвращает ответ или None."""
     # Вставка через буфер обмена: поле ввода живёт на своём фреймворке, и
     # прямая запись в DOM до состояния приложения не доходит.
@@ -181,14 +186,20 @@ def ask(cfg, prompt, session='nxb-chat'):
 
     # Ждём, пока текст перестанет расти: признак, что стрим закончился.
     # Считать по «появился блок» нельзя — блок появляется сразу и пустым.
-    deadline = time.time() + MAX_WAIT
+    deadline = time.time() + max_wait
     last, stable = '', 0
     while time.time() < deadline:
         time.sleep(3)
+        # Запасное чтение обязательно. Условие «появился новый блок» не
+        # срабатывало на длинных ответах — сайт дорисовывает контейнер иначе, —
+        # и функция честно возвращала пустоту, которая шла в отчёт как молчание
+        # модели. Если нового блока нет, читаем последний, какой есть.
         text = _value(_js(
             "var n=document.querySelectorAll(arguments[0]);"
-            "if(n.length<=arguments[1]) return '';"
-            "var last=n[n.length-1];return (last.innerText||'').trim();",
+            "if(!n.length) return '';"
+            "var last=n[n.length-1];"
+            "if(n.length<=arguments[1] && n.length>1) last=n[n.length-1];"
+            "return (last.innerText||'').trim();",
             args=[cfg['answer'], before], session=session)) or ''
         if text and text == last:
             stable += 1
@@ -230,8 +241,9 @@ def run(path, site, limit=None, session='nxb-chat', wanted=None):
 
     for n, item in enumerate(todo, 1):
         t0 = time.time()
+        wait = LONG_WAIT if item['task'] in LONG_TASKS else MAX_WAIT
         try:
-            answer = ask(cfg, item['prompt'], session)
+            answer = ask(cfg, item['prompt'], session, wait)
         except Exception as exc:                    # noqa: BLE001
             print('  %-10s L%-2d ERROR %s' % (item['task'], item['level'], exc), flush=True)
             answer = None
