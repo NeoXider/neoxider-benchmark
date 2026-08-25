@@ -572,7 +572,11 @@ def note_progress(run, planned, current=None, finished=False, plan_keys=None):
             'planned': planned,
             'done': len(lv),
             'passed': sum(1 for r in lv if r.get('passed')),
-            'failed': sum(1 for r in lv if not r.get('passed')),
+            # Неизмеримый уровень не провал: в сводке прогона он уже исключён,
+            # а здесь считался как неудача, и модель, до которой не дошёл ни один
+            # запрос, показывалась как «провалила всё».
+            'failed': sum(1 for r in lv
+                          if not r.get('passed') and 'unmeasurable' not in r),
             'score': round(sum(r.get('score') or 0 for r in lv), 2),
             'seconds': round(sum(r.get('seconds') or 0 for r in lv), 1),
             'current': current,

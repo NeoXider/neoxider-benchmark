@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neoxider Benchmark — live run</title>
+<style>
+  :root{
+    --bg:#0f1115; --text:#e6e6e6; --muted:#9aa3af; --line:#262b33; --card:#161a21;
+    --accent:#3b82f6; --good:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:26px;margin:0 0 2px}
+  .topline{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  .btn{margin-left:auto;color:var(--text);text-decoration:none;font-size:14px;
+       border:1px solid var(--line);background:var(--card);border-radius:8px;
+       padding:8px 14px;white-space:nowrap;transition:border-color .25s ease,color .25s ease}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  header p{color:var(--muted);margin:0;font-size:14px}
+
+  /* Итоговые плитки */
+  #tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+         gap:12px;margin:20px 0 8px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .tile .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+  .tile .v{font-size:24px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+
+  /* Карточка модели */
+  .row{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;
+       background:var(--card);border:1px solid var(--line);border-radius:12px;
+       padding:12px 15px;margin-top:10px;
+       transition:border-color .4s ease, background .4s ease}
+  .row.running{border-color:#24405f}
+  .row.silent{border-color:#5a4520}
+  .row.done{opacity:.72}
+
+  /* Кольцо процента */
+  .ring{width:56px;height:56px;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+  .ring .bg{stroke:#242a34}
+  /* Дуга анимируется через stroke-dashoffset: значение приезжает плавно,
+     вместо скачка, и глазу видно направление движения. */
+  .ring .fg{stroke:var(--accent);transition:stroke-dashoffset .7s ease, stroke .5s ease}
+  .ring-wrap{position:relative;width:56px;height:56px}
+  .ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+            font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+
+  .head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}
+  .name{font-weight:600}
+  .engine{color:var(--muted);font-size:12px;border:1px solid var(--line);
+          border-radius:999px;padding:0 7px}
+  .state{font-size:12px;margin-left:auto;font-weight:600}
+  .state.running{color:var(--accent)}
+  .state.silent{color:var(--warn)}
+  .state.done{color:var(--good)}
+
+  .bar{height:7px;border-radius:4px;background:#20252e;margin-top:9px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:4px;background:var(--accent);
+         width:0;transition:width .7s ease, background .5s ease}
+  .row.running .bar i{
+    /* Бегущие полосы только у идущего прогона: это единственная анимация,
+       которая что-то сообщает — что процесс жив, а не замер. */
+    background-image:linear-gradient(110deg,rgba(255,255,255,.22) 25%,transparent 25%,
+                    transparent 50%,rgba(255,255,255,.22) 50%,rgba(255,255,255,.22) 75%,
+                    transparent 75%);
+    background-size:22px 22px;animation:flow 1s linear infinite}
+  @keyframes flow{to{background-position:22px 0}}
+
+  .meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:7px;
+        color:var(--muted);font-size:13px}
+  .meta b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+  .cur{color:var(--accent);font-variant-numeric:tabular-nums}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+       background:var(--accent);margin-right:6px;vertical-align:1px}
+  .row.running .dot{animation:pulse 1.4s ease-in-out infinite}
+  .row.silent .dot{background:var(--warn)}
+  .row.done .dot{background:var(--good);animation:none}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  .empty{color:var(--muted);text-align:center;padding:40px 0}
+  .legend{color:var(--muted);font-size:13px;margin-top:18px;
+          border-left:2px solid var(--bad);padding-left:12px}
+  footer{color:var(--muted);font-size:12px;margin-top:22px;text-align:center}
+  .off{color:var(--bad)}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="topline">
+      <div>
+        <h1>Live run</h1>
+        <p>Every model currently taking the benchmark, and how far it has got.</p>
+      </div>
+      <!-- Локальный лидерборд, а не GitHub Pages: там лежит последний
+           запушенный прогон, а отсюда виден тот, что идёт прямо сейчас. -->
+      <a class="btn" href="index.html" target="_blank" rel="noopener">Results &rarr;</a>
+    </div>
+  </header>
+
+  <div id="tiles"></div>
+  <div id="rows"></div>
+  <p class="legend"><span class="off">unmeasurable</span> — levels the engine never
+     answered at all, usually a provider outage. Not failures: they are left out of
+     both the score and its denominator, and a run that loses too many of them is
+     marked incomplete instead of being given a percentage.</p>
+  <footer id="foot">connecting…</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const R = 25, CIRC = 2 * Math.PI * R;
+
+function stateOf(r){
+  if (r.finished) return 'done';
+  // «Молчит» — это не «упал»: со стороны страницы видно только отсутствие
+  // свежих отметок, и называть это падением было бы догадкой.
+  const idle = r.idle_seconds;
+  if (idle != null && idle > 900) return 'silent';
+  return 'running';
+}
+
+function pctOf(r){
+  const p = r.planned || 0, d = r.done || 0;
+  if (!p) return 0;
+  return Math.max(0, Math.min(100, Math.round(100 * d / p)));
+}
+
+function fmtEta(s){
+  if (s == null) return '—';
+  if (s <= 0) return '—';
+  const m = Math.round(s / 60);
+  return m < 60 ? m + ' min' : (m/60).toFixed(1) + ' h';
+}
+
+function rowHtml(r){
+  const st = stateOf(r), pct = pctOf(r);
+  const off = CIRC * (1 - pct / 100);
+  const colour = st === 'done' ? 'var(--good)' : st === 'silent' ? 'var(--warn)' : 'var(--accent)';
+  const total = (r.total_score != null)
+    ? `<span>score <b>${(+r.total_score).toFixed(1)}</b>${r.total_max?' / '+(+r.total_max).toFixed(0):''}</span>` : '';
+  const unmeas = r.unmeasurable
+    ? `<span class="off" title="Levels that could not be measured at all - the engine returned nothing, usually a provider outage. They are not failures and are excluded from the score.">unmeasurable <b>${r.unmeasurable}</b></span>` : '';
+  return `
+  <div class="row ${st}" data-model="${esc(r.model)}">
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 56 56">
+        <circle class="bg" cx="28" cy="28" r="${R}"></circle>
+        <circle class="fg" cx="28" cy="28" r="${R}"
+                stroke="${colour}"
+                stroke-dasharray="${CIRC.toFixed(1)}"
+                stroke-dashoffset="${off.toFixed(1)}"></circle>
+      </svg>
+      <div class="ring-pct">${pct}%</div>
+    </div>
+    <div>
+      <div class="head">
+        <span class="dot"></span><span class="name">${esc(r.model)}</span>
+        <span class="engine">${esc(r.engine || '?')}</span>
+        <span class="state ${st}">${st === 'silent'
+            ? 'silent ' + Math.round(r.idle_seconds/60) + ' min' : st}</span>
+      </div>
+      <div class="bar"><i style="width:${pct}%;background:${colour}"></i></div>
+      <div class="meta">
+        <span><b>${r.done||0}</b> / ${r.planned||0} levels</span>
+        <span>left <b>${r.remaining != null ? r.remaining : Math.max(0,(r.planned||0)-(r.done||0))}</b></span>
+        ${r.current && !r.finished ? `<span>now <span class="cur">${esc(r.current)}</span></span>` : ''}
+        ${!r.finished ? `<span>eta <b>${fmtEta(r.eta_seconds)}</b></span>` : ''}
+        ${total}${unmeas}
+      </div>
+    </div>
+  </div>`;
+}
+
+function render(d){
+  const runs = d.runs || [];
+  const order = {running:0, silent:1, done:2};
+  runs.sort((a,b) => (order[stateOf(a)] - order[stateOf(b)]) || (b.done||0)-(a.done||0));
+
+  $('#tiles').innerHTML = `
+    <div class="tile"><div class="k">Running now</div><div class="v">${d.in_flight||0}</div></div>
+    <div class="tile"><div class="k">Finished</div><div class="v">${d.finished||0}</div></div>
+    <div class="tile"><div class="k">Levels left</div><div class="v">${d.levels_left||0}</div></div>`;
+
+  $('#rows').innerHTML = runs.length
+    ? runs.map(rowHtml).join('')
+    : '<div class="empty">No runs recorded yet. Start one and this page fills in.</div>';
+
+  const t = new Date();
+  $('#foot').textContent = 'updated ' + t.toLocaleTimeString() + ' · refreshes every 2 s';
+}
+
+async function tick(){
+  try {
+    const res = await fetch('progress.json', {cache:'no-store'});
+    render(await res.json());
+  } catch (e) {
+    // Сервер останавливают вместе с прогоном — это ожидаемый конец, а не сбой,
+    // поэтому страница говорит об этом спокойно и продолжает опрашивать.
+    $('#foot').textContent = 'no answer from the runner — is it still up?';
+  }
+}
+tick();
+setInterval(tick, 2000);
+</script>
+</body>
+</html>

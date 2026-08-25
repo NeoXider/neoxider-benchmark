@@ -186,6 +186,9 @@ def main():
     ap.add_argument('--progress', action='store_true',
                     help='live view of every run in flight')
     ap.add_argument('--report', action='store_true', help='rebuild the leaderboard')
+    ap.add_argument('--live', action='store_true',
+                    help='open a live dashboard of the running benchmarks')
+    ap.add_argument('--port', type=int, default=8791, help='port for --live')
     ap.add_argument('--export-prompts', action='store_true',
                     help='export prompts for a model without a CLI (chat channel)')
     ap.add_argument('--import-answers', metavar='FILE',
@@ -196,6 +199,11 @@ def main():
     if args.list:
         cmd_list()
         return 0
+
+    if args.live:
+        from bench import live
+        live.serve(args.port)
+        return
 
     if args.progress:
         cmd_progress()
@@ -219,7 +227,7 @@ def main():
         return 0
 
     if not args.model:
-        ap.error('need --model (or --list / --report)')
+        ap.error('need --model (or --list / --report / --progress / --live)')
 
     if args.export_prompts:
         from bench import chat_io
