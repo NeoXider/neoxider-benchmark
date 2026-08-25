@@ -111,6 +111,10 @@ def collect(results_dir=None):
             'score_pct': (None if incomplete else
                           (round(100.0 * (s.get('score') or 0) / s['max_score'], 1)
                            if s.get('max_score') else None)),
+            # Диапазон уровней прогона. Без него проценты разных профилей
+            # читаются как один рейтинг, хотя это разные наборы задач.
+            'level_min': s.get('level_min') or (min([r['level'] for r in levels]) if levels else None),
+            'level_max': s.get('level_max') or (max([r['level'] for r in levels]) if levels else None),
             'coverage': coverage,
             'incomplete': bool(incomplete),
             # порог стабильности: минимальный набор, считается отдельно

@@ -619,6 +619,11 @@ def summarize(run):
         'refused': sum(1 for r in lv if r.get('refused')),
         'wrong': sum(1 for r in lv if not r.get('passed')
                      and not r.get('refused') and not r.get('fabricated')),
+        # Диапазон уровней. Балл в процентах сравним только внутри одного
+        # диапазона: 83% на уровнях 1–3 и 87% на 1–12 — это разные экзамены, и
+        # ставить их рядом как один рейтинг значит сравнивать несравнимое.
+        'level_min': min([r['level'] for r in lv] or [0]),
+        'level_max': max([r['level'] for r in lv] or [0]),
         'unmeasurable': skipped,
         'coverage': coverage,
         'incomplete': coverage < MIN_COVERAGE,

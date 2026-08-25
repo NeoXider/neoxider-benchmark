@@ -48,6 +48,7 @@
   #cat-picks{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;font-size:14px}
   #cat-picks label{cursor:pointer;white-space:nowrap}
   #nocost,#notokens{color:var(--muted);font-size:13px;margin-top:8px}
+  #notokens{border-left:2px solid var(--closed);padding-left:10px}
   pre.run{background:#0b0d12;border:1px solid var(--line);border-radius:10px;
     padding:14px 16px;overflow-x:auto;margin:12px 0}
   pre.run code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -115,6 +116,11 @@
         <label title="Up to 20B parameters"><input type="radio" name="f-tier" value="small">Small</label>
         <label title="20–150B parameters"><input type="radio" name="f-tier" value="medium">Medium</label>
         <label title="Above 150B, or a vendor's flagship"><input type="radio" name="f-tier" value="frontier">Frontier</label>
+      </span>
+      <span>
+        <label><input type="radio" name="f-depth" value="all" checked>Any depth</label>
+        <label title="Only the stability floor: levels 1-3"><input type="radio" name="f-depth" value="minimal">Levels 1–3</label>
+        <label title="Runs that went past the stability floor"><input type="radio" name="f-depth" value="full">Full depth</label>
       </span>
       <span><label><input type="checkbox" id="f-local">Local runs only</label></label></span>
       <span><label>Engine: <select id="f-engine"></select></label></span>
@@ -442,6 +448,7 @@ const COLS = [
   {key:'engine',         label:'Engine',              num:false},
   {key:'weights',        label:'Weights',             num:false},
   {key:'tier',           label:'Size',                num:false},
+  {key:'level_max',      label:'Levels',              num:true },
   {key:'score',          label:'Score %',             num:true },
   {key:'stability',      label:'Stability',           num:true },
   {key:'first_try',      label:'First try',           num:true },
@@ -460,6 +467,11 @@ const COLS = [
 function cellText(r, key){
   switch(key){
     case 'model':  return `<td class="model-cell" title="${esc(r.model)}">${esc(r.model)}</td>`;
+    case 'level_max':
+      // Глубина прогона рядом с баллом: 83% на уровнях 1–3 и 87% на 1–12 —
+      // разные экзамены, и без этой колонки они читаются как один рейтинг.
+      return `<td class="num"${(r.level_max||0)<=3?' title="Stability floor only: the easiest levels"':''}>`
+           + `${r.level_min||'?'}–${r.level_max||'?'}</td>`;
     case 'tier': {
       // Число параметров показываем, когда оно опубликовано. У закрытых моделей
       // его нет, и ярус там — позиционирование вендора: это видно по подсказке,
@@ -541,12 +553,14 @@ function cellText(r, key){
 function filteredRuns(){
   const w   = document.querySelector('input[name=f-weights]:checked').value;
   const tier= document.querySelector('input[name=f-tier]:checked').value;
+  const dep = document.querySelector('input[name=f-depth]:checked').value;
   const loc = $('#f-local').checked;
   const eng = $('#f-engine').value;
   const q   = $('#f-search').value.trim().toLowerCase();
   return RUNS.filter(r =>
     (w==='all' || r.weights===w) &&
     (tier==='all' || r.tier===tier) &&
+    (dep==='all' || (dep==='minimal' ? (r.level_max||0) <= 3 : (r.level_max||0) > 3)) &&
     (!loc || r.local) &&
     (eng==='all' || r.engine===eng) &&
     (!q || r.model.toLowerCase().includes(q)));
@@ -587,7 +601,7 @@ function initControls(){
     `<label style="color:${modelColors[r.model]}"><input type="checkbox" value="${esc(r.model)}"${i<3?' checked':''}> ${esc(shortModel(r.model))}${r.fabricated>0?` <span style="color:var(--red)">(FABRICATED ${r.fabricated})</span>`:''}</label>`
   ).join('');
   document.querySelectorAll('#cat-picks input').forEach(i=>i.addEventListener('change', drawCats));
-  ['input[name=f-weights]','input[name=f-tier]','#f-local','#f-engine','#f-search'].forEach(sel=>{
+  ['input[name=f-weights]','input[name=f-tier]','input[name=f-depth]','#f-local','#f-engine','#f-search'].forEach(sel=>{
     document.querySelectorAll(sel).forEach(el=>el.addEventListener('change', refresh));
     document.querySelectorAll(sel).forEach(el=>el.addEventListener('input', refresh));
   });
@@ -631,8 +645,14 @@ function refresh(){
   const noTok = shown.filter(r => !(r.score_pct!=null && r.tokens_net>0))
                     .map(r => r.model);
   const tokNote = $('#notokens');
-  if (tokNote) tokNote.textContent = noTok.length
-    ? 'Not plotted (no token telemetry or an incomplete run): ' + noTok.join(', ') : '';
+  const depths = new Set(shown.filter(r=>r.score_pct!=null).map(r=>(r.level_max||0)>3?'full':'minimal'));
+  const notes = [];
+  if (depths.size > 1) notes.push(
+    'Mixed depths on one axis: some runs cover only levels 1–3, the stability '
+    + 'floor, and others go to 10 or 12. A percentage is comparable within a '
+    + 'depth, not across it — filter by depth above to compare like with like.');
+  if (noTok.length) notes.push('Not plotted (no token telemetry or an incomplete run): ' + noTok.join(', '));
+  if (tokNote) tokNote.textContent = notes.join(' · ');
   drawScatter('#chart-cost',
     // ноль ценой не считается: см. пояснение над графиком
     shown.filter(r=>r.cost!=null && r.cost>0 && r.score_pct!=null)
