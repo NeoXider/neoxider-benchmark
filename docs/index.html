@@ -98,6 +98,31 @@
   <div id="tiles"></div>
 
   <section>
+    <h2>Filters</h2>
+    <p class="hint">These apply to the charts and the table alike. Size is by
+       published parameter count — small up to 20B, medium 20–150B, frontier
+       above that; the thresholds sit where the way you run a model changes, not
+       at round numbers. Vendors do not publish sizes for closed models, so those
+       are placed by the vendor's own positioning and marked as such on hover.</p>
+    <div class="filters">
+      <span>
+        <label><input type="radio" name="f-weights" value="all" checked>All weights</label>
+        <label title="The weights can be downloaded and run yourself"><input type="radio" name="f-weights" value="open">Open</label>
+        <label><input type="radio" name="f-weights" value="closed">Closed</label>
+      </span>
+      <span>
+        <label><input type="radio" name="f-tier" value="all" checked>All sizes</label>
+        <label title="Up to 20B parameters"><input type="radio" name="f-tier" value="small">Small</label>
+        <label title="20–150B parameters"><input type="radio" name="f-tier" value="medium">Medium</label>
+        <label title="Above 150B, or a vendor's flagship"><input type="radio" name="f-tier" value="frontier">Frontier</label>
+      </span>
+      <span><label><input type="checkbox" id="f-local">Local runs only</label></label></span>
+      <span><label>Engine: <select id="f-engine"></select></label></span>
+      <span><input type="search" id="f-search" placeholder="search by model name…"></span>
+    </div>
+  </section>
+
+  <section>
     <h2>Tokens → score</h2>
     <p class="hint">X axis — net tokens, on a log scale because token spend differs by multiples rather than by percentages. Y axis — percentage of the measurable levels cleared, ranged to the data rather than from zero: models cluster near the top, and a fixed 0–100 spends half the chart on empty space. The axis is a percentage rather than a raw score on purpose: runs use different profiles — 24 levels against 82 — and plotting the absolute put a model at 93.8% three times higher than one at 85.4%, comparing the length of the distance while reading as a difference in strength.</p>
     <div class="chart-box"><div id="legend-tokens" class="legend"></div><div id="chart-tokens"></div><div id="notokens"></div></div>
@@ -118,16 +143,6 @@
 
   <section>
     <h2>Leaderboard table</h2>
-    <div class="filters">
-      <span>
-        <label><input type="radio" name="f-weights" value="all" checked>All weights</label>
-        <label title="The weights can be downloaded and run yourself"><input type="radio" name="f-weights" value="open">Open only</label>
-        <label><input type="radio" name="f-weights" value="closed">Closed only</label>
-        <label><input type="checkbox" id="f-local">Local runs only</label>
-      </span>
-      <span><label>Engine: <select id="f-engine"></select></label></span>
-      <span><input type="search" id="f-search" placeholder="search by model name…"></span>
-    </div>
     <div class="table-scroll">
       <table id="tbl"><thead></thead><tbody></tbody></table>
     </div>
@@ -426,6 +441,7 @@ const COLS = [
   {key:'model',          label:'Model',               num:false},
   {key:'engine',         label:'Engine',              num:false},
   {key:'weights',        label:'Weights',             num:false},
+  {key:'tier',           label:'Size',                num:false},
   {key:'score',          label:'Score %',             num:true },
   {key:'stability',      label:'Stability',           num:true },
   {key:'first_try',      label:'First try',           num:true },
@@ -444,6 +460,16 @@ const COLS = [
 function cellText(r, key){
   switch(key){
     case 'model':  return `<td class="model-cell" title="${esc(r.model)}">${esc(r.model)}</td>`;
+    case 'tier': {
+      // Число параметров показываем, когда оно опубликовано. У закрытых моделей
+      // его нет, и ярус там — позиционирование вендора: это видно по подсказке,
+      // чтобы догадку нельзя было прочитать как замер.
+      const t = r.tier || 'unknown';
+      const hint = r.params_b ? `${r.params_b}B parameters`
+                 : (r.tier_source ? 'size not published; placed by ' + r.tier_source
+                                  : 'size not published');
+      return `<td title="${esc(hint)}">${t}${r.params_b?` <span class="dim">${r.params_b}B</span>`:''}</td>`;
+    }
     case 'weights': {
       // Открытость проверяема, поэтому бейдж ведёт на сам репозиторий весов:
       // утверждение «модель можно скачать» должно быть кликабельным.
@@ -514,11 +540,13 @@ function cellText(r, key){
 }
 function filteredRuns(){
   const w   = document.querySelector('input[name=f-weights]:checked').value;
+  const tier= document.querySelector('input[name=f-tier]:checked').value;
   const loc = $('#f-local').checked;
   const eng = $('#f-engine').value;
   const q   = $('#f-search').value.trim().toLowerCase();
   return RUNS.filter(r =>
     (w==='all' || r.weights===w) &&
+    (tier==='all' || r.tier===tier) &&
     (!loc || r.local) &&
     (eng==='all' || r.engine===eng) &&
     (!q || r.model.toLowerCase().includes(q)));
@@ -559,9 +587,9 @@ function initControls(){
     `<label style="color:${modelColors[r.model]}"><input type="checkbox" value="${esc(r.model)}"${i<3?' checked':''}> ${esc(shortModel(r.model))}${r.fabricated>0?` <span style="color:var(--red)">(FABRICATED ${r.fabricated})</span>`:''}</label>`
   ).join('');
   document.querySelectorAll('#cat-picks input').forEach(i=>i.addEventListener('change', drawCats));
-  ['input[name=f-weights]','#f-local','#f-engine','#f-search'].forEach(sel=>{
-    document.querySelectorAll(sel).forEach(el=>el.addEventListener('change', renderTable));
-    document.querySelectorAll(sel).forEach(el=>el.addEventListener('input', renderTable));
+  ['input[name=f-weights]','input[name=f-tier]','#f-local','#f-engine','#f-search'].forEach(sel=>{
+    document.querySelectorAll(sel).forEach(el=>el.addEventListener('change', refresh));
+    document.querySelectorAll(sel).forEach(el=>el.addEventListener('input', refresh));
   });
 }
 
@@ -576,6 +604,14 @@ function renderAll(){
     Object.entries(WEIGHTS_COLOR).map(([k,c])=>
       `<span class="chip"><i style="background:${c}"></i>${k==='open'?'open weights':k==='closed'?'closed weights':'weights unknown'}</span>`).join('');
 
+  refresh();
+}
+
+// Всё, что зависит от фильтров. Раньше фильтр перерисовывал только таблицу, и
+// график продолжал показывать полный набор — то есть противоречил подписи под
+// самим собой.
+function refresh(){
+
   // Ось Y — доля, а не абсолют. Профили у прогонов разные: 24 уровня против 80,
   // и абсолютный балл рисовал Sonnet (75.0) втрое выше Sol (20.5) там, где по
   // доле пройденного это 93.8% против 85.4%. График сравнивал длину дистанции,
@@ -584,27 +620,28 @@ function renderAll(){
   // телеметрии вовсе, и такие прогоны садились точкой в начало координат,
   // изображая идеальную экономию при нулевом результате. Та же ошибка, что
   // была с нулевой ценой.
+  const shown = filteredRuns();
   drawScatter('#chart-tokens',
-    RUNS.filter(r=>r.score_pct!=null && r.tokens_net>0)
+    shown.filter(r=>r.score_pct!=null && r.tokens_net>0)
         .map(r=>({x:r.tokens_net, y:r.score_pct, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
     'net tokens (tokens_net, log scale)', fmtCompact,
     {logX: true, fitY: true, yCap: 100});
 
   // Кто не попал на график токенов — и почему именно
-  const noTok = RUNS.filter(r => !(r.score_pct!=null && r.tokens_net>0))
+  const noTok = shown.filter(r => !(r.score_pct!=null && r.tokens_net>0))
                     .map(r => r.model);
   const tokNote = $('#notokens');
   if (tokNote) tokNote.textContent = noTok.length
     ? 'Not plotted (no token telemetry or an incomplete run): ' + noTok.join(', ') : '';
   drawScatter('#chart-cost',
     // ноль ценой не считается: см. пояснение над графиком
-    RUNS.filter(r=>r.cost!=null && r.cost>0 && r.score_pct!=null)
+    shown.filter(r=>r.cost!=null && r.cost>0 && r.score_pct!=null)
         .map(r=>({x:r.cost, y:r.score_pct, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
     'cost ($, log scale)', v=>'$'+(v<1?v.toFixed(2):v.toFixed(v<10?1:0)),
     {logX: true, fitY: true, yCap: 100});
 
   // кто остался за бортом стоимостного графика — и почему именно
-  const off   = RUNS.filter(r=>!(r.cost!=null && r.cost>0));
+  const off   = shown.filter(r=>!(r.cost!=null && r.cost>0));
   const local = off.filter(r=>r.local).map(r=>r.model);
   const noc   = off.filter(r=>!r.local).map(r=>r.model);
   const parts = [];
@@ -637,6 +674,7 @@ async function load(){
   // нормализация полей, чтобы страница не падала на неполных данных
   RUNS.forEach(r=>{
     r.weights = ['open','closed'].includes(r.weights) ? r.weights : 'unknown';
+    r.tier = ['small','medium','frontier'].includes(r.tier) ? r.tier : 'unknown';
     r.local = !!r.local;
     r.score = +r.score || 0; r.max_score = +r.max_score || 50;
     r.score_pct = (r.score_pct==null ? (r.max_score ? 100*r.score/r.max_score : null) : +r.score_pct);

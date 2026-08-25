@@ -91,6 +91,12 @@ def collect(results_dir=None):
             'weights': meta.get('weights', 'unknown'),
             'local': bool(meta.get('local')),
             'weights_ref': meta.get('weights_ref'),
+            # Размерный класс. У закрытых моделей число параметров не
+            # публикуют, и tier там — позиционирование вендора, а не факт;
+            # tier_source сохраняется, чтобы догадку было видно.
+            'params_b': meta.get('params_b'),
+            'tier': meta.get('tier', 'unknown'),
+            'tier_source': meta.get('tier_source'),
             'seed': run.get('seed'),
             'date': (run.get('started_utc') or '')[:10],
             'score': s.get('score'),
