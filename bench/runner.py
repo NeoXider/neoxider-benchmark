@@ -387,7 +387,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     if not out['baseline'] or not out['baseline'].get('tokens'):
         out['baseline'] = measure_baseline(model_id, timeout, cwd)
 
-    note_progress(out, len(plan), plan_keys=plan_keys)
+    note_progress(out, len(plan), plan_keys=plan_keys, timeout=timeout)
     engine = out['engine']
     # Страница формы отдаётся с петлевого адреса, если среди уровней есть
     # браузерные. Иначе задача зависит от GitHub Pages, и обрыв связи до чужого
@@ -399,7 +399,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
 
     for tname, lvl in todo:
         note_progress(out, len(plan), current='%s L%d' % (tname, lvl),
-                      plan_keys=plan_keys)
+                      plan_keys=plan_keys, timeout=timeout)
         task = registry.get(tname)
         # Задача, требующая инструмента, которого у движка нет, мерит харнесс,
         # а не модель. Ноль за такой уровень занижал бы балл за чужой недостаток,
@@ -440,7 +440,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
         if save_every:
             out['summary'] = summarize(out)
             save(out, results_dir)          # черновик вне репозитория
-        note_progress(out, len(plan), plan_keys=plan_keys)
+        note_progress(out, len(plan), plan_keys=plan_keys, timeout=timeout)
 
     out['levels'].sort(key=lambda r: (r['task'], r['level']))
     out['finished_utc'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
@@ -448,7 +448,7 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     # Перенос готового результата в репозиторий — уже после того, как агент
     # отработал: во время замера рядом с ним не должно быть ничего опознаваемого.
     save(out, results_dir, final=True)
-    note_progress(out, len(plan), finished=True, plan_keys=plan_keys)
+    note_progress(out, len(plan), finished=True, plan_keys=plan_keys, timeout=timeout)
     return out
 
 
@@ -573,7 +573,8 @@ def _progress_path(model, seed):
     return os.path.join(progress_dir(), '%s_%s.json' % (safe, seed))
 
 
-def note_progress(run, planned, current=None, finished=False, plan_keys=None):
+def note_progress(run, planned, current=None, finished=False, plan_keys=None,
+                  timeout=None):
     """Отметка о ходе прогона: сколько сделано, что идёт сейчас, когда обновлено.
 
     Считаются уровни ТЕКУЩЕГО плана, а не все в файле. Файл накопительный, и при
@@ -607,6 +608,10 @@ def note_progress(run, planned, current=None, finished=False, plan_keys=None):
                                   (sum(r.get('seconds') or 0 for r in lv) / len(lv)))
                             if lv and planned > len(lv) else (0 if finished else None)),
             'finished': bool(finished),
+            # Таймаут уровня нужен читателю отметки: без него любой долгий
+            # уровень выглядит зависанием. При таймауте в 900 секунд «молчит
+            # 15 минут» загоралось на живом прогоне, который просто считал.
+            'level_timeout': timeout,
             # Итог по ВСЕМУ накопленному файлу, а не только по текущему плану.
             # Точечный перезапуск на два уровня показывал Opus как «2/2, 0.0»,
             # и модель с 77.5 из 82 читалась в сводке как полный ноль.
