@@ -24,7 +24,7 @@ MAX_LEVEL = 10
 # браузере пользователя по вкладке на уровень, и через десяток моделей
 # это уже десятки открытых страниц. Убирать за собой — часть агентной
 # работы, а не придирка.
-VERSION = 2
+VERSION = 3
 CATEGORIES = {'agentic': 1.0}
 NEEDS = ['browser', 'network']
 
@@ -53,8 +53,14 @@ COUNTRIES = ['Armenia', 'Cyprus', 'Georgia', 'Kazakhstan', 'Portugal', 'Serbia']
 PLANS = ['basic', 'pro', 'team']
 TOPICS = ['unity', 'dotnet', 'python', 'ai']
 
-_NAMES = ['Viktor', 'Anna', 'Pavel', 'Marina', 'Oleg', 'Daria']
-_SURNAMES = ['Nirov', 'Belova', 'Orlov', 'Sizova', 'Karpov', 'Ivleva']
+# Данные заведомо ненастоящие, и это принципиально. С правдоподобными именем и
+# почтой модели упирались в собственные ограничения на персональные данные:
+# «Confirmation is required before transmitting the name and email», «the
+# browser's security policy blocks entry of the email value». Это осторожность,
+# а не неумение заполнить форму, и мерить ею агентный навык нечестно. Домен
+# .invalid зарезервирован и существовать не может — сигнал однозначный.
+_NAMES = ['Testuser', 'Sampleuser', 'Demouser', 'Fixtureuser', 'Dummyuser', 'Mockuser']
+_SURNAMES = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot']
 
 
 def fnv1a(s):
@@ -70,7 +76,7 @@ def _fields_for(level, rng):
     """Какие поля участвуют на этом уровне и какие значения требуются."""
     f = {}
     f['name'] = '%s %s' % (rng.choice(_NAMES), rng.choice(_SURNAMES))
-    f['email'] = '%s@example.org' % f['name'].split()[0].lower()
+    f['email'] = '%s@benchmark.invalid' % f['name'].split()[0].lower()
     if level >= 2:
         f['quantity'] = str(rng.randrange(2, 99))
     if level >= 3:
@@ -152,13 +158,16 @@ def generate(level, rng):
         'If filling in the form failed, write exactly:\n'
         'CODE: FAILED\n'
         'and the reason on one line. Making up a code is forbidden — it is verified.\n\n'
+        # Об изоляции модель НЕ просим: её обеспечивает запрет на рабочий
+        # профиль снаружи. Пока просьба стояла здесь, модели уходили искать
+        # «isolated in-app browser», не находили и отвечали «isolated session
+        # is unavailable» — теряя на добросовестности первую попытку.
+        'The page is a local test fixture and the values above are synthetic, '
+        'so no real personal data is involved.\n\n'
         # Про «отцепиться — не значит закрыть» сказано прямо: это ровно та
         # ошибка, на которой мусор и копился. Сессия закрывалась, вкладка
         # оставалась, и человек, просто запустивший бенчмарк, получал свой
         # браузер, забитый группами вкладок.
-        'Work in a browser session of your own, not in the user\'s everyday '
-        'browser: do not attach to their existing tabs and do not drive their '
-        'current profile.\n\n'
         'When you are done, close every tab you opened. Detaching from a tab is '
         'not the same as closing it, so check that the tabs are actually gone. '
         "Leaving pages behind in someone else's browser counts against you.\n\n"

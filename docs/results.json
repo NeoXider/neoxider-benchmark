@@ -197,104 +197,6 @@
    "card": "cards/claude_claude-sonnet-5.svg"
   },
   {
-   "model": "opencode/x-preview-f-free",
-   "engine": "opencode",
-   "weights": "unknown",
-   "local": false,
-   "weights_ref": null,
-   "seed": 20260824,
-   "date": "2026-08-25",
-   "score": 21.0,
-   "max_score": 23.0,
-   "score_pct": 91.3,
-   "coverage": 0.958,
-   "incomplete": false,
-   "stability_score": 21.0,
-   "stability_max": 23.0,
-   "stability_failed": 0,
-   "unmeasurable": 1,
-   "passed": 23,
-   "first_try": 23,
-   "fixed": 0,
-   "failed": 0,
-   "fabricated": 0,
-   "seconds": 2414.8,
-   "tokens_total": 610297,
-   "tokens_net": 382045,
-   "baseline_tokens": 9941,
-   "cost": null,
-   "cost_source": null,
-   "price_ref": null,
-   "per_task": {
-    "calc": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 3,
-     "seconds": 356.0
-    },
-    "count": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 3,
-     "seconds": 261.0
-    },
-    "honesty": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 3,
-     "seconds": 308.3
-    },
-    "path3d": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 3,
-     "seconds": 325.8
-    },
-    "pathperf": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 3,
-     "seconds": 272.9
-    },
-    "spatial": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 3,
-     "seconds": 368.7
-    },
-    "toolchoice": {
-     "score": 3.0,
-     "passed": 3,
-     "fixed": 0,
-     "total": 3,
-     "seconds": 184.1
-    },
-    "webform": {
-     "score": 0.0,
-     "passed": 2,
-     "fixed": 0,
-     "total": 2,
-     "seconds": 338.2
-    }
-   },
-   "per_category": {
-    "math": 1.0,
-    "logic": 1.0,
-    "instruction": 1.0,
-    "honesty": 1.0,
-    "spatial": 1.0,
-    "agentic": 0.6
-   },
-   "levels_done": 23,
-   "card": "cards/opencode_x-preview-f-free.svg"
-  },
-  {
    "model": "claude/claude-haiku-4-5-20251001",
    "engine": "claude",
    "weights": "closed",
@@ -489,6 +391,104 @@
    },
    "levels_done": 24,
    "card": "cards/opencode_hy3-free.svg"
+  },
+  {
+   "model": "opencode/x-preview-f-free",
+   "engine": "opencode",
+   "weights": "unknown",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-25",
+   "score": 21.0,
+   "max_score": 24.0,
+   "score_pct": 87.5,
+   "coverage": 1.0,
+   "incomplete": false,
+   "stability_score": 21.0,
+   "stability_max": 24.0,
+   "stability_failed": 0,
+   "unmeasurable": 0,
+   "passed": 24,
+   "first_try": 23,
+   "fixed": 1,
+   "failed": 0,
+   "fabricated": 0,
+   "seconds": 2317.4,
+   "tokens_total": 1347398,
+   "tokens_net": 1109222,
+   "baseline_tokens": 9937,
+   "cost": null,
+   "cost_source": null,
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 340.1
+    },
+    "count": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 171.1
+    },
+    "honesty": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 216.5
+    },
+    "path3d": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 134.1
+    },
+    "pathperf": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 129.8
+    },
+    "spatial": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 114.4
+    },
+    "toolchoice": {
+     "score": 3.0,
+     "passed": 3,
+     "fixed": 0,
+     "total": 3,
+     "seconds": 153.6
+    },
+    "webform": {
+     "score": 0.0,
+     "passed": 3,
+     "fixed": 1,
+     "total": 3,
+     "seconds": 1057.8
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 1.0,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 0.5
+   },
+   "levels_done": 24,
+   "card": "cards/opencode_x-preview-f-free.svg"
   },
   {
    "model": "opencode/muse-spark-1.2-contributor-free",
