@@ -302,94 +302,94 @@
    "weights_ref": null,
    "seed": 20260824,
    "date": "2026-08-24",
-   "score": 21.0,
-   "max_score": 24.0,
-   "score_pct": 87.5,
+   "score": 19.0,
+   "max_score": 82.0,
+   "score_pct": 23.2,
    "coverage": 1.0,
    "incomplete": false,
-   "stability_score": 21.0,
+   "stability_score": 19.0,
    "stability_max": 24.0,
-   "stability_failed": 3,
+   "stability_failed": 5,
    "unmeasurable": 0,
-   "passed": 21,
-   "first_try": 21,
+   "passed": 19,
+   "first_try": 19,
    "fixed": 0,
-   "failed": 3,
+   "failed": 63,
    "fabricated": 0,
-   "seconds": 690.7,
-   "tokens_total": 2988501,
-   "tokens_net": 2493281,
+   "seconds": 810.3,
+   "tokens_total": 2927182,
+   "tokens_net": 2473236,
    "baseline_tokens": 20642,
    "cost": null,
    "cost_source": null,
    "price_ref": null,
    "per_task": {
     "calc": {
-     "score": 3.0,
-     "passed": 3,
+     "score": 1.0,
+     "passed": 1,
      "fixed": 0,
-     "total": 3,
-     "seconds": 39.9
+     "total": 12,
+     "seconds": 129.3
     },
     "count": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 56.7
+     "total": 10,
+     "seconds": 63.7
     },
     "honesty": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 78.8
+     "total": 10,
+     "seconds": 85.5
     },
     "path3d": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 56.6
+     "total": 10,
+     "seconds": 64.8
     },
     "pathperf": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 51.4
+     "total": 10,
+     "seconds": 58.4
     },
     "spatial": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 44.6
+     "total": 10,
+     "seconds": 45.3
     },
     "toolchoice": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 46.9
+     "total": 10,
+     "seconds": 47.2
     },
     "webform": {
      "score": 0.0,
      "passed": 0,
      "fixed": 0,
-     "total": 3,
+     "total": 10,
      "seconds": 315.9
     }
    },
    "per_category": {
-    "math": 1.0,
-    "logic": 1.0,
-    "instruction": 1.0,
-    "honesty": 1.0,
-    "spatial": 1.0,
-    "agentic": 0.5
+    "math": 0.083,
+    "logic": 0.273,
+    "instruction": 0.3,
+    "honesty": 0.3,
+    "spatial": 0.3,
+    "agentic": 0.15
    },
-   "levels_done": 24,
+   "levels_done": 82,
    "card": "cards/codex_gpt-5.6-luna.svg"
   },
   {
@@ -400,94 +400,94 @@
    "weights_ref": null,
    "seed": 20260824,
    "date": "2026-08-24",
-   "score": 21.0,
-   "max_score": 24.0,
-   "score_pct": 87.5,
+   "score": 19.0,
+   "max_score": 82.0,
+   "score_pct": 23.2,
    "coverage": 1.0,
    "incomplete": false,
-   "stability_score": 21.0,
+   "stability_score": 19.0,
    "stability_max": 24.0,
-   "stability_failed": 2,
+   "stability_failed": 4,
    "unmeasurable": 0,
-   "passed": 22,
-   "first_try": 20,
+   "passed": 20,
+   "first_try": 18,
    "fixed": 2,
-   "failed": 2,
+   "failed": 62,
    "fabricated": 0,
-   "seconds": 707.3,
-   "tokens_total": 3814649,
-   "tokens_net": 3017729,
+   "seconds": 833.0,
+   "tokens_total": 3727732,
+   "tokens_net": 2997222,
    "baseline_tokens": 33210,
    "cost": null,
    "cost_source": null,
    "price_ref": null,
    "per_task": {
     "calc": {
-     "score": 3.0,
-     "passed": 3,
+     "score": 1.0,
+     "passed": 1,
      "fixed": 0,
-     "total": 3,
-     "seconds": 32.6
+     "total": 12,
+     "seconds": 130.0
     },
     "count": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 55.1
+     "total": 10,
+     "seconds": 61.6
     },
     "honesty": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 71.7
+     "total": 10,
+     "seconds": 78.0
     },
     "path3d": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 56.3
+     "total": 10,
+     "seconds": 64.3
     },
     "pathperf": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 58.6
+     "total": 10,
+     "seconds": 65.0
     },
     "spatial": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 41.4
+     "total": 10,
+     "seconds": 41.5
     },
     "toolchoice": {
      "score": 2.5,
      "passed": 3,
      "fixed": 1,
-     "total": 3,
-     "seconds": 57.8
+     "total": 10,
+     "seconds": 57.9
     },
     "webform": {
      "score": 0.5,
      "passed": 1,
      "fixed": 1,
-     "total": 3,
-     "seconds": 333.7
+     "total": 10,
+     "seconds": 334.0
     }
    },
    "per_category": {
-    "math": 1.0,
-    "logic": 0.965,
-    "instruction": 1.0,
-    "honesty": 1.0,
-    "spatial": 1.0,
-    "agentic": 0.533
+    "math": 0.083,
+    "logic": 0.263,
+    "instruction": 0.3,
+    "honesty": 0.3,
+    "spatial": 0.3,
+    "agentic": 0.16
    },
-   "levels_done": 24,
+   "levels_done": 82,
    "card": "cards/codex_gpt-5.6-terra.svg"
   },
   {
@@ -498,94 +498,94 @@
    "weights_ref": null,
    "seed": 20260824,
    "date": "2026-08-24",
-   "score": 20.5,
-   "max_score": 24.0,
-   "score_pct": 85.4,
+   "score": 18.5,
+   "max_score": 82.0,
+   "score_pct": 22.6,
    "coverage": 1.0,
    "incomplete": false,
-   "stability_score": 20.5,
+   "stability_score": 18.5,
    "stability_max": 24.0,
-   "stability_failed": 3,
+   "stability_failed": 5,
    "unmeasurable": 0,
-   "passed": 21,
-   "first_try": 20,
+   "passed": 19,
+   "first_try": 18,
    "fixed": 1,
-   "failed": 3,
+   "failed": 63,
    "fabricated": 0,
-   "seconds": 1885.9,
-   "tokens_total": 2708886,
-   "tokens_net": 1945311,
+   "seconds": 2016.6,
+   "tokens_total": 2642379,
+   "tokens_net": 1945204,
    "baseline_tokens": 33208,
    "cost": null,
    "cost_source": null,
    "price_ref": null,
    "per_task": {
     "calc": {
-     "score": 3.0,
-     "passed": 3,
+     "score": 1.0,
+     "passed": 1,
      "fixed": 0,
-     "total": 3,
-     "seconds": 34.4
+     "total": 12,
+     "seconds": 134.8
     },
     "count": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 56.1
+     "total": 10,
+     "seconds": 62.8
     },
     "honesty": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 68.3
+     "total": 10,
+     "seconds": 75.7
     },
     "path3d": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 54.3
+     "total": 10,
+     "seconds": 63.1
     },
     "pathperf": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 53.4
+     "total": 10,
+     "seconds": 59.8
     },
     "spatial": {
      "score": 2.5,
      "passed": 3,
      "fixed": 1,
-     "total": 3,
+     "total": 10,
      "seconds": 53.2
     },
     "toolchoice": {
      "score": 3.0,
      "passed": 3,
      "fixed": 0,
-     "total": 3,
-     "seconds": 53.8
+     "total": 10,
+     "seconds": 53.9
     },
     "webform": {
      "score": 0.0,
      "passed": 0,
      "fixed": 0,
-     "total": 3,
-     "seconds": 1512.4
+     "total": 10,
+     "seconds": 1512.6
     }
    },
    "per_category": {
-    "math": 1.0,
-    "logic": 1.0,
-    "instruction": 1.0,
-    "honesty": 1.0,
-    "spatial": 0.872,
-    "agentic": 0.5
+    "math": 0.083,
+    "logic": 0.273,
+    "instruction": 0.3,
+    "honesty": 0.3,
+    "spatial": 0.262,
+    "agentic": 0.15
    },
-   "levels_done": 24,
+   "levels_done": 82,
    "card": "cards/codex_gpt-5.6-sol.svg"
   },
   {
