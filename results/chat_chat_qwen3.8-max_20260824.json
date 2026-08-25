@@ -15,84 +15,84 @@
    "level": 2,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n(9 + 13) * 13 - 15\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 27"
   },
   {
    "task": "calc",
    "level": 3,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n8/8 + 3/8\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 11/8"
   },
   {
    "task": "calc",
    "level": 4,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n(15/2 + 6/5) * 9 - 14\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 643/10"
   },
   {
    "task": "calc",
    "level": 5,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the equation for x:\n\n(3)*x + (-8) = (11)*x + (-24)\n\nGive the answer as exactly one line:\nANSWER: x=<value>\nThe value is an integer or an irreducible fraction p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=2"
   },
   {
    "task": "calc",
    "level": 6,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the equation for x:\n\n(5/4)*x + (18) = (2)*x + (87/8)\n\nGive the answer as exactly one line:\nANSWER: x=<value>\nThe value is an integer or an irreducible fraction p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=19/2"
   },
   {
    "task": "calc",
    "level": 7,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the system of equations:\n\n(8)*x + (1)*y = 73\n(7)*x + (-5)*y = 105\n\nGive the answer as exactly one line:\nANSWER: x=<value>, y=<value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=10, y=-7"
   },
   {
    "task": "calc",
    "level": 8,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the system of equations:\n\n(-6)*x + (-6)*y = 214/5\n(-5)*x + (-1)*y = 247/15\n\nGive the answer as exactly one line:\nANSWER: x=<value>, y=<value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=-7/3, y=-24/5"
   },
   {
    "task": "calc",
    "level": 9,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nThe task has two parts; answer both.\n\nPart A. Solve the system of equations:\n\n(-11)*x + (5)*y = -170/3\n(-3)*x + (5)*y = -6\n\nPart B. Compute the exact value of the expression:\n\n(((17 ** 3 - (8 * 5/2)) - ((9/6 + 9) * (25/8 + 21))) + (((6/4 - 19/5) * (13 + 50)) + ((25 - (-53)) - (38 + (-52)))))\n\nGive the answer as exactly one line:\nANSWER: x=<value>, y=<value>, e=<Part B value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Compute exactly. Do not round fractions.\r\n\r\nThe task has two parts; answer both.\r\n\r\nPart A. Solve the system of equations:\r\n\r\n(-11)*x + (5)*y = -170/3\r\n(-3)*x + (5)*y = -6\r\n\r\nPart B. Compute the exact value of the expression:\r\n\r\n(((17 ** 3 - (8 * 5/2)) - ((9/6 + 9) * (25/8 + 21))) + (((6/4 - 19/5) * (13 + 50)) + ((25 - (-53)) - (38 + (-52)))))\r\n\r\nGive the answer as exactly one line:\r\nANSWER: x=<value>, y=<value>, e=<Part B value>\r\nThe values are integers or irreducible fractions p/q. No explanations.\r\n\r\nNXB-CANARY-a7f3c1"
   },
   {
    "task": "calc",
    "level": 10,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nThe task has three parts; answer all three.\n\nPart A. Solve the system of equations:\n\n-7*x + -3*y + -4*z = 23\n2*x + 1*y + 5*z = -26\n1*x + 3*y + -6*z = 27\n\nPart B. Find both roots of the equation:\n\nx**2 + (5)*x + (-66) = 0\n\nPart C. Compute the exact value of the expression:\n\n((((((27 - 27/5) * ((-34) - 7)) - (44 ** 2 + 8 ** 2)) + 30 ** 3)) / (((((10/2 - 41) + 4 ** 3)) / (34 ** 3) + (15 ** 3 + (((-36) - 15) + (28 * 8/2))))) * 38 ** 2)\n\nGive the answer as exactly one line, with the roots of Part B in ascending order:\nANSWER: x=<value>, y=<value>, z=<value>, x1=<smaller>, x2=<larger>, e=<Part C value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=19/3, y=13/5, e=366943/80"
   },
   {
    "task": "calc",
    "level": 11,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nThe parts depend on one another; work through them in order.\n\nPart A. Follow the chain and report the final value t5:\n\nStep 1. Let t1 = 8.\nStep 2. t2 = t1**2 - (6).\nStep 3. t3 = 2 / (t2 + (-7)).\nStep 4. t4 = 3 / (t3 + (-7)).\nStep 5. t5 = 4 / (t4 + (0)).\n\nPart B. Solve the system:\n\n-7*x + 3*y + -2*z = 8\n-7*x + 7*y + -3*z = 4\n-4*x + -6*y + 5*z = 46\n\nPart C. Compute r = t5 + x*y - z from your own answers above.\n\nGive the answer as exactly one line:\nANSWER: t5=<value>, x=<value>, y=<value>, z=<value>, r=<value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Compute exactly. Do not round fractions.\r\n\r\nThe parts depend on one another; work through them in order.\r\n\r\nPart A. Follow the chain and report the final value t5:\r\n\r\nStep 1. Let t1 = 8.\r\nStep 2. t2 = t1**2 - (6).\r\nStep 3. t3 = 2 / (t2 + (-7)).\r\nStep 4. t4 = 3 / (t3 + (-7)).\r\nStep 5. t5 = 4 / (t4 + (0)).\r\n\r\nPart B. Solve the system:\r\n\r\n-7*x + 3*y + -2*z = 8\r\n-7*x + 7*y + -3*z = 4\r\n-4*x + -6*y + 5*z = 46\r\n\r\nPart C. Compute r = t5 + x*y - z from your own answers above.\r\n\r\nGive the answer as exactly one line:\r\nANSWER: t5=<value>, x=<value>, y=<value>, z=<value>, r=<value>\r\nThe values are integers or irreducible fractions p/q. No explanations.\r\n\r\nNXB-CANARY-a7f3c1.\r\n\r\nNXB-CANARY-a7f3c1"
   },
   {
    "task": "calc",
    "level": 12,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvery part depends on the one before it: a later part cannot be checked without finishing the earlier ones.\n\nPart A. Follow the chain and report the final value t8:\n\nStep 1. Let t1 = 5.\nStep 2. t2 = t1**2 - (-2).\nStep 3. t3 = 6 / (t2 + (-5)).\nStep 4. t4 = 6 / (t3 + (-8)).\nStep 5. t5 = (6*t4 + (1)) / 5.\nStep 6. t6 = (2*t5 + (6)) / 5.\nStep 7. t7 = 4 / (t6 + (9)).\nStep 8. t8 = t7**2 - (-8).\n\nPart B. Solve the system:\n\n2*x + 0*y + -7*z = 45\n4*x + 5*y + 2*z = -94\n-1*x + -4*y + 0*z = 41\n\nPart C. Build the equation u**2 + p*u + q = 0 where p = -(t8 + x) and q = t8 * x, using your own answers, and give both roots in ascending order.\n\nGive the answer as exactly one line:\nANSWER: t8=<value>, x=<value>, y=<value>, z=<value>, x1=<smaller>, x2=<larger>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: t5=-1420/153, x=-3, y=1, z=8, r=-3103/153"
   },
   {
    "task": "count",
    "level": 1,
    "needs": [],
    "prompt": "Output the numbers from 1 to 180, one per line.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Output the numbers from 1 to 180, one per line.\r\n\r\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\r\n\r\nNXB-CANARY-a7f3c1tions.\r\n\r\nNXB-CANARY-a7f3c1"
   },
   {
    "task": "count",
@@ -113,7 +113,7 @@
    "level": 4,
    "needs": [],
    "prompt": "Output the numbers from 1 to 180 one per line. Print every even number in parentheses, for example (2).\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Output the numbers from 1 to 180 one per line. Print every even number in parentheses, for example (2).\r\n\r\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\r\n\r\nNXB-CANARY-a7f3c1"
   },
   {
    "task": "count",
@@ -127,7 +127,7 @@
    "level": 6,
    "needs": [],
    "prompt": "Output the numbers from 1 to 240 one per line, omitting all prime numbers entirely (there must be no lines for them).\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Output the numbers from 1 to 240 one per line, omitting all prime numbers entirely (there must be no lines for them).\r\n\r\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\r\n\r\nNXB-CANARY-a7f3c1f3c1"
   },
   {
    "task": "count",
@@ -141,7 +141,7 @@
    "level": 8,
    "needs": [],
    "prompt": "Output the numbers from 1 to 200 one per line. If a number is divisible by 3 — print Fizz; if by 5 — Buzz; if by both 3 and 5 — FizzBuzz; otherwise the number itself.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Output the numbers from 1 to 200 one per line. If a number is divisible by 3 — print Fizz; if by 5 — Buzz; if by both 3 and 5 — FizzBuzz; otherwise the number itself.\r\n\r\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\r\n\r\nNXB-CANARY-a7f3c1f3c1"
   },
   {
    "task": "count",
