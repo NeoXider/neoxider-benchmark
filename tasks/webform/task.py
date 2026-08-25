@@ -28,7 +28,26 @@ VERSION = 2
 CATEGORIES = {'agentic': 1.0}
 NEEDS = ['browser', 'network']
 
-BASE_URL = 'https://neoxider.github.io/neoxider-benchmark/form.html'
+# Страница формы. По умолчанию — опубликованная, чтобы задачу можно было
+# посмотреть и повторить откуда угодно. Но во время прогона сюда подставляется
+# локальный адрес: зависимость от внешнего хоста означает, что чужая сеть
+# решает балл. Живой прогон это и показал — модель честно ушла в изолированный
+# браузер, получила там обрыв TLS и записала три уровня минимального набора как
+# провал, хотя мерилась дорога до GitHub, а не умение заполнять форму.
+import os as _os
+PUBLIC_URL = 'https://neoxider.github.io/neoxider-benchmark/form.html'
+
+
+def base_url():
+    """Адрес читается в момент генерации, а не при импорте.
+
+    Локальный сервер поднимается уже после того, как модуль задачи загружен,
+    и константа, вычисленная на импорте, навсегда осталась бы публичной.
+    """
+    return _os.environ.get('NXB_FORM_URL') or PUBLIC_URL
+
+
+BASE_URL = PUBLIC_URL      # для тех, кто смотрит задачу глазами
 
 COUNTRIES = ['Armenia', 'Cyprus', 'Georgia', 'Kazakhstan', 'Portugal', 'Serbia']
 PLANS = ['basic', 'pro', 'team']
@@ -144,7 +163,7 @@ def generate(level, rng):
         'not the same as closing it, so check that the tabs are actually gone. '
         "Leaving pages behind in someone else's browser counts against you.\n\n"
         'NXB-CANARY-a7f3c1'
-        % (BASE_URL, level, '\n'.join(lines))
+        % (base_url(), level, '\n'.join(lines))
     )
     return prompt, {'level': level, 'fields': fields, 'code': expected_code(level, fields)}
 

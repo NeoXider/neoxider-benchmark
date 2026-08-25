@@ -19,7 +19,7 @@ import shutil
 import tempfile
 import time
 
-from . import browser_cleanup, models, registry
+from . import browser_cleanup, form_server, models, registry
 
 SCORE_FIRST = 1.0
 SCORE_FIXED = 0.5
@@ -389,6 +389,14 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
 
     note_progress(out, len(plan), plan_keys=plan_keys)
     engine = out['engine']
+    # Страница формы отдаётся с петлевого адреса, если среди уровней есть
+    # браузерные. Иначе задача зависит от GitHub Pages, и обрыв связи до чужого
+    # хоста ложится в отчёт как неумение модели заполнить форму — ровно это и
+    # случилось: три уровня минимального набора у codex.
+    if any('browser' in (getattr(registry.get(t), 'NEEDS', None) or [])
+           for t, _ in todo):
+        os.environ.setdefault('NXB_FORM_URL', form_server.start())
+
     for tname, lvl in todo:
         note_progress(out, len(plan), current='%s L%d' % (tname, lvl),
                       plan_keys=plan_keys)

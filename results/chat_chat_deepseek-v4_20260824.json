@@ -43,7 +43,7 @@
    "level": 6,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the equation for x:\n\n(5/4)*x + (18) = (2)*x + (87/8)\n\nGive the answer as exactly one line:\nANSWER: x=<value>\nThe value is an integer or an irreducible fraction p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=19/2"
   },
   {
    "task": "calc",
