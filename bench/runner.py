@@ -213,7 +213,7 @@ def _fresh_workspace():
     return tempfile.mkdtemp(prefix='', dir=_session_root())
 
 
-def run_level(model_id, task, level, rng, timeout, cwd, baseline):
+def run_level(model_id, task, level, rng, timeout, cwd, baseline, heartbeat=None):
     prompt, expected = task.generate(level, rng)
     workspace = cwd or _fresh_workspace()
     owns_workspace = cwd is None
@@ -231,7 +231,8 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline):
     attempt = 0
     transient = 0
     while attempt < 2:
-        res = models.call(model_id, prompt, timeout=timeout, cwd=workspace)
+        res = models.call(model_id, prompt, timeout=timeout, cwd=workspace,
+                          on_output=heartbeat)
         rec['seconds'] += res.seconds
 
         # Сбой движка — не ответ модели. Раньше пустой ответ после обрыва сети
@@ -422,7 +423,24 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
         # сид детерминирован по (сид, задача, уровень): разные модели получают
         # ОДИНАКОВЫЕ задачи, а добавление новой задачи не сдвигает старые
         rng = random.Random('%d|%s|%d' % (seed, tname, lvl))
-        rec = run_level(model_id, task, lvl, rng, timeout, cwd, out['baseline'])
+        # Пульс: движок шлёт события построчно, и каждая строка — признак, что
+        # модель ещё пишет. Без него живой уровень, который думает пятую минуту,
+        # и намертво зависший процесс выглядят одинаково.
+        pulse = {'chars': 0, 'at': time.time(), 'written': 0.0}
+
+        def heartbeat(line, _p=pulse):
+            _p['chars'] += len(line)
+            _p['at'] = time.time()
+            # Отметка переписывается не чаще раза в три секунды: строк бывают
+            # тысячи, и запись файла на каждую съела бы больше, чем сам прогон.
+            if _p['at'] - _p['written'] > 3.0:
+                _p['written'] = _p['at']
+                note_progress(out, len(plan), current='%s L%d' % (tname, lvl),
+                              plan_keys=plan_keys, timeout=timeout,
+                              output_chars=_p['chars'])
+
+        rec = run_level(model_id, task, lvl, rng, timeout, cwd, out['baseline'],
+                        heartbeat=heartbeat)
         if 'browser' in (getattr(task, 'NEEDS', None) or []):
             # Убирает прогон, а не модель. Промпт просит её закрыть за собой
             # вкладки, но полагаться на это нельзя: слабая модель уборку не
@@ -574,7 +592,7 @@ def _progress_path(model, seed):
 
 
 def note_progress(run, planned, current=None, finished=False, plan_keys=None,
-                  timeout=None):
+                  timeout=None, output_chars=None):
     """Отметка о ходе прогона: сколько сделано, что идёт сейчас, когда обновлено.
 
     Считаются уровни ТЕКУЩЕГО плана, а не все в файле. Файл накопительный, и при
@@ -612,6 +630,9 @@ def note_progress(run, planned, current=None, finished=False, plan_keys=None,
             # уровень выглядит зависанием. При таймауте в 900 секунд «молчит
             # 15 минут» загоралось на живом прогоне, который просто считал.
             'level_timeout': timeout,
+            # Сколько символов движок выдал на текущем уровне. Это и есть
+            # признак жизни: пишет — значит работает.
+            'output_chars': output_chars,
             # Итог по ВСЕМУ накопленному файлу, а не только по текущему плану.
             # Точечный перезапуск на два уровня показывал Opus как «2/2, 0.0»,
             # и модель с 77.5 из 82 читалась в сводке как полный ноль.

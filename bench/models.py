@@ -10,6 +10,7 @@ import os
 import re
 import shutil
 import subprocess
+import threading
 import time
 
 
@@ -114,28 +115,68 @@ def _child_env():
     return env
 
 
-def _run(cmd, timeout, cwd=None):
+def _run(cmd, timeout, cwd=None, on_output=None):
+    """Запускает движок и ЧИТАЕТ вывод по мере поступления.
+
+    Ждать завершения процесса было проще, но тогда во время уровня о нём не
+    известно ничего: живая модель, которая пишет ответ пятую минуту, и намертво
+    зависшая выглядят одинаково. Движки при этом шлют события построчно, так что
+    признак жизни есть — надо просто его не выбрасывать.
+
+    on_output(line) вызывается на каждой строке и не имеет права уронить прогон:
+    отчёт о ходе работы — не работа.
+    """
     t0 = time.time()
     real = _resolve(cmd)
     if not real:
         return '', '', time.time() - t0, 'CLI not found in PATH: %s' % cmd[0]
     try:
-        p = subprocess.run(real, capture_output=True, timeout=timeout, cwd=cwd,
-                           env=_child_env())
-        return p.stdout.decode('utf-8', 'replace'), p.stderr.decode('utf-8', 'replace'), \
-            time.time() - t0, None
-    except subprocess.TimeoutExpired:
-        return '', '', time.time() - t0, 'timeout %ds' % timeout
+        # stdin закрыт намеренно: codex сообщает «Reading additional input from
+        # stdin» и ждёт, если поток открыт, а прогон ему ничего не пришлёт.
+        proc = subprocess.Popen(real, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                stdin=subprocess.DEVNULL, cwd=cwd, env=_child_env())
     except OSError as e:
         return '', '', time.time() - t0, 'could not launch %s: %s' % (cmd[0], e)
+
+    chunks = []
+    errs = []
+
+    def _pump(stream, sink, notify):
+        for raw in iter(stream.readline, b''):
+            line = raw.decode('utf-8', 'replace')
+            sink.append(line)
+            if notify and on_output is not None:
+                try:
+                    on_output(line)
+                except Exception:      # noqa: BLE001 - отчёт не роняет прогон
+                    pass
+
+    threads = [
+        threading.Thread(target=_pump, args=(proc.stdout, chunks, True), daemon=True),
+        # stderr читается своим потоком: иначе полный буфер трубы намертво
+        # блокирует движок, и прогон ждёт таймаута на пустом месте.
+        threading.Thread(target=_pump, args=(proc.stderr, errs, False), daemon=True),
+    ]
+    for t in threads:
+        t.start()
+    try:
+        proc.wait(timeout=max(1, timeout))
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        for t in threads:
+            t.join(timeout=5)
+        return ''.join(chunks), ''.join(errs), time.time() - t0, 'timeout %ds' % timeout
+    for t in threads:
+        t.join(timeout=10)
+    return ''.join(chunks), ''.join(errs), time.time() - t0, None
 
 
 # ------------------------------------------------------------------ opencode
 
-def run_opencode(model, prompt, timeout=900, cwd=None):
+def run_opencode(model, prompt, timeout=900, cwd=None, on_output=None):
     """opencode run --format json: события построчно, в step_finish лежат токены."""
     cmd = ['opencode', 'run', '--format', 'json', '--model', model, prompt]
-    out, err, secs, error = _run(cmd, timeout, cwd)
+    out, err, secs, error = _run(cmd, timeout, cwd, on_output)
     if error:
         return Result(seconds=secs, error=error)
 
@@ -192,10 +233,10 @@ def run_opencode(model, prompt, timeout=900, cwd=None):
 
 # -------------------------------------------------------------------- claude
 
-def run_claude(model, prompt, timeout=900, cwd=None):
+def run_claude(model, prompt, timeout=900, cwd=None, on_output=None):
     """claude -p --output-format json: usage лежит в итоговом объекте."""
     cmd = ['claude', '-p', '--output-format', 'json', '--model', model, prompt]
-    out, err, secs, error = _run(cmd, timeout, cwd)
+    out, err, secs, error = _run(cmd, timeout, cwd, on_output)
     if error:
         return Result(seconds=secs, error=error)
     try:
@@ -223,7 +264,7 @@ def run_claude(model, prompt, timeout=900, cwd=None):
 
 # --------------------------------------------------------------------- codex
 
-def run_codex(model, prompt, timeout=900, cwd=None):
+def run_codex(model, prompt, timeout=900, cwd=None, on_output=None):
     """codex exec --json: события построчно, ответ приходит агентским сообщением.
 
     --skip-git-repo-check обязателен. Задачи специально решаются в свежей
@@ -234,7 +275,7 @@ def run_codex(model, prompt, timeout=900, cwd=None):
     не было.
     """
     cmd = ['codex', 'exec', '--model', model, '--skip-git-repo-check', '--json', prompt]
-    out, err, secs, error = _run(cmd, timeout, cwd)
+    out, err, secs, error = _run(cmd, timeout, cwd, on_output)
     if error:
         return Result(seconds=secs, error=error)
     tokens = _zero_tokens()
@@ -335,6 +376,7 @@ def available():
     return {name: bool(shutil.which(name)) for name in ENGINES}
 
 
-def call(model_id, prompt, timeout=900, cwd=None):
+def call(model_id, prompt, timeout=900, cwd=None, on_output=None):
     eng = engine_for(model_id)
-    return ENGINES[eng](strip_prefix(model_id), prompt, timeout=timeout, cwd=cwd)
+    return ENGINES[eng](strip_prefix(model_id), prompt, timeout=timeout, cwd=cwd,
+                        on_output=on_output)
