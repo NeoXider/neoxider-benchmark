@@ -153,6 +153,10 @@ def import_answers(path, results_dir='results'):
         'unmeasurable': skipped,
         'note': ('chat channel: a single attempt, no tool or token telemetry; '
                  'do not compare directly with CLI runs'),
+        'ui_model': data.get('ui_model'),
+        # Имя модели в чате задаёт человек в интерфейсе, и проверить его можно
+        # только тем, что видно на странице. Не увидели — так и пишем.
+        'model_unverified': bool(data.get('model_unverified')),
     }
     run['summary'] = runner.summarize(run)
     run['summary']['unmeasurable'] = skipped

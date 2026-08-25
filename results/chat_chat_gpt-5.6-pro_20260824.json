@@ -8,28 +8,28 @@
    "level": 1,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n15 + 2 * 6\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 27"
   },
   {
    "task": "calc",
    "level": 2,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n(9 + 13) * 13 - 15\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 271"
   },
   {
    "task": "calc",
    "level": 3,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n8/8 + 3/8\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 11/8"
   },
   {
    "task": "calc",
    "level": 4,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nEvaluate the expression:\n\n(15/2 + 6/5) * 9 - 14\n\nOperators follow Python semantics: ** is exponentiation, / is ordinary division (not integer division).\n\nGive the answer as exactly one line in the format:\nANSWER: <value>\nThe value is an integer or an irreducible fraction p/q (for example -17/4). Do not use decimal notation. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 643/10"
   },
   {
    "task": "calc",
@@ -652,5 +652,7 @@
    "answer": "",
    "unmeasurable": "no tools in the chat channel"
   }
- ]
+ ],
+ "ui_model": "ChatGPT",
+ "model_unverified": false
 }

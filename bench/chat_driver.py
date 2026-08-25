@@ -30,11 +30,21 @@ SITES = {
         'url': 'https://chat.qwen.ai/',
         'input': 'textarea.message-input-textarea',
         'answer': '[class*="markdown"], [class*="message-content"]',
+        # Открытие страницы сбрасывает выбор на модель по умолчанию, поэтому
+        # драйвер выбирает её сам и проверяет результат.
+        'picker': {'trigger': (339, 30), 'label': '.wms-trigger__text'},
     },
     'deepseek': {
         'url': 'https://chat.deepseek.com/',
         'input': 'textarea[placeholder*="Message DeepSeek"]',
         'answer': '[class*="ds-markdown"], [class*="markdown"]',
+    },
+    'chatgpt': {
+        'url': 'https://chatgpt.com/',
+        # Поле ввода — contenteditable, а не textarea: значение читается через
+        # innerText, и вставка идёт тем же путём через буфер обмена.
+        'input': '#prompt-textarea',
+        'answer': '[data-message-author-role="assistant"]',
     },
 }
 
@@ -61,6 +71,60 @@ def open_chat(site, session='nxb-chat'):
     return cfg
 
 
+def select_model(cfg, wanted, session='nxb-chat'):
+    """Выбирает модель в интерфейсе и подтверждает выбор. Возвращает, что видно.
+
+    Меню здесь — переключатель: клик открывает его, если оно закрыто, и
+    закрывает, если открыто. Состояние к началу неизвестно, поэтому сначала
+    оно приводится к закрытому — Escape и клик по пустому месту, — и только
+    потом открывается. Без этого выбор срабатывал через раз: клик «открыть»
+    попадал в уже открытое меню и закрывал его, а следующий клик уходил в
+    страницу под ним.
+    """
+    picker = cfg.get('picker')
+    if not picker:
+        return None
+    tx, ty = picker['trigger']
+    seen = None
+    for _ in range(3):
+        # Вкладку приходится выводить на передний план: в фоне выпадающее меню
+        # не раскрывается вовсе — клик уходит, а списка нет. Это единственное
+        # место, где прогон перехватывает фокус, и делается оно один раз.
+        browser_tools.show_session(session)
+        time.sleep(1.8)
+        # Меню — переключатель, и состояние к началу неизвестно, поэтому его
+        # сначала приводят к закрытому. Кликать по пустому месту нельзя: на
+        # этой странице там либо поле ввода, либо элемент списка бесед.
+        browser_tools.press_keys(['ESCAPE'], session_id=session)
+        time.sleep(0.8)
+        browser_tools.pointer_action('click', tx, ty, session_id=session)
+        time.sleep(2.5)
+        # Позицию пункта ищем каждый раз: она зависит от числа моделей в списке
+        # и от прокрутки, и зашитые координаты попадали мимо.
+        # Искомое имя переносится в переменную ДО обхода. Внутри колбэка
+        # arguments[0] — это сам элемент, а не параметр скрипта, и сравнение
+        # молча шло не с тем: поиск «находил» случайный узел, клик уходил мимо,
+        # а выбор модели не срабатывал без единой ошибки.
+        hit = _value(_js(
+            "var want=arguments[0], h=null;"
+            "[].forEach.call(document.querySelectorAll('*'),function(e){"
+            "if(e.children.length) return;"
+            "if((e.innerText||'').trim()===want){var r=e.getBoundingClientRect();"
+            "if(r.width>0) h={x:Math.round(r.x+r.width/2),y:Math.round(r.y+r.height/2)};}});"
+            "return h;", args=[wanted], session=session))
+        if hit:
+            browser_tools.pointer_action('click', hit['x'], hit['y'],
+                                         session_id=session)
+            time.sleep(2.5)
+        seen = _value(_js("var el=document.querySelector(arguments[0]);"
+                          "return el?(el.innerText||'').trim():null;",
+                          args=[picker['label']], session=session))
+        if seen == wanted:
+            return seen
+    return seen
+    return seen
+
+
 def current_model(session='nxb-chat'):
     """Какая модель реально выбрана в интерфейсе.
 
@@ -70,7 +134,7 @@ def current_model(session='nxb-chat'):
     return _value(_js(
         "var out=null;[].forEach.call(document.querySelectorAll('*'),function(e){"
         "if(e.children.length) return; var t=(e.innerText||'').trim();"
-        "var r=e.getBoundingClientRect(); if(r.width>0 && r.y<60 && /^(qwen|deepseek)/i.test(t)) out=t;});"
+        "var r=e.getBoundingClientRect(); if(r.width>0 && r.y<60 && /^(qwen|deepseek|gpt|chatgpt)/i.test(t)) out=t;});"
         "return out;", session=session))
 
 
@@ -128,14 +192,26 @@ def ask(cfg, prompt, session='nxb-chat'):
     return last or None
 
 
-def run(path, site, limit=None, session='nxb-chat'):
+def run(path, site, limit=None, session='nxb-chat', wanted=None):
     """Проходит файл промптов, дописывая ответы. Прерывание не теряет работу."""
     with open(path, encoding='utf-8') as fh:
         data = json.load(fh)
 
     cfg = open_chat(site, session)
+    if wanted:
+        picked = select_model(cfg, wanted, session)
+        if picked != wanted:
+            # Не подменяем молча: прогон под чужим именем хуже отсутствия прогона.
+            raise SystemExit('could not select %r in the UI; it shows %r'
+                             % (wanted, picked))
     seen = current_model(session)
     print('model shown in the UI: %r' % seen, flush=True)
+    # Что показано в интерфейсе, то и записывается. Если распознать не удалось,
+    # результат помечается непроверенным: подписать прогон именем модели,
+    # которого мы не видели, — это ровно та выдумка, за которую бенчмарк
+    # снимает баллы в задаче honesty.
+    data['ui_model'] = seen
+    data['model_unverified'] = not (seen and len(seen) > 3)
 
     todo = [i for i in data['items']
             if not i.get('unmeasurable') and not (i.get('answer') or '').strip()]
@@ -169,5 +245,7 @@ if __name__ == '__main__':
     ap.add_argument('--site', required=True, choices=sorted(SITES))
     ap.add_argument('--limit', type=int, default=None)
     ap.add_argument('--session', default='nxb-chat')
+    ap.add_argument('--model', default=None,
+                    help='select this model in the UI and verify it')
     a = ap.parse_args()
-    run(a.file, a.site, a.limit, a.session)
+    run(a.file, a.site, a.limit, a.session, a.model)

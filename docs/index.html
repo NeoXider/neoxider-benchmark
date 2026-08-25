@@ -47,7 +47,7 @@
   /* Чекбоксы выбора моделей для графика категорий */
   #cat-picks{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;font-size:14px}
   #cat-picks label{cursor:pointer;white-space:nowrap}
-  #nocost{color:var(--muted);font-size:13px;margin-top:8px}
+  #nocost,#notokens{color:var(--muted);font-size:13px;margin-top:8px}
   pre.run{background:#0b0d12;border:1px solid var(--line);border-radius:10px;
     padding:14px 16px;overflow-x:auto;margin:12px 0}
   pre.run code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -100,7 +100,7 @@
   <section>
     <h2>Tokens → score</h2>
     <p class="hint">X axis — net tokens, on a log scale because token spend differs by multiples rather than by percentages. Y axis — percentage of the measurable levels cleared, ranged to the data rather than from zero: models cluster near the top, and a fixed 0–100 spends half the chart on empty space. The axis is a percentage rather than a raw score on purpose: runs use different profiles — 24 levels against 82 — and plotting the absolute put a model at 93.8% three times higher than one at 85.4%, comparing the length of the distance while reading as a difference in strength.</p>
-    <div class="chart-box"><div id="legend-tokens" class="legend"></div><div id="chart-tokens"></div></div>
+    <div class="chart-box"><div id="legend-tokens" class="legend"></div><div id="chart-tokens"></div><div id="notokens"></div></div>
   </section>
 
   <section>
@@ -572,11 +572,22 @@ function renderAll(){
   // и абсолютный балл рисовал Sonnet (75.0) втрое выше Sol (20.5) там, где по
   // доле пройденного это 93.8% против 85.4%. График сравнивал длину дистанции,
   // а читался как разница в силе моделей.
+  // Ноль токенов — это «не измеряли», а не «потратил ноль». У чат-канала нет
+  // телеметрии вовсе, и такие прогоны садились точкой в начало координат,
+  // изображая идеальную экономию при нулевом результате. Та же ошибка, что
+  // была с нулевой ценой.
   drawScatter('#chart-tokens',
-    RUNS.filter(r=>r.score_pct!=null)
+    RUNS.filter(r=>r.score_pct!=null && r.tokens_net>0)
         .map(r=>({x:r.tokens_net, y:r.score_pct, label:r.model, color:WEIGHTS_COLOR[r.weights]||'#888'})),
     'net tokens (tokens_net, log scale)', fmtCompact,
     {logX: true, fitY: true, yCap: 100});
+
+  // Кто не попал на график токенов — и почему именно
+  const noTok = RUNS.filter(r => !(r.score_pct!=null && r.tokens_net>0))
+                    .map(r => r.model);
+  const tokNote = $('#notokens');
+  if (tokNote) tokNote.textContent = noTok.length
+    ? 'Not plotted (no token telemetry or an incomplete run): ' + noTok.join(', ') : '';
   drawScatter('#chart-cost',
     // ноль ценой не считается: см. пояснение над графиком
     RUNS.filter(r=>r.cost!=null && r.cost>0 && r.score_pct!=null)

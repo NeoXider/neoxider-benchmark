@@ -491,6 +491,104 @@
    "card": "cards/opencode_x-preview-f-free.svg"
   },
   {
+   "model": "codex/gpt-5.6-sol",
+   "engine": "codex",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "seed": 20260824,
+   "date": "2026-08-25",
+   "score": 70.5,
+   "max_score": 82.0,
+   "score_pct": 86.0,
+   "coverage": 1.0,
+   "incomplete": false,
+   "stability_score": 21.5,
+   "stability_max": 24.0,
+   "stability_failed": 1,
+   "unmeasurable": 0,
+   "passed": 74,
+   "first_try": 67,
+   "fixed": 7,
+   "failed": 8,
+   "fabricated": 0,
+   "seconds": 6609.0,
+   "tokens_total": 29155154,
+   "tokens_net": 26450314,
+   "baseline_tokens": 33208,
+   "cost": null,
+   "cost_source": null,
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 10.5,
+     "passed": 11,
+     "fixed": 1,
+     "total": 12,
+     "seconds": 321.3
+    },
+    "count": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 243.8
+    },
+    "honesty": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 323.4
+    },
+    "path3d": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 193.2
+    },
+    "pathperf": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 639.3
+    },
+    "spatial": {
+     "score": 9.5,
+     "passed": 10,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 188.4
+    },
+    "toolchoice": {
+     "score": 8.0,
+     "passed": 8,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 254.5
+    },
+    "webform": {
+     "score": 2.5,
+     "passed": 5,
+     "fixed": 5,
+     "total": 10,
+     "seconds": 4445.4
+    }
+   },
+   "per_category": {
+    "math": 0.875,
+    "logic": 0.943,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 0.962,
+    "agentic": 0.565
+   },
+   "levels_done": 82,
+   "card": "cards/codex_gpt-5.6-sol.svg"
+  },
+  {
    "model": "codex/gpt-5.6-terra",
    "engine": "codex",
    "weights": "closed",
