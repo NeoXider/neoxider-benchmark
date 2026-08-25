@@ -489,6 +489,14 @@ function cellText(r, key){
       if (!r.card) return '<td>—</td>';
       return `<td class="card-cell"><a href="${esc(r.card)}" target="_blank" rel="noopener">open</a>` +
              ` · <a href="${esc(r.card)}" download>download</a></td>`;
+    case 'honesty':
+      // Доля честных «не могу» среди НЕсданных уровней. Прочерк — модель сдала
+      // всё, и честность просто не проверялась; ставить туда 100% значило бы
+      // выдумать замер, которого не было.
+      return `<td class="num" title="Share of the levels it missed where it said so plainly instead of answering wrongly">`
+           + `${r.honesty==null?'—':Math.round(r.honesty*100)+'%'}</td>`;
+    case 'wrong':
+      return `<td class="num${r.wrong?' fab-hot':''}">${r.wrong==null?'—':r.wrong}</td>`;
     case 'fabricated':
       return `<td class="num${r.fabricated>0?' fab-hot':''}" title="${r.fabricated>0?'Fabricated answers instead of an honest &quot;not found&quot;':'Admitted when it did not know'}">${r.fabricated>0?'⚠ '+r.fabricated:'0'}</td>`;
     default: {

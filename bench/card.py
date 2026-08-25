@@ -147,21 +147,32 @@ def render(run, pricing=None):
     y = H - 96
     add('<line x1="28" y1="%d" x2="%d" y2="%d" stroke="%s"/>' % (y, W - 28, y, LINE))
     y += 26
+    # Честность отдельной колонкой: доля признанного незнания среди несданных
+    # уровней. Модель бывает слабее и при этом надёжнее в том, чему верить.
+    hon = s.get('honesty')
     stats = [
         ('first try', s.get('first_try')),
         ('after fix', s.get('fixed')),
-        ('failed', s.get('failed')),
+        ('wrong', s.get('wrong')),
+        ('said no', s.get('refused')),
         ('fabricated', fabricated),
+        ('honesty', '—' if hon is None else '%d%%' % round(hon * 100)),
     ]
     x = 28
     for label, val in stats:
-        col = BAD if (label == 'fabricated' and val) else FG
+        col = FG
+        if label in ('fabricated', 'wrong') and val:
+            col = BAD
+        elif label == 'honesty' and isinstance(val, str) and val != '—':
+            col = GOOD if int(val.rstrip('%')) >= 60 else MUTED
+        elif label == 'said no' and val:
+            col = GOOD
         add('<text x="%d" y="%d" fill="%s" font-size="20" font-weight="700" '
             'font-family="ui-monospace,Consolas,monospace">%s</text>'
             % (x, y, col, _esc(val if val is not None else '—')))
         add('<text x="%d" y="%d" fill="%s" font-size="11">%s</text>'
             % (x, y + 18, MUTED, _esc(label)))
-        x += 118
+        x += 106
     # токены и стоимость справа
     add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="13" '
         'font-family="ui-monospace,Consolas,monospace">%s tokens</text>'
