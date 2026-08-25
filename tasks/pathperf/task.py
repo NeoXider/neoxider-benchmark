@@ -108,44 +108,34 @@ def generate(level, rng):
     cases = []
     answers = set()
     for case_index in range(3):
-        # У соседних дальних целей обычно разные манхэттенские расстояния.
-        # Из-за препятствий длины всё же могут совпасть, поэтому принимаем
-        # карту только после проверки эталоном. Это не позволяет один раз
-        # посчитать ответ и вернуть тот же глобальный cache всем трём картам.
-        for _attempt in range(100):
-            grid = _make_grid(rng, size, density)
-            start = (0, 0, 0)
-            goal = (size - 1, size - 1, size - 1 - case_index)
-            grid[goal[0]][goal[1]][goal[2]] = 0
-            best = _reference(grid, start, goal)
-            # Карта обязана ТРЕБОВАТЬ ОБХОДА. Одного условия «ответы различны»
-            # оказалось мало: цели по одной оси сделали все пути прямыми, и на
-            # 90 картах из 90 ответ совпал с манхэттенским расстоянием — то
-            # есть однострочник sum(abs(a-b)) проходил десятый уровень, ни разу
-            # не заглянув в grid.
-            manhattan = sum(abs(a - b) for a, b in zip(start, goal))
-            if best > manhattan and best not in answers:
-                answers.add(best)
-                cases.append({'grid': grid, 'start': list(start), 'goal': list(goal),
-                              'best': best})
-                break
-        else:
-            # Случайная карта почти всегда пропускает прямой путь, поэтому
-            # обход приходится строить: стена поперёк маршрута с единственным
-            # отверстием ВНЕ прямого коридора. Финиш лежит в плоскости z=0, а
-            # отверстие — на дальней грани по z, иначе через дырку всё равно
-            # проходил бы путь манхэттенской длины.
-            grid, start, goal, best = _barrier_grid(rng, size, case_index)
-            if best in answers:
-                best_alt = None
-                for shift in range(1, size):
-                    grid, start, goal, best_alt = _barrier_grid(rng, size, shift)
-                    if best_alt not in answers:
-                        break
-                best = best_alt
-            answers.add(best)
-            cases.append({'grid': grid, 'start': list(start), 'goal': list(goal),
-                          'best': best})
+        # Карта обязана ТРЕБОВАТЬ ОБХОДА, иначе однострочник sum(abs(a-b))
+        # проходит верхние уровни, ни разу не заглянув в grid.
+        #
+        # Раньше обхода ждали от случая: до ста случайных карт на каждую из
+        # трёх задач, и та, где кратчайший путь длиннее манхэттенского,
+        # принималась. Замер показал, что случай не срабатывает НИ РАЗУ —
+        # 0 из 60 на уровнях 1, 3 и 5, — так что триста поисков в ширину
+        # сгорали впустую, и барьер всё равно строился следом. На старших
+        # уровнях это стоило десятков секунд генерации, которые платил каждый
+        # прогон каждой модели.
+        #
+        # Поэтому обход строится сразу: стена поперёк маршрута с единственным
+        # отверстием ВНЕ прямого коридора. Финиш лежит в плоскости z=0, а
+        # отверстие — на дальней грани по z, иначе через дырку проходил бы
+        # путь манхэттенской длины. Положение стены и отверстия случайно, так
+        # что карты остаются разными.
+        grid, start, goal, best = _barrier_grid(rng, size, case_index)
+        if best in answers:
+            # Ответы обязаны различаться: иначе один посчитанный результат
+            # можно вернуть всем трём картам, не решая задачу.
+            for shift in range(1, size):
+                grid, start, goal, best_alt = _barrier_grid(rng, size, shift)
+                if best_alt not in answers:
+                    best = best_alt
+                    break
+        answers.add(best)
+        cases.append({'grid': grid, 'start': list(start), 'goal': list(goal),
+                      'best': best})
 
     if len(answers) != len(cases):
         raise RuntimeError('pathperf answers must be pairwise distinct')
