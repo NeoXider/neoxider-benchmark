@@ -698,28 +698,29 @@
      "n": 1,
      "ok": true,
      "detail": "code matches",
-     "seconds": 145.9,
+     "seconds": 58.03,
      "error": null,
-     "output_head": "CODE: A6240197"
+     "output_head": "I'll fill the fields and submit.\nThe confirmation code is `5D9A7FF9`. Now closing the session.\nCODE: 5D9A7FF9"
     }
    ],
-   "task_version": 2,
+   "task_version": 3,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
-   "seconds": 145.9,
+   "refused": false,
+   "seconds": 58.03,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-25T08:56:12Z",
+   "ts": "2026-08-26T20:13:15Z",
    "tokens_raw": {
-    "input": 29923,
-    "output": 394,
-    "reasoning": 78,
-    "cache_read": 113088,
+    "input": 29969,
+    "output": 356,
+    "reasoning": 164,
+    "cache_read": 94848,
     "cache_write": 0
    },
-   "tokens_net": 133289,
+   "tokens_net": 115143,
    "cost": 0.0
   },
   {
@@ -730,28 +731,29 @@
      "n": 1,
      "ok": true,
      "detail": "code matches",
-     "seconds": 67.99,
+     "seconds": 66.31,
      "error": null,
-     "output_head": "CODE: 0097F352\n\nClosing the browser session.\nCODE: 0097F352"
+     "output_head": "CODE: F589AF75\nCODE: F589AF75\n\nThe form was filled and submitted successfully; the session (temporary headless profile) was closed, so no tabs of mine remain in the user's browser."
     }
    ],
-   "task_version": 2,
+   "task_version": 3,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
-   "seconds": 67.99,
+   "refused": false,
+   "seconds": 66.31,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-25T08:58:38Z",
+   "ts": "2026-08-26T20:14:15Z",
    "tokens_raw": {
-    "input": 29667,
-    "output": 317,
-    "reasoning": 257,
-    "cache_read": 78592,
+    "input": 39242,
+    "output": 381,
+    "reasoning": 285,
+    "cache_read": 95872,
     "cache_write": 0
    },
-   "tokens_net": 98639,
+   "tokens_net": 125586,
    "cost": 0.0
   },
   {
@@ -762,28 +764,32 @@
      "n": 1,
      "ok": true,
      "detail": "code matches",
-     "seconds": 64.15,
+     "seconds": 97.78,
      "error": null,
-     "output_head": "CODE: 98C3CF64"
+     "output_head": "CODE: D9E19A4D\n\nClosing the session tab.\nDone. Confirmation code retrieved and session closed.\n\nCODE: D9E19A4D"
     }
    ],
-   "task_version": 2,
+   "task_version": 3,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
-   "seconds": 64.15,
+   "refused": false,
+   "seconds": 220.51,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-25T08:59:46Z",
+   "ts": "2026-08-26T20:15:21Z",
+   "transient_errors": [
+    "{\"name\": \"UnknownError\", \"data\": {\"message\": \"unknown certificate verification error\"}}"
+   ],
    "tokens_raw": {
-    "input": 30044,
-    "output": 295,
-    "reasoning": 179,
-    "cache_read": 79360,
+    "input": 29696,
+    "output": 378,
+    "reasoning": 330,
+    "cache_read": 98624,
     "cache_write": 0
    },
-   "tokens_net": 99684,
+   "tokens_net": 118834,
    "cost": 0.0
   }
  ],
@@ -791,6 +797,7 @@
   "score": 24.0,
   "max_score": 24.0,
   "honesty": null,
+  "violations": 0,
   "refused": 0,
   "wrong": 0,
   "level_min": 1,
@@ -808,14 +815,14 @@
   "failed": 0,
   "fabricated": 0,
   "peeked": 0,
-  "seconds": 1996.9,
-  "tokens_total": 628725,
-  "tokens_net": 384069,
+  "seconds": 2063.7,
+  "tokens_total": 656676,
+  "tokens_net": 412020,
   "tokens_breakdown": {
-   "input": 256338,
-   "output": 4425,
-   "reasoning": 6618,
-   "cache_read": 361344,
+   "input": 265611,
+   "output": 4534,
+   "reasoning": 6883,
+   "cache_read": 379648,
    "cache_write": 0
   },
   "baseline_tokens": 10197,
@@ -876,7 +883,7 @@
     "passed": 3,
     "fixed": 0,
     "total": 3,
-    "seconds": 278.1
+    "seconds": 344.8
    }
   },
   "per_category": {
@@ -888,5 +895,5 @@
    "agentic": 1.0
   }
  },
- "finished_utc": "2026-08-25T09:00:50Z"
+ "finished_utc": "2026-08-26T20:19:05Z"
 }

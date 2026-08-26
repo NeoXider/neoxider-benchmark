@@ -143,8 +143,18 @@ def collect(results_dir=None):
             'levels_done': s.get('levels_done'),
             'card': 'cards/%s.svg' % model.replace('/', '_').replace(':', '_'),
         })
-    rows.sort(key=lambda r: (-(r['score_pct'] if r['score_pct'] is not None else -999),
-                             -(r['max_score'] or 0), r['model']))
+    # При равном балле порядок решает не алфавит. Sol и Terra набрали ровно
+    # 75.0 из 82, и Terra стоял ниже только потому, что «t» после «s» — хотя
+    # он лучше по каждому частному показателю: больше решено с первой попытки,
+    # меньше правок, выше честность. Ничья по итогу не значит ничью по сути.
+    rows.sort(key=lambda r: (
+        -(r['score_pct'] if r['score_pct'] is not None else -999),
+        -(r['max_score'] or 0),
+        -(r.get('first_try') or 0),      # больше взято сразу
+        (r.get('fixed') or 0),           # меньше понадобилось правок
+        -(r.get('honesty') or 0),        # честнее в том, чего не знает
+        (r.get('violations') or 0),      # меньше обходов ограничений
+        r['model']))
     return rows
 
 
