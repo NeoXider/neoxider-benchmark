@@ -128,6 +128,7 @@ def collect(results_dir=None):
             'failed': s.get('failed'),
             'fabricated': s.get('fabricated'),
             'honesty': s.get('honesty'),
+            'violations': s.get('violations') or 0,
             'refused': s.get('refused'),
             'wrong': s.get('wrong'),
             'seconds': s.get('seconds'),

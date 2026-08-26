@@ -190,6 +190,8 @@ def main():
     ap.add_argument('--progress', action='store_true',
                     help='live view of every run in flight')
     ap.add_argument('--report', action='store_true', help='rebuild the leaderboard')
+    ap.add_argument('--rescore', action='store_true',
+                    help='re-apply the current scale to stored runs (no model calls)')
     ap.add_argument('--live', action='store_true',
                     help='open a live dashboard of the running benchmarks')
     ap.add_argument('--port', type=int, default=8791, help='port for --live')
@@ -203,6 +205,24 @@ def main():
     if args.list:
         cmd_list()
         return 0
+
+    if args.rescore:
+        import glob as _glob
+        for path in sorted(_glob.glob(os.path.join('results', '*.json'))):
+            if os.path.basename(path) == 'index.json':
+                continue
+            with open(path, encoding='utf-8') as fh:
+                run = json.load(fh)
+            if not run.get('levels'):
+                continue
+            changed = runner.rescore(run)
+            if changed:
+                with open(path, 'w', encoding='utf-8') as fh:
+                    json.dump(run, fh, ensure_ascii=False, indent=1)
+                print('%s: %d level(s) rescored' % (run.get('model'), len(changed)))
+                for t, l, was, now in changed[:6]:
+                    print('    %-10s L%-2d %s -> %s' % (t, l, was, now))
+        return
 
     if args.live:
         from bench import live

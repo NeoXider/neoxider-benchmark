@@ -288,14 +288,34 @@ function drawScatter(containerSel, points, xLabel, xFmt, opts){
   // половина графика мешает: если все модели между 80 и 100, именно этот
   // промежуток и надо показать крупно. Ноль остаётся, когда данные его задевают.
   let yLo = Math.min(...ys), yHi = Math.max(...ys);
-  if (opts.fitY && yLo > 0){
-    const pad = Math.max(2, (yHi - yLo) * 0.15);
-    yLo = Math.max(0, yLo - pad); yHi = Math.min(opts.yCap || Infinity, yHi + pad);
+  if (opts.fitY){
+    // Диапазон считается от данных БЕЗ предположения о знаке. Раньше здесь
+    // стояло условие yLo > 0, и первая же модель с отрицательным баллом —
+    // а по этой шкале уверенная неправда уводит в минус — роняла расчёт в
+    // ветку «от нуля»: точка уезжала под ось, остальные слипались у потолка.
+    const pad = Math.max(2, (yHi - yLo) * 0.12);
+    yLo = yLo - pad;
+    yHi = Math.min(opts.yCap != null ? opts.yCap : Infinity, yHi + pad);
+    // Ноль остаётся на виду, когда данные его пересекают: без него не понять,
+    // где проходит граница между «ничего не набрал» и «ушёл в минус».
+    if (yLo < 0) yLo = Math.min(yLo, -pad);
   } else { yLo = 0; yHi = yHi * 1.08 || 1; }
-  if (yHi === yLo){ yHi = yLo + 1; }
+  if (yHi <= yLo){ yHi = yLo + 1; }
 
   const px = v => ML + (lx(v) - xMin)/(xMax - xMin)*(W-ML-MR);
   const py = v => H - MB - (v - yLo)/(yHi - yLo)*(H-MT-MB);
+
+  // Подписи разводятся по вертикали. Точки кучкуются у потолка, и их имена
+  // ложились одно на другое — читать было нечего.
+  const taken = [];
+  const freeY = y => {
+    let v = y;
+    for (let i = 0; i < 40 && taken.some(t => Math.abs(t - v) < 13); i++){
+      v += (i % 2 ? 1 : -1) * 13 * Math.ceil((i + 1) / 2);
+    }
+    taken.push(v);
+    return v;
+  };
 
   const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, role:'img'}, box);
   // сетка + подписи X
@@ -396,6 +416,18 @@ function drawCats(){
   const rowH = 22, gapCat = 14, ML = 96, MR = 52;
   const H = CATS.length*(picked.length*rowH + gapCat) + 10;
   const W = 800, plotW = W - ML - MR;
+  // Подписи разводятся по вертикали. Точки кучкуются у потолка, и их имена
+  // ложились одно на другое — читать было нечего.
+  const taken = [];
+  const freeY = y => {
+    let v = y;
+    for (let i = 0; i < 40 && taken.some(t => Math.abs(t - v) < 13); i++){
+      v += (i % 2 ? 1 : -1) * 13 * Math.ceil((i + 1) / 2);
+    }
+    taken.push(v);
+    return v;
+  };
+
   const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, role:'img'}, box);
 
   CATS.forEach((cat, ci)=>{
@@ -527,6 +559,12 @@ function cellText(r, key){
       if (!r.card) return '<td>—</td>';
       return `<td class="card-cell"><a href="${esc(r.card)}" target="_blank" rel="noopener">open</a>` +
              ` · <a href="${esc(r.card)}" download>download</a></td>`;
+    case 'violations':
+      // Обход прямого ограничения из задания: чтение самого бенчмарка,
+      // инструменты там, где они запрещены. Баллом это не мерится — модель
+      // может и нарушить, и решить, — поэтому стоит своей колонкой.
+      return `<td class="num${r.violations?' fab-hot':''}" title="Levels where the model ignored an explicit constraint from the prompt - reading the benchmark, or using tools where they were banned. Scored separately: a model can break a rule and still solve the task.">`
+           + `${r.violations==null?'—':r.violations}</td>`;
     case 'honesty':
       // Доля честных «не могу» среди НЕсданных уровней. Прочерк — модель сдала
       // всё, и честность просто не проверялась; ставить туда 100% значило бы

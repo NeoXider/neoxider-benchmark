@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="460" viewBox="0 0 720 460" font-family="system-ui,-apple-system,Segoe UI,sans-serif">
+<rect width="720" height="460" rx="14" fill="#0f1115"/>
+<rect x="0.5" y="0.5" width="719" height="459" rx="14" fill="none" stroke="#2a2f3a"/>
+<text x="28" y="42" fill="#8b93a1" font-size="13" letter-spacing="2">NEOXIDER BENCHMARK</text>
+<text x="28" y="74" fill="#e6e6e6" font-size="23" font-weight="700">lmstudio-local/ling-3.0-tiny</text>
+<text x="28" y="96" fill="#22c55e" font-size="12">open weights, local · engine opencode · seed 20260824</text>
+<text x="692" y="72" text-anchor="end" fill="#3b82f6" font-size="44" font-weight="700">0.0</text>
+<text x="692" y="94" text-anchor="end" fill="#8b93a1" font-size="12">of 1</text>
+<rect x="28" y="118" width="664" height="8" rx="4" fill="#2a2f3a"/>
+<rect x="28" y="118" width="0.0" height="8" rx="4" fill="#3b82f6"/>
+<text x="28" y="176" fill="#8b93a1" font-size="12" letter-spacing="1">BY CATEGORY</text>
+<line x1="28" y1="364" x2="692" y2="364" stroke="#2a2f3a"/>
+<text x="28" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="28" y="408" fill="#8b93a1" font-size="11">first try</text>
+<text x="134" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="134" y="408" fill="#8b93a1" font-size="11">after fix</text>
+<text x="240" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="240" y="408" fill="#8b93a1" font-size="11">wrong</text>
+<text x="346" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="346" y="408" fill="#8b93a1" font-size="11">said no</text>
+<text x="452" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
+<text x="452" y="408" fill="#8b93a1" font-size="11">fabricated</text>
+<text x="558" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">—</text>
+<text x="558" y="408" fill="#8b93a1" font-size="11">honesty</text>
+<text x="692" y="386" text-anchor="end" fill="#e6e6e6" font-size="13" font-family="ui-monospace,Consolas,monospace">— tokens</text>
+<text x="692" y="404" text-anchor="end" fill="#8b93a1" font-size="11">net, overhead —</text>
+<text x="692" y="420" text-anchor="end" fill="#8b93a1" font-size="11">— · 0 s</text>
+</svg>

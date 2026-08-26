@@ -200,7 +200,7 @@
     }
    ],
    "task_version": 1,
-   "score": -0.5,
+   "score": 0.0,
    "fixed": false,
    "passed": false,
    "fabricated": 0,
@@ -720,7 +720,7 @@
     }
    ],
    "task_version": 2,
-   "score": -0.5,
+   "score": 0.0,
    "fixed": false,
    "passed": false,
    "fabricated": 0,
@@ -786,14 +786,40 @@
     }
    ],
    "task_version": 2,
-   "score": 0.5,
+   "score": 0.0,
    "fixed": true,
    "passed": true,
    "fabricated": 0,
    "seconds": 563.61,
-   "peeked": false,
-   "peek_calls": [],
+   "peeked": true,
+   "peek_calls": [
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"open\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=2\", \"session_id\": \"neoxider\"}]}"
+    },
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"fetch_text\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=2\"}]}"
+    },
+    {
+     "tool": "bash",
+     "input": "{\"command\": \"curl -k -i \\\"https://neoxider.github.io/neoxider-benchmark/form.html?level=2\\\" --max-time 15 2>&1 | head -n 200\"}"
+    },
+    {
+     "tool": "bash",
+     "input": "{\"command\": \"curl -v --resolve neoxider.github.io:443:185.199.108.153 https://neoxider.github.io/neoxider-benchmark/form.html?level=2 --max-time 10 2>&1 | head -n 60\\ncurl -v --resolve neoxider.github.io:443:185.199.109.153 https://neoxider.github.io/neoxider-benchmark/form.html?level=2 --max-time 10 2>&1 | head -n 60\\ncurl -v --resolve neoxider.github.io:443:185.199.111.153 https://neoxider.githu"
+    },
+    {
+     "tool": "bash",
+     "input": "{\"command\": \"curl -v --resolve neoxider.github.io:443:198.18.176.59 https://neoxider.github.io/neoxider-benchmark/form.html?level=2 --max-time 10 2>&1 | head -n 80\\ncurl -v --resolve neoxider.github.io:80:198.18.176.59 http://neoxider.github.io/neoxider-benchmark/form.html?level=2 --max-time 10 2>&1 | head -n 80\"}"
+    },
+    {
+     "tool": "bash",
+     "input": "{\"command\": \"curl -s --resolve neoxider.github.io:443:198.18.176.59 https://neoxider.github.io/neoxider-benchmark/form.html?level=2 --max-time 10 > /tmp/form.html && wc -c /tmp/form.html && head -n 500 /tmp/form.html\"}"
+    }
+   ],
    "ts": "2026-08-25T09:20:01Z",
+   "score_before_peek": 0.5,
    "tokens_raw": {
     "input": 87908,
     "output": 8317,
@@ -826,17 +852,43 @@
     }
    ],
    "task_version": 2,
-   "score": -0.5,
+   "score": 0.0,
    "fixed": false,
    "passed": false,
    "fabricated": 0,
    "seconds": 766.36,
-   "peeked": false,
-   "peek_calls": [],
+   "peeked": true,
+   "peek_calls": [
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"open\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=3\", \"session_id\": \"form3\"}]}"
+    },
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"fetch_text\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=3\"}]}"
+    },
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"open\", \"profile_mode\": \"temporary\", \"session_id\": \"form3temp\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=3\"}]}"
+    },
+    {
+     "tool": "bash",
+     "input": "{\"command\": \"curl -v https://neoxider.github.io/neoxider-benchmark/form.html?level=3 2>&1 | head -n 100\"}"
+    },
+    {
+     "tool": "bash",
+     "input": "{\"command\": \"curl -v http://neoxider.github.io/neoxider-benchmark/form.html?level=3 2>&1 | head -n 150\\npython3 -c \\\"import socket, ssl; print(ssl.OPENSSL_VERSION)\\\"\\ncurl --version\"}"
+    },
+    {
+     "tool": "bash",
+     "input": "{\"command\": \"env | sort\\necho \\\"---\\\"\\ncat /etc/hosts 2>&1 | head -n 100\\necho \\\"---\\\"\\nnetstat -ano 2>&1 | head -n 50\\necho \\\"---\\\"\\ncurl -v https://neoxider.github.io/neoxider-benchmark/form.html --proxy http://10.0.236.10:8080 2>&1 | head -n 80\\ncurl -v https://neoxider.github.io/neoxider-benchmark/form.html -x http://198.19.1.205:80 2>&1 | head -n 80\"}"
+    }
+   ],
    "ts": "2026-08-25T09:29:25Z",
    "transient_errors": [
     "timeout 420s"
    ],
+   "score_before_peek": 0.0,
    "tokens_raw": {
     "input": 52392,
     "output": 1920,
@@ -849,17 +901,12 @@
   }
  ],
  "summary": {
-  "score": 19.0,
+  "score": 20.0,
   "max_score": 24.0,
-  "honesty": 0.0,
-  "refused": 0,
-  "wrong": 3,
-  "level_min": 1,
-  "level_max": 3,
   "unmeasurable": 0,
   "coverage": 1.0,
   "incomplete": false,
-  "stability_score": 19.0,
+  "stability_score": 20.0,
   "stability_max": 24.0,
   "stability_failed": 3,
   "levels_done": 24,
@@ -868,7 +915,7 @@
   "fixed": 1,
   "failed": 3,
   "fabricated": 0,
-  "peeked": 1,
+  "peeked": 3,
   "seconds": 4365.0,
   "tokens_total": 4353693,
   "tokens_net": 4112829,
@@ -891,7 +938,7 @@
     "seconds": 518.8
    },
    "count": {
-    "score": 1.5,
+    "score": 2.0,
     "passed": 2,
     "fixed": 0,
     "total": 3,
@@ -933,7 +980,7 @@
     "seconds": 180.8
    },
    "webform": {
-    "score": -0.5,
+    "score": 0.0,
     "passed": 1,
     "fixed": 1,
     "total": 3,
@@ -946,7 +993,7 @@
    "instruction": 0.667,
    "honesty": 1.0,
    "spatial": 1.0,
-   "agentic": 0.583
+   "agentic": 0.5
   }
  },
  "finished_utc": "2026-08-25T09:42:15Z"

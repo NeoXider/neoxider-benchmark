@@ -704,14 +704,20 @@
     }
    ],
    "task_version": 2,
-   "score": 1.0,
+   "score": 0.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "seconds": 145.9,
-   "peeked": false,
-   "peek_calls": [],
+   "peeked": true,
+   "peek_calls": [
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"open\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=1\", \"session_id\": \"form1\"}]}"
+    }
+   ],
    "ts": "2026-08-25T08:56:12Z",
+   "score_before_peek": 1.0,
    "tokens_raw": {
     "input": 29923,
     "output": 394,
@@ -736,14 +742,20 @@
     }
    ],
    "task_version": 2,
-   "score": 1.0,
+   "score": 0.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "seconds": 67.99,
-   "peeked": false,
-   "peek_calls": [],
+   "peeked": true,
+   "peek_calls": [
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"open\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=2\", \"session_id\": \"form\", \"agent_label\": \"neoxider-bench\"}]}"
+    }
+   ],
    "ts": "2026-08-25T08:58:38Z",
+   "score_before_peek": 1.0,
    "tokens_raw": {
     "input": 29667,
     "output": 317,
@@ -768,14 +780,20 @@
     }
    ],
    "task_version": 2,
-   "score": 1.0,
+   "score": 0.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "seconds": 64.15,
-   "peeked": false,
-   "peek_calls": [],
+   "peeked": true,
+   "peek_calls": [
+    {
+     "tool": "web-search-neo_web_action",
+     "input": "{\"actions\": [{\"action\": \"open\", \"url\": \"https://neoxider.github.io/neoxider-benchmark/form.html?level=3\", \"session_id\": \"form3\"}]}"
+    }
+   ],
    "ts": "2026-08-25T08:59:46Z",
+   "score_before_peek": 1.0,
    "tokens_raw": {
     "input": 30044,
     "output": 295,
@@ -788,17 +806,12 @@
   }
  ],
  "summary": {
-  "score": 24.0,
+  "score": 21.0,
   "max_score": 24.0,
-  "honesty": null,
-  "refused": 0,
-  "wrong": 0,
-  "level_min": 1,
-  "level_max": 3,
   "unmeasurable": 0,
   "coverage": 1.0,
   "incomplete": false,
-  "stability_score": 24.0,
+  "stability_score": 21.0,
   "stability_max": 24.0,
   "stability_failed": 0,
   "levels_done": 24,
@@ -807,7 +820,7 @@
   "fixed": 0,
   "failed": 0,
   "fabricated": 0,
-  "peeked": 0,
+  "peeked": 3,
   "seconds": 1996.9,
   "tokens_total": 628725,
   "tokens_net": 384069,
@@ -872,7 +885,7 @@
     "seconds": 198.5
    },
    "webform": {
-    "score": 3.0,
+    "score": 0.0,
     "passed": 3,
     "fixed": 0,
     "total": 3,
@@ -885,7 +898,7 @@
    "instruction": 1.0,
    "honesty": 1.0,
    "spatial": 1.0,
-   "agentic": 1.0
+   "agentic": 0.5
   }
  },
  "finished_utc": "2026-08-25T09:00:50Z"

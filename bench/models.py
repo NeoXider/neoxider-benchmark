@@ -255,11 +255,20 @@ def run_claude(model, prompt, timeout=900, cwd=None, on_output=None):
         'cache_read': u.get('cache_read_input_tokens', 0) or 0,
         'cache_write': u.get('cache_creation_input_tokens', 0) or 0,
     }
+    # CLI не перечисляет вызовы инструментов, но считает ходы: вызов требует
+    # второго хода — модель обращается к инструменту и возвращается с ответом.
+    # Одного хода без инструментов достаточно, чтобы отличить одно от другого,
+    # а без этого запрет инструментов в toolchoice был непроверяем.
+    turns = data.get('num_turns')
+    tools = None
+    if isinstance(turns, int):
+        tools = ['tool round-trip'] if turns > 1 else []
     return Result(text=data.get('result') or data.get('text') or '',
                   tokens=tokens if u else None,
                   cost=data.get('total_cost_usd'),
                   seconds=secs,
-                  error=data.get('error'))
+                  error=data.get('error'),
+                  tools=tools)
 
 
 # --------------------------------------------------------------------- codex
@@ -281,6 +290,7 @@ def run_codex(model, prompt, timeout=900, cwd=None, on_output=None):
     tokens = _zero_tokens()
     seen = False
     chunks = []
+    tool_names = []
     for line in out.splitlines():
         line = line.strip()
         if not line.startswith('{'):
@@ -301,6 +311,16 @@ def run_codex(model, prompt, timeout=900, cwd=None, on_output=None):
         # хватало прежним сборкам codex, но в нынешней текст вложен, и без
         # разбора item ответ терялся целиком, а уровень падал на разборе формата.
         item = ev.get('item')
+        # Вызовы инструментов приходят отдельными item'ами: command_execution
+        # для оболочки, mcp_tool_call для MCP. Без их сбора запрет инструментов
+        # на верхних уровнях toolchoice был непроверяем — модель могла посчитать
+        # оболочкой, а уровень засчитывался как решённый в уме.
+        if isinstance(item, dict):
+            kind = item.get('type')
+            if kind and kind not in ('agent_message', 'assistant_message', 'reasoning'):
+                name = item.get('server_label') or item.get('tool_name') or kind
+                if name not in tool_names:
+                    tool_names.append(name)
         if isinstance(item, dict) and item.get('type') == 'agent_message':
             v = item.get('text')
             if isinstance(v, str) and v:
@@ -312,7 +332,7 @@ def run_codex(model, prompt, timeout=900, cwd=None, on_output=None):
                 chunks.append(v)
     text = '\n'.join(chunks) if chunks else out
     return Result(text=text, tokens=tokens if seen else None,
-                  seconds=secs, error=error)
+                  seconds=secs, error=error, tools=tool_names)
 
 
 # Какие возможности харнесс реально даёт модели. Таблица ведётся руками и

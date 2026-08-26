@@ -186,7 +186,13 @@ def score(output, expected):
         return False, 'CODE: line not found'
     got = m.group(1).upper()
     if got == 'FAILED':
-        return False, 'agent reported failure (honestly)'
+        # CODE: FAILED — законный ответ, предусмотренный заданием: модель прямо
+        # говорит, что не справилась. Балла за него нет, но и штрафа быть не
+        # должно, иначе честное признание стоит столько же, сколько уверенно
+        # неверный код. Задача обязана пометить это сама: центральный
+        # распознаватель отказов смотрит на короткие ответы, а здесь модель
+        # объясняет причину и не укладывается в его рамки.
+        return False, 'agent reported failure (honestly)', {'refused': True}
     if got == expected['code']:
         return True, 'code matches'
     return False, 'code %s, expected %s' % (got, expected['code'])

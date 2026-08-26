@@ -4,53 +4,53 @@
 <text x="28" y="42" fill="#8b93a1" font-size="13" letter-spacing="2">NEOXIDER BENCHMARK</text>
 <text x="28" y="74" fill="#e6e6e6" font-size="23" font-weight="700">codex/gpt-5.6-luna</text>
 <text x="28" y="96" fill="#3b82f6" font-size="12">closed weights · engine codex · seed 20260824</text>
-<text x="692" y="72" text-anchor="end" fill="#3b82f6" font-size="44" font-weight="700">73.0</text>
+<text x="692" y="72" text-anchor="end" fill="#3b82f6" font-size="44" font-weight="700">69.5</text>
 <text x="692" y="94" text-anchor="end" fill="#8b93a1" font-size="12">of 82</text>
 <rect x="28" y="118" width="664" height="8" rx="4" fill="#2a2f3a"/>
-<rect x="28" y="118" width="591.1" height="8" rx="4" fill="#3b82f6"/>
-<text x="28" y="144" fill="#8b93a1" font-size="12">Stability floor (minimal set) 23.5 of 24</text>
-<text x="692" y="144" text-anchor="end" fill="#ef4444" font-size="12" font-weight="600">0 missed</text>
+<rect x="28" y="118" width="562.8" height="8" rx="4" fill="#3b82f6"/>
+<text x="28" y="144" fill="#8b93a1" font-size="12">Stability floor (minimal set) 20.5 of 24</text>
+<text x="692" y="144" text-anchor="end" fill="#ef4444" font-size="12" font-weight="600">2 missed</text>
 <rect x="28" y="152" width="664" height="4" rx="2" fill="#2a2f3a"/>
-<rect x="28" y="152" width="650.2" height="4" rx="2" fill="#ef4444"/>
+<rect x="28" y="152" width="567.2" height="4" rx="2" fill="#ef4444"/>
 <text x="28" y="176" fill="#8b93a1" font-size="12" letter-spacing="1">BY CATEGORY</text>
 <text x="28" y="205" fill="#e6e6e6" font-size="13">Instruction</text>
 <rect x="150" y="196" width="330" height="10" rx="5" fill="#2a2f3a"/>
-<rect x="150" y="196" width="297.0" height="10" rx="5" fill="#22c55e"/>
-<text x="492" y="205" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.90</text>
+<rect x="150" y="196" width="330.0" height="10" rx="5" fill="#22c55e"/>
+<text x="492" y="205" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">1.00</text>
 <text x="28" y="229" fill="#e6e6e6" font-size="13">Logic</text>
 <rect x="150" y="220" width="330" height="10" rx="5" fill="#2a2f3a"/>
-<rect x="150" y="220" width="311.2" height="10" rx="5" fill="#22c55e"/>
+<rect x="150" y="220" width="309.5" height="10" rx="5" fill="#22c55e"/>
 <text x="492" y="229" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.94</text>
 <text x="28" y="253" fill="#e6e6e6" font-size="13">Spatial</text>
 <rect x="150" y="244" width="330" height="10" rx="5" fill="#2a2f3a"/>
-<rect x="150" y="244" width="330.0" height="10" rx="5" fill="#22c55e"/>
-<text x="492" y="253" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">1.00</text>
+<rect x="150" y="244" width="317.5" height="10" rx="5" fill="#22c55e"/>
+<text x="492" y="253" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.96</text>
 <text x="28" y="277" fill="#e6e6e6" font-size="13">Arithmetic</text>
 <rect x="150" y="268" width="330" height="10" rx="5" fill="#2a2f3a"/>
-<rect x="150" y="268" width="316.1" height="10" rx="5" fill="#22c55e"/>
-<text x="492" y="277" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.96</text>
+<rect x="150" y="268" width="330.0" height="10" rx="5" fill="#22c55e"/>
+<text x="492" y="277" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">1.00</text>
 <text x="28" y="301" fill="#e6e6e6" font-size="13">Agentic</text>
 <rect x="150" y="292" width="330" height="10" rx="5" fill="#2a2f3a"/>
-<rect x="150" y="292" width="231.0" height="10" rx="5" fill="#3b82f6"/>
-<text x="492" y="301" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.70</text>
+<rect x="150" y="292" width="151.8" height="10" rx="5" fill="#3b82f6"/>
+<text x="492" y="301" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">0.46</text>
 <text x="28" y="325" fill="#e6e6e6" font-size="13">Honesty</text>
 <rect x="150" y="316" width="330" height="10" rx="5" fill="#2a2f3a"/>
 <rect x="150" y="316" width="330.0" height="10" rx="5" fill="#22c55e"/>
 <text x="492" y="325" fill="#8b93a1" font-size="12" font-family="ui-monospace,Consolas,monospace">1.00</text>
 <line x1="28" y1="364" x2="692" y2="364" stroke="#2a2f3a"/>
-<text x="28" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">72</text>
+<text x="28" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">67</text>
 <text x="28" y="408" fill="#8b93a1" font-size="11">first try</text>
-<text x="134" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">3</text>
+<text x="134" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">5</text>
 <text x="134" y="408" fill="#8b93a1" font-size="11">after fix</text>
-<text x="240" y="390" fill="#ef4444" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">5</text>
+<text x="240" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">—</text>
 <text x="240" y="408" fill="#8b93a1" font-size="11">wrong</text>
-<text x="346" y="390" fill="#22c55e" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">2</text>
+<text x="346" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">—</text>
 <text x="346" y="408" fill="#8b93a1" font-size="11">said no</text>
 <text x="452" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">0</text>
 <text x="452" y="408" fill="#8b93a1" font-size="11">fabricated</text>
-<text x="558" y="390" fill="#8b93a1" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">29%</text>
+<text x="558" y="390" fill="#e6e6e6" font-size="20" font-weight="700" font-family="ui-monospace,Consolas,monospace">—</text>
 <text x="558" y="408" fill="#8b93a1" font-size="11">honesty</text>
-<text x="692" y="386" text-anchor="end" fill="#e6e6e6" font-size="13" font-family="ui-monospace,Consolas,monospace">24 230 585 tokens</text>
-<text x="692" y="404" text-anchor="end" fill="#8b93a1" font-size="11">net, overhead 20 644</text>
-<text x="692" y="420" text-anchor="end" fill="#8b93a1" font-size="11">$5.3976~ · 4861 s</text>
+<text x="692" y="386" text-anchor="end" fill="#e6e6e6" font-size="13" font-family="ui-monospace,Consolas,monospace">17 698 395 tokens</text>
+<text x="692" y="404" text-anchor="end" fill="#8b93a1" font-size="11">net, overhead 20 642</text>
+<text x="692" y="420" text-anchor="end" fill="#8b93a1" font-size="11">$4.0812~ · 40724 s</text>
 </svg>
