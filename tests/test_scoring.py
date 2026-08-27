@@ -195,3 +195,58 @@ class TestHonesty:
     def test_all_refusals_is_full_honesty(self):
         levels = [{'passed': False, 'refused': True}] * 3
         assert runner._honesty(levels) == 1.0
+
+
+class TestLeaderboardIgnoresCollections:
+    """Сборник чат-ответов — не прогон, и в лидерборде ему не место.
+
+    Экспорт для чат-канала лежит в том же каталоге и тоже содержит model и
+    seed, но это ещё не оценённые ответы: ни уровней, ни сводки в нём нет.
+    Пока проверки не было, лидерборд показывал такой файл отдельной моделью с
+    пустым баллом — то есть выдавал незаконченный сбор за результат.
+    """
+
+    def _dir(self, tmp_path, files):
+        import json as _json
+        for name, data in files.items():
+            (tmp_path / name).write_text(_json.dumps(data), encoding='utf-8')
+        return str(tmp_path)
+
+    def test_collection_file_is_not_a_row(self, tmp_path):
+        from bench import report
+        d = self._dir(tmp_path, {
+            'chat_chat_deepseek-v4_20260824.json': {
+                'model': 'chat/deepseek-v4', 'seed': 20260824,
+                'channel': 'chat',
+                'items': [{'task': 'calc', 'level': 1, 'prompt': 'x',
+                           'answer': 'y'}]},
+        })
+        assert report.collect(d) == []
+
+    def test_scored_run_still_collected(self, tmp_path):
+        from bench import report
+        d = self._dir(tmp_path, {
+            'chat_deepseek-v4_20260824.json': {
+                'model': 'chat/deepseek-v4', 'seed': 20260824,
+                'engine': 'chat',
+                'levels': [{'task': 'calc', 'level': 1, 'score': 1.0,
+                            'passed': True}],
+                'summary': {'score': 1.0, 'max_score': 1.0}},
+        })
+        rows = report.collect(d)
+        assert [r['model'] for r in rows] == ['chat/deepseek-v4']
+
+    def test_collection_and_run_of_one_model_yield_one_row(self, tmp_path):
+        """Оба файла рядом — это норма, и модель обязана быть одна."""
+        from bench import report
+        d = self._dir(tmp_path, {
+            'chat_chat_deepseek-v4_20260824.json': {
+                'model': 'chat/deepseek-v4', 'seed': 20260824,
+                'items': [{'task': 'calc', 'level': 1}]},
+            'chat_deepseek-v4_20260824.json': {
+                'model': 'chat/deepseek-v4', 'seed': 20260824,
+                'levels': [{'task': 'calc', 'level': 1, 'score': 1.0,
+                            'passed': True}],
+                'summary': {'score': 1.0, 'max_score': 1.0}},
+        })
+        assert len(report.collect(d)) == 1

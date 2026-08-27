@@ -61,6 +61,13 @@ def collect(results_dir=None):
                 run = json.load(fh)
         except ValueError:
             continue
+        # В том же каталоге лежат СБОРНИКИ чат-канала (chat_<model>_<seed>.json):
+        # это промпты и собранные ответы, ещё не оценённые. У них есть model и
+        # seed, но нет ни levels, ни summary. Без этой проверки лидерборд
+        # показывал их отдельными моделями с пустым баллом — то есть выдавал
+        # незаконченный сбор за результат прогона.
+        if not run.get('summary') or 'items' in run:
+            continue
         s = run.get('summary') or {}
         model = run.get('model', '?')
         # Полнота считается здесь по самим уровням, а не берётся из сводки: файлы
