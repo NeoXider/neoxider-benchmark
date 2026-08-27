@@ -268,6 +268,13 @@ _TRANSPORT = (
     'os error 11001',
     'econnreset',
     'etimedout',
+    # Формулировка claude CLI при разрыве потока. Её отсутствие стоило Opus
+    # трёх первых попыток: обрыв связи посреди ответа читался как нарушение
+    # формата («блок кода не найден», «ответ не распознан»), и уровень уходил
+    # в «решено со второй попытки» вместо повтора без потери балла.
+    'connection lost mid-response',
+    'the response above may be incomplete',
+    'api error:',
 )
 
 
@@ -658,6 +665,22 @@ def rescore(run):
     """
     changed = []
     for rec in run.get('levels') or []:
+        # Попытка, погибшая на обрыве связи, не должна была тратиться. Если
+        # уровень взят следующей попыткой, это успех с первой НАСТОЯЩЕЙ, а не
+        # «решено со второй»: половину балла модель теряла за неисправность
+        # канала. Так Opus потерял 1.5 балла на трёх уровнях, и разрыв с
+        # Sonnet почти целиком состоял из этого.
+        atts = rec.get('attempts') or []
+        if rec.get('passed') and rec.get('fixed') and len(atts) > 1:
+            dead = [a for a in atts[:-1]
+                    if looks_like_transport_failure(a.get('output_head'))]
+            if len(dead) == len(atts) - 1:
+                before = rec.get('score')
+                rec['fixed'] = False
+                rec['score'] = SCORE_FIRST
+                rec['transport_retries'] = len(dead)
+                changed.append((rec['task'], rec['level'], before, rec['score']))
+
         # Снять ложную отметку подглядывания. Детектор считал обращением к
         # бенчмарку открытие самой страницы задания — её адрес содержит имя
         # проекта, — и обнулял честно пройденный уровень. Восстанавливаем, если

@@ -403,8 +403,8 @@
     }
    ],
    "task_version": 3,
-   "score": 0.5,
-   "fixed": true,
+   "score": 1.0,
+   "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
@@ -420,7 +420,8 @@
     "cache_write": 5072
    },
    "tokens_net": 1982,
-   "cost": 0.185994
+   "cost": 0.185994,
+   "transport_retries": 1
   },
   {
    "task": "count",
@@ -1541,8 +1542,8 @@
     }
    ],
    "task_version": 1,
-   "score": 0.5,
-   "fixed": true,
+   "score": 1.0,
+   "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
@@ -1558,7 +1559,8 @@
     "cache_write": 12496
    },
    "tokens_net": 24759,
-   "cost": 0.189912
+   "cost": 0.189912,
+   "transport_retries": 1
   },
   {
    "task": "pathperf",
@@ -1978,8 +1980,8 @@
     }
    ],
    "task_version": 2,
-   "score": 0.5,
-   "fixed": true,
+   "score": 1.0,
+   "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
@@ -1995,7 +1997,8 @@
     "cache_write": 12366
    },
    "tokens_net": 23897,
-   "cost": 0.170192
+   "cost": 0.170192,
+   "transport_retries": 1
   },
   {
    "task": "spatial",
@@ -2774,7 +2777,7 @@
   }
  ],
  "summary": {
-  "score": 78.0,
+  "score": 79.5,
   "max_score": 82.0,
   "honesty": 1.0,
   "violations": 0,
@@ -2790,8 +2793,8 @@
   "stability_failed": 0,
   "levels_done": 82,
   "passed": 80,
-  "first_try": 76,
-  "fixed": 4,
+  "first_try": 79,
+  "fixed": 1,
   "failed": 2,
   "fabricated": 0,
   "peeked": 0,
@@ -2810,9 +2813,9 @@
   "cost_reported": 19.894638,
   "per_task": {
    "calc": {
-    "score": 11.5,
+    "score": 12.0,
     "passed": 12,
-    "fixed": 1,
+    "fixed": 0,
     "total": 12,
     "seconds": 227.2
    },
@@ -2838,16 +2841,16 @@
     "seconds": 231.0
    },
    "pathperf": {
-    "score": 9.5,
+    "score": 10.0,
     "passed": 10,
-    "fixed": 1,
+    "fixed": 0,
     "total": 10,
     "seconds": 949.2
    },
    "spatial": {
-    "score": 9.5,
+    "score": 10.0,
     "passed": 10,
-    "fixed": 1,
+    "fixed": 0,
     "total": 10,
     "seconds": 149.3
    },
@@ -2867,12 +2870,12 @@
    }
   },
   "per_category": {
-   "math": 0.958,
-   "logic": 0.938,
+   "math": 1.0,
+   "logic": 0.959,
    "instruction": 0.95,
    "honesty": 1.0,
-   "spatial": 0.962,
-   "agentic": 0.93
+   "spatial": 1.0,
+   "agentic": 0.94
   }
  },
  "finished_utc": "2026-08-26T21:18:24Z"
