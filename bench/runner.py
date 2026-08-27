@@ -694,6 +694,18 @@ _HARNESS_MARKS = (
     'closed automatically between actions',
     'isolated browser session is unavailable',
     'os error 11001',
+    # Браузер пропал под моделью посреди задачи. Это не «не справилась»: в
+    # webform у модели ОТНЯЛИ инструмент, которым задача и решается. Ловится
+    # по её собственному рассказу — движок при этом ошибки не отдаёт, и
+    # уровень записывался как неверный ответ со штрафом.
+    'browser connection dropped',
+    'browser connection briefly reset',
+    'no browser was available',
+    'no browser connection was available',
+    'no available tab surface',
+    'chrome companion extension is not connected',
+    'chromebridgeunavailable',
+    'chrome bridge command',
 )
 
 
@@ -713,6 +725,12 @@ def suspect_reason(rec):
         head = (a.get('output_head') or '').lower()
         if not head.strip() and a.get('error'):
             return 'движок вернул пустоту: %s' % str(a['error'])[:60]
+        # Пустой ответ БЕЗ ошибки движка. Раньше он проваливался дальше и
+        # получал ту же оценку, что неверный ответ, — со штрафом. Но модель
+        # здесь не утверждала ничего, а штраф стоит именно за уверенное
+        # враньё. Нечего оценивать — значит, уровень не измерен.
+        if not head.strip():
+            return 'ответ пуст, а движок не сообщил об ошибке'
         for mark in _HARNESS_MARKS:
             if mark in head:
                 return 'помеха харнесса: %s' % mark

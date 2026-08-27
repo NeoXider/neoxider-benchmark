@@ -250,3 +250,62 @@ class TestLeaderboardIgnoresCollections:
                 'summary': {'score': 1.0, 'max_score': 1.0}},
         })
         assert len(report.collect(d)) == 1
+
+
+class TestBrowserLossIsNotTheModelsFault:
+    """Пропавший браузер — отнятый инструмент, а не слабость модели.
+
+    В webform задача решается ТОЛЬКО браузером. Когда он отваливается под
+    моделью, движок ошибки не отдаёт: модель честно пишет в своём ответе, что
+    подключения нет, а харнесс читает это как «нет строки CODE» и ставит штраф
+    за неверный ответ. Живой случай: у одного прогона так сгорело шесть
+    уровней из десяти.
+    """
+
+    def _rec(self, head, score=runner.PENALTY_WRONG):
+        return {'task': 'webform', 'level': 4, 'score': score,
+                'attempts': [{'n': 1, 'ok': False, 'detail': 'CODE: line not found',
+                              'error': None, 'output_head': head}]}
+
+    @pytest.mark.parametrize('head', [
+        'The browser connection dropped before the tab was created.',
+        'The browser connection briefly reset while I was verifying every field.',
+        'CODE: FAILED\nNo browser was available to open and fill the form.',
+        'No browser connection was available, so the page could not be opened.',
+        'The first browser connection returned no available tab surface.',
+        'ChromeBridgeUnavailable: Chrome companion extension is not connected',
+    ])
+    def test_recognised_as_harness_fault(self, head):
+        assert runner.suspect_reason(self._rec(head)) is not None
+
+    def test_a_real_failure_is_still_the_models(self):
+        rec = self._rec('I filled the form and read the code.\nCODE: 12345')
+        assert runner.suspect_reason(rec) is None
+
+    def test_a_passed_level_is_never_suspect(self):
+        rec = self._rec('The browser connection dropped', score=runner.SCORE_FIRST)
+        assert runner.suspect_reason(rec) is None
+
+
+class TestEmptyAnswerIsNotALie:
+    """Пустой ответ нельзя штрафовать как враньё.
+
+    Штраф стоит за уверенное неверное утверждение. Молчание не утверждает
+    ничего, поэтому оценивать его как неверный ответ значит наказывать за то,
+    чего модель не делала.
+    """
+
+    def _rec(self, head, error=None):
+        return {'task': 'calc', 'level': 3, 'score': runner.PENALTY_WRONG,
+                'attempts': [{'n': 1, 'ok': False, 'detail': 'wrong',
+                              'error': error, 'output_head': head}]}
+
+    @pytest.mark.parametrize('head', ['', '   ', '\n\n'])
+    def test_silence_without_an_engine_error_is_suspect(self, head):
+        assert runner.suspect_reason(self._rec(head)) is not None
+
+    def test_silence_with_an_engine_error_is_suspect_too(self):
+        assert runner.suspect_reason(self._rec('', error='boom')) is not None
+
+    def test_a_spoken_wrong_answer_stays_the_models(self):
+        assert runner.suspect_reason(self._rec('ANSWER: 41')) is None
