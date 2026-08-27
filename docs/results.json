@@ -857,6 +857,98 @@
    "card": "cards/lmstudio-local_qwen3.8-27b-unleashed.svg"
   },
   {
+   "model": "chat/deepseek-v4",
+   "engine": "chat",
+   "weights": "open",
+   "local": false,
+   "weights_ref": "hf:deepseek-ai",
+   "params_b": null,
+   "tier": "unknown",
+   "tier_source": null,
+   "seed": 20260824,
+   "date": "2026-08-27",
+   "score": 49.0,
+   "max_score": 57.0,
+   "score_pct": 86.0,
+   "level_min": 1,
+   "level_max": 12,
+   "coverage": 1.0,
+   "incomplete": false,
+   "stability_score": 15.0,
+   "stability_max": 15.0,
+   "stability_failed": 0,
+   "unmeasurable": 25,
+   "passed": 49,
+   "first_try": 49,
+   "fixed": 0,
+   "failed": 8,
+   "fabricated": 0,
+   "honesty": 0.0,
+   "violations": 0,
+   "refused": 0,
+   "wrong": 8,
+   "seconds": 0.0,
+   "tokens_total": null,
+   "tokens_net": null,
+   "baseline_tokens": null,
+   "cost": null,
+   "cost_source": null,
+   "price_ref": null,
+   "per_task": {
+    "calc": {
+     "score": 12.0,
+     "passed": 12,
+     "fixed": 0,
+     "total": 12,
+     "seconds": 0.0
+    },
+    "count": {
+     "score": 8.0,
+     "passed": 8,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 0.0
+    },
+    "path3d": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 0.0
+    },
+    "pathperf": {
+     "score": 9.0,
+     "passed": 9,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 0.0
+    },
+    "spatial": {
+     "score": 8.0,
+     "passed": 8,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 0.0
+    },
+    "toolchoice": {
+     "score": 2.0,
+     "passed": 2,
+     "fixed": 0,
+     "total": 5,
+     "seconds": 0.0
+    }
+   },
+   "per_category": {
+    "math": 1.0,
+    "logic": 0.897,
+    "instruction": 0.8,
+    "spatial": 0.846,
+    "agentic": 0.686
+   },
+   "levels_done": 57,
+   "card": "cards/chat_deepseek-v4.svg"
+  },
+  {
    "model": "opencode/muse-spark-1.2-contributor-free",
    "engine": "opencode",
    "weights": "closed",
@@ -962,98 +1054,6 @@
    },
    "levels_done": 24,
    "card": "cards/opencode_muse-spark-1.2-contributor-free.svg"
-  },
-  {
-   "model": "chat/deepseek-v4",
-   "engine": "chat",
-   "weights": "open",
-   "local": false,
-   "weights_ref": "hf:deepseek-ai",
-   "params_b": null,
-   "tier": "unknown",
-   "tier_source": null,
-   "seed": 20260824,
-   "date": "2026-08-27",
-   "score": 18.0,
-   "max_score": 57.0,
-   "score_pct": 31.6,
-   "level_min": 1,
-   "level_max": 12,
-   "coverage": 1.0,
-   "incomplete": false,
-   "stability_score": 5.0,
-   "stability_max": 15.0,
-   "stability_failed": 10,
-   "unmeasurable": 25,
-   "passed": 18,
-   "first_try": 18,
-   "fixed": 0,
-   "failed": 39,
-   "fabricated": 0,
-   "honesty": 0.0,
-   "violations": 0,
-   "refused": 0,
-   "wrong": 39,
-   "seconds": 0.0,
-   "tokens_total": null,
-   "tokens_net": null,
-   "baseline_tokens": null,
-   "cost": null,
-   "cost_source": null,
-   "price_ref": null,
-   "per_task": {
-    "calc": {
-     "score": 12.0,
-     "passed": 12,
-     "fixed": 0,
-     "total": 12,
-     "seconds": 0.0
-    },
-    "count": {
-     "score": 0.0,
-     "passed": 0,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 0.0
-    },
-    "path3d": {
-     "score": 0.0,
-     "passed": 0,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 0.0
-    },
-    "pathperf": {
-     "score": 0.0,
-     "passed": 0,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 0.0
-    },
-    "spatial": {
-     "score": 4.0,
-     "passed": 4,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 0.0
-    },
-    "toolchoice": {
-     "score": 2.0,
-     "passed": 2,
-     "fixed": 0,
-     "total": 5,
-     "seconds": 0.0
-    }
-   },
-   "per_category": {
-    "math": 1.0,
-    "logic": 0.184,
-    "instruction": 0.0,
-    "spatial": 0.308,
-    "agentic": 0.171
-   },
-   "levels_done": 57,
-   "card": "cards/chat_deepseek-v4.svg"
   },
   {
    "model": "lmstudio-local/qwen_qwen3.5-2b",
