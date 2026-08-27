@@ -199,12 +199,31 @@ def ask(cfg, prompt, session='nxb-chat', max_wait=MAX_WAIT):
         # срабатывало на длинных ответах — сайт дорисовывает контейнер иначе, —
         # и функция честно возвращала пустоту, которая шла в отчёт как молчание
         # модели. Если нового блока нет, читаем последний, какой есть.
+        # Блоки кода восстанавливаются С ОГРАЖДЕНИЕМ. Чат рисует их как
+        # оформленный элемент, и innerText отдаёт содержимое БЕЗ тройных
+        # кавычек, зато с кнопками «Copy» и «Download». Задачи ищут именно
+        # ограждение — и тридцать верных ответов DeepSeek были записаны как
+        # «блок не найден», то есть как неспособность модели соблюсти формат.
         text = _value(_js(
-            "var n=document.querySelectorAll(arguments[0]);"
-            "if(!n.length) return '';"
-            "var last=n[n.length-1];"
-            "if(n.length<=arguments[1] && n.length>1) last=n[n.length-1];"
-            "return (last.innerText||'').trim();",
+            r"var n=document.querySelectorAll(arguments[0]);"
+            r"if(!n.length) return '';"
+            r"var last=n[n.length-1].cloneNode(true);"
+            r"[].forEach.call(last.querySelectorAll('pre'),function(pre){"
+            r"  var code=pre.querySelector('code')||pre;"
+            r"  var lang='';"
+            r"  var m=String(code.className||'').match(/language-([\w.+-]+)/);"
+            r"  if(m) lang=m[1];"
+            r"  var body=(code.innerText||'').replace(/^\s*(Copy|Download|\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c)\s*$/gm,'').trim();"
+            r"  var head=pre.previousElementSibling;"
+            r"  if(!lang && head){"
+            r"    var h=(head.innerText||'').replace(/Copy|Download|\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c/g,'').trim();"
+            r"    h=(h.split(/\s+/)[0]||'').replace(/[^\w.+-]/g,'');"
+            r"    if(h && h.length<20) lang=h;}"
+            r"  if(head && head.parentNode) head.parentNode.removeChild(head);"
+            r"  var fence=document.createTextNode('\n```'+lang+'\n'+body+'\n```\n');"
+            r"  pre.parentNode.replaceChild(fence, pre);"
+            r"});"
+            r"return (last.innerText||'').replace(/^\s*(Copy|Download)\s*$/gm,'').trim();",
             args=[cfg['answer'], before], session=session)) or ''
         if text and text == last:
             stable += 1
