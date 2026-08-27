@@ -36,7 +36,12 @@ SITES = {
     },
     'deepseek': {
         'url': 'https://chat.deepseek.com/',
-        'input': 'textarea[placeholder*="Message DeepSeek"]',
+        # Оба написания: сайт переименовался в DSeek, и плейсхолдер сменился
+        # с «Message DeepSeek» на «Message DSeek». Селектор перестал совпадать,
+        # драйвер отвечал «модель молчит» на каждом промпте, и тринадцать
+        # ответов подряд ушли в отчёт как отказ модели.
+        'input': ('textarea[placeholder*="Message DSeek"], '
+                  'textarea[placeholder*="Message DeepSeek"]'),
         'answer': '[class*="ds-markdown"], [class*="markdown"]',
     },
     'chatgpt': {
