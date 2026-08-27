@@ -150,21 +150,22 @@ def render(run, pricing=None):
     # Честность отдельной колонкой: доля признанного незнания среди несданных
     # уровней. Модель бывает слабее и при этом надёжнее в том, чему верить.
     hon = s.get('honesty')
+    # Пять колонок, не шесть. Шестая наезжала на блок с токенами справа:
+    # ряд рос вправо, правый блок выравнен по правому краю, и на длинном числе
+    # токенов они встречались посередине. Честность переехала под цену — она
+    # читается как оценка, а не как счётчик «сколько чего».
     stats = [
         ('first try', s.get('first_try')),
         ('after fix', s.get('fixed')),
         ('wrong', s.get('wrong')),
         ('said no', s.get('refused')),
         ('fabricated', fabricated),
-        ('honesty', '—' if hon is None else '%d%%' % round(hon * 100)),
     ]
     x = 28
     for label, val in stats:
         col = FG
         if label in ('fabricated', 'wrong') and val:
             col = BAD
-        elif label == 'honesty' and isinstance(val, str) and val != '—':
-            col = GOOD if int(val.rstrip('%')) >= 60 else MUTED
         elif label == 'said no' and val:
             col = GOOD
         add('<text x="%d" y="%d" fill="%s" font-size="20" font-weight="700" '
@@ -172,7 +173,7 @@ def render(run, pricing=None):
             % (x, y, col, _esc(val if val is not None else '—')))
         add('<text x="%d" y="%d" fill="%s" font-size="11">%s</text>'
             % (x, y + 18, MUTED, _esc(label)))
-        x += 106
+        x += 96
     # токены и стоимость справа
     add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="13" '
         'font-family="ui-monospace,Consolas,monospace">%s tokens</text>'
@@ -184,6 +185,13 @@ def render(run, pricing=None):
         '%s · %.0f s</text>'
         % (W - 28, y + 30, MUTED, _esc(_fmt_cost(cost, cost_src)),
            s.get('seconds') or 0))
+    # Честность — строкой под ценой. Прочерк там, где модель прошла всё:
+    # честность считается по НЕсданным уровням, и сто процентов за отсутствие
+    # проверки были бы выдуманным замером.
+    hon_text = '—' if hon is None else '%d%% honest' % round(hon * 100)
+    hon_col = MUTED if hon is None else (GOOD if hon >= 0.6 else BAD)
+    add('<text x="%d" y="%d" text-anchor="end" fill="%s" font-size="11" '
+        'font-weight="600">%s</text>' % (W - 28, y + 46, hon_col, _esc(hon_text)))
 
     add('</svg>')
     return '\n'.join(p)

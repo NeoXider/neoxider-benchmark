@@ -2701,43 +2701,39 @@
    "attempts": [
     {
      "n": 1,
-     "ok": false,
-     "detail": "CODE: line not found",
-     "seconds": 31.66,
+     "ok": true,
+     "detail": "code matches",
+     "seconds": 628.9,
      "error": null,
-     "output_head": "I don't have browser automation tools available in my current toolset. I cannot directly open a browser, interact with form elements, see what's rendered, or click buttons. My available tools don't include Selenium, Playwright, Puppeteer, or similar browser automation capabilities that would be needed for this task.\n\nTo accomplish this, I would need either:\n1. **Browser automation tools** (Playwri"
-    },
-    {
-     "n": 2,
-     "ok": false,
-     "detail": "CODE: line not found",
-     "seconds": 598.37,
-     "error": null,
-     "output_head": "API Error: Connection lost mid-response. The response above may be incomplete."
+     "output_head": "CODE: 3815B047"
     }
    ],
    "task_version": 3,
-   "score": -0.5,
+   "score": 1.0,
    "fixed": false,
-   "passed": false,
+   "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 1530.07,
+   "seconds": 2764.67,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-26T18:49:19Z",
+   "ts": "2026-08-27T07:57:06Z",
    "transient_errors": [
-    "timeout 900s"
+    "None",
+    "None",
+    "timeout 900s",
+    "None",
+    "None"
    ],
    "tokens_raw": {
-    "input": 268,
-    "output": 30931,
+    "input": 708,
+    "output": 17580,
     "reasoning": 0,
-    "cache_read": 1436347,
-    "cache_write": 50363
+    "cache_read": 5517803,
+    "cache_write": 75080
    },
-   "tokens_net": 1492369,
-   "cost": 0.406344
+   "tokens_net": 5585631,
+   "cost": 0.800403
   },
   {
    "task": "webform",
@@ -2746,39 +2742,44 @@
     {
      "n": 1,
      "ok": false,
-     "detail": "agent reported failure (honestly)",
-     "seconds": 439.82,
+     "detail": "CODE: line not found",
+     "seconds": 659.1,
      "error": null,
-     "output_head": "I've been unable to complete the form submission because the priority order drag-and-drop list cannot be properly interacted with. Despite filling all other form fields successfully (full name, email, quantity, country, plan, newsletter, comment, frequency, start date, invoice, seats, and topics), the form validation requires the priority order to be reordered from \"alpha,beta,gamma,delta\" to \"gam"
+     "output_head": "All browser tabs have been closed. I was unable to complete this task successfully due to the form validation issue with the invoice and seats fields."
     },
     {
      "n": 2,
-     "ok": false,
-     "detail": "agent reported failure (honestly)",
-     "seconds": 677.97,
+     "ok": true,
+     "detail": "code matches",
+     "seconds": 332.04,
      "error": null,
-     "output_head": "The form reset to Level 1 again, which means the submission was rejected. The server requires all fields including the Priority order to be in the correct sequence. Since drag-and-drop and JavaScript DOM manipulation haven't successfully rearranged the Priority order items (they remain in alpha, beta, gamma, delta order instead of the required gamma, delta, alpha, beta), the form submission keeps "
+     "output_head": "CODE: 87904FB8"
     }
    ],
    "task_version": 3,
-   "score": 0.0,
-   "fixed": false,
-   "passed": false,
+   "score": 0.5,
+   "fixed": true,
+   "passed": true,
    "fabricated": 0,
-   "refused": true,
-   "seconds": 1117.79,
+   "refused": false,
+   "seconds": 2977.05,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-26T19:14:53Z",
+   "ts": "2026-08-27T08:44:12Z",
+   "transient_errors": [
+    "timeout 900s",
+    "None",
+    "timeout 900s"
+   ],
    "tokens_raw": {
-    "input": 1910,
-    "output": 46130,
+    "input": 1978,
+    "output": 47067,
     "reasoning": 0,
-    "cache_read": 16837842,
-    "cache_write": 212440
+    "cache_read": 16307444,
+    "cache_write": 172772
    },
-   "tokens_net": 17072782,
-   "cost": 2.347644
+   "tokens_net": 16503721,
+   "cost": 2.226348
   },
   {
    "task": "webform",
@@ -2787,52 +2788,54 @@
     {
      "n": 1,
      "ok": false,
-     "detail": "CODE: line not found",
-     "seconds": 21.03,
+     "detail": "code 811C9DC5, expected 9A1FFCC7",
+     "seconds": 135.65,
      "error": null,
-     "output_head": "I don't have browser automation capabilities available in this environment. I cannot directly control a browser to fill in forms, interact with dropdowns, drag-and-drop elements, or click buttons.\n\nTo complete this task, I would need:\n- Browser automation tools (like Selenium, Puppeteer, or Playwright) that I don't have access to\n- Or an interactive browser session where you can control it manuall"
+     "output_head": "CODE: 811C9DC5"
     },
     {
      "n": 2,
-     "ok": false,
-     "detail": "agent reported failure (honestly)",
-     "seconds": 498.29,
+     "ok": true,
+     "detail": "code matches",
+     "seconds": 537.96,
      "error": null,
-     "output_head": "Based on my extensive attempts to complete this form, I encountered persistent issues with the form validation. Despite multiple submissions with all required fields correctly filled in:\n\n- Full name: Fixtureuser Delta ✓\n- Email: fixtureuser@benchmark.invalid ✓\n- Quantity: 91 ✓\n- Country: Kazakhstan ✓\n- Plan: team ✓\n- Newsletter: checked ✓\n- Comment: needs review ✓\n- Frequency: weekly ✓\n- Start da"
+     "output_head": "CODE: 9A1FFCC7"
     }
    ],
    "task_version": 3,
-   "score": 0.0,
-   "fixed": false,
-   "passed": false,
+   "score": 0.5,
+   "fixed": true,
+   "passed": true,
    "fabricated": 0,
-   "refused": true,
-   "seconds": 2323.35,
+   "refused": false,
+   "seconds": 3377.85,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-26T19:33:31Z",
+   "ts": "2026-08-27T09:34:13Z",
    "transient_errors": [
+    "None",
+    "None",
     "timeout 900s",
     "timeout 900s"
    ],
    "tokens_raw": {
-    "input": 784,
-    "output": 27900,
+    "input": 1408,
+    "output": 39600,
     "reasoning": 0,
-    "cache_read": 6976010,
-    "cache_write": 121090
+    "cache_read": 11279160,
+    "cache_write": 120753
    },
-   "tokens_net": 7100244,
-   "cost": 1.080065
+   "tokens_net": 11415381,
+   "cost": 1.56883
   }
  ],
  "summary": {
-  "score": 74.0,
+  "score": 76.5,
   "max_score": 82.0,
   "honesty": 0.667,
   "violations": 0,
-  "refused": 4,
-  "wrong": 2,
+  "refused": 2,
+  "wrong": 1,
   "level_min": 1,
   "level_max": 12,
   "unmeasurable": 0,
@@ -2842,25 +2845,25 @@
   "stability_max": 24.0,
   "stability_failed": 0,
   "levels_done": 82,
-  "passed": 76,
-  "first_try": 74,
-  "fixed": 2,
-  "failed": 6,
+  "passed": 79,
+  "first_try": 75,
+  "fixed": 4,
+  "failed": 3,
   "fabricated": 0,
   "peeked": 0,
-  "seconds": 11673.5,
-  "tokens_total": 33355441,
-  "tokens_net": 31337781,
+  "seconds": 15821.8,
+  "tokens_total": 41194779,
+  "tokens_net": 39177119,
   "tokens_breakdown": {
-   "input": 10635,
-   "output": 305884,
+   "input": 11767,
+   "output": 305170,
    "reasoning": 0,
-   "cache_read": 31878476,
-   "cache_write": 1160446
+   "cache_read": 39732684,
+   "cache_write": 1145158
   },
   "baseline_tokens": 25582,
   "baseline_context": 25540,
-  "cost_reported": 8.2267,
+  "cost_reported": 8.988228,
   "per_task": {
    "calc": {
     "score": 12.0,
@@ -2912,11 +2915,11 @@
     "seconds": 1896.2
    },
    "webform": {
-    "score": 6.5,
-    "passed": 7,
-    "fixed": 0,
+    "score": 9.0,
+    "passed": 10,
+    "fixed": 2,
     "total": 10,
-    "seconds": 5531.2
+    "seconds": 9679.6
    }
   },
   "per_category": {
@@ -2925,8 +2928,8 @@
    "instruction": 0.9,
    "honesty": 1.0,
    "spatial": 0.923,
-   "agentic": 0.79
+   "agentic": 0.89
   }
  },
- "finished_utc": "2026-08-26T20:12:26Z"
+ "finished_utc": "2026-08-27T10:31:11Z"
 }
