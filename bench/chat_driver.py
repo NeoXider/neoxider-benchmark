@@ -244,6 +244,14 @@ def run(path, site, limit=None, session='nxb-chat', wanted=None):
         todo = todo[:limit]
     print('to ask: %d' % len(todo), flush=True)
 
+    # Подряд идущие пустые ответы почти всегда означают сломанный инструмент,
+    # а не молчание модели: так и случилось, когда DeepSeek переименовался в
+    # DSeek и селектор поля ввода перестал совпадать — тринадцать промптов
+    # подряд записались как отказ модели. Три пустых подряд — повод
+    # остановиться и сказать об этом, а не молоть весь список впустую.
+    blank_streak = 0
+    MAX_BLANK_STREAK = 3
+
     for n, item in enumerate(todo, 1):
         t0 = time.time()
         wait = LONG_WAIT if item['task'] in LONG_TASKS else MAX_WAIT
@@ -266,6 +274,15 @@ def run(path, site, limit=None, session='nxb-chat', wanted=None):
         print('  %2d/%d %-10s L%-2d %5.0fs %s' %
               (n, len(todo), item['task'], item['level'], time.time() - t0,
                ('%d chars' % len(answer)) if answer else 'NO ANSWER'), flush=True)
+
+        blank_streak = 0 if answer else blank_streak + 1
+        if blank_streak >= MAX_BLANK_STREAK:
+            raise SystemExit(
+                '%d ответов подряд пустые — это почти наверняка сломанный '
+                'инструмент, а не молчание модели. Проверьте селектор поля '
+                'ввода на %s: сайты переименовываются и меняют разметку. '
+                'Собранное сохранено, прогон можно продолжить.'
+                % (blank_streak, cfg['url']))
 
     return path
 

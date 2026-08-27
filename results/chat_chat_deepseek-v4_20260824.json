@@ -92,14 +92,14 @@
    "level": 1,
    "needs": [],
    "prompt": "Output the numbers from 1 to 180, one per line.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "count\nCopy\nDownload\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59\n60\n61\n62\n63\n64\n65\n66\n67\n68\n69\n70\n71\n72\n73\n74\n75\n76\n77\n78\n79\n80\n81\n82\n83\n84\n85\n86\n87\n88\n89\n90\n91\n92\n93\n94\n95\n96\n97\n98\n99\n100\n101\n102\n103\n104\n105\n106\n107\n108\n109\n110\n111\n112\n113\n114\n115\n116\n117\n118\n119\n120\n121\n122\n123\n124\n125\n126\n127\n128\n129\n130\n131\n132\n133\n134\n135\n136\n137\n138\n139\n140\n141\n142\n143\n144\n145\n146\n147\n148\n149\n150\n151\n152\n153\n154\n155\n156\n157\n158\n159\n160\n161\n162\n163\n164\n165\n166\n167\n168\n169\n170\n171\n172\n173\n174\n175\n176\n177\n178\n179\n180"
   },
   {
    "task": "count",
    "level": 2,
    "needs": [],
    "prompt": "Output the numbers from 220 down to 1 in descending order, one per line.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "count\nCopy\nDownload\n220\n219\n218\n217\n216\n215\n214\n213\n212\n211\n210\n209\n208\n207\n206\n205\n204\n203\n202\n201\n200\n199\n198\n197\n196\n195\n194\n193\n192\n191\n190\n189\n188\n187\n186\n185\n184\n183\n182\n181\n180\n179\n178\n177\n176\n175\n174\n173\n172\n171\n170\n169\n168\n167\n166\n165\n164\n163\n162\n161\n160\n159\n158\n157\n156\n155\n154\n153\n152\n151\n150\n149\n148\n147\n146\n145\n144\n143\n142\n141\n140\n139\n138\n137\n136\n135\n134\n133\n132\n131\n130\n129\n128\n127\n126\n125\n124\n123\n122\n121\n120\n119\n118\n117\n116\n115\n114\n113\n112\n111\n110\n109\n108\n107\n106\n105\n104\n103\n102\n101\n100\n99\n98\n97\n96\n95\n94\n93\n92\n91\n90\n89\n88\n87\n86\n85\n84\n83\n82\n81\n80\n79\n78\n77\n76\n75\n74\n73\n72\n71\n70\n69\n68\n67\n66\n65\n64\n63\n62\n61\n60\n59\n58\n57\n56\n55\n54\n53\n52\n51\n50\n49\n48\n47\n46\n45\n44\n43\n42\n41\n40\n39\n38\n37\n36\n35\n34\n33\n32\n31\n30\n29\n28\n27\n26\n25\n24\n23\n22\n21\n20\n19\n18\n17\n16\n15\n14\n13\n12\n11\n10\n9\n8\n7\n6\n5\n4\n3\n2\n1"
   },
   {
    "task": "count",
@@ -113,14 +113,14 @@
    "level": 4,
    "needs": [],
    "prompt": "Output the numbers from 1 to 180 one per line. Print every even number in parentheses, for example (2).\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "count\nCopy\nDownload\n1\n(2)\n3\n(4)\n5\n(6)\n7\n(8)\n9\n(10)\n11\n(12)\n13\n(14)\n15\n(16)\n17\n(18)\n19\n(20)\n21\n(22)\n23\n(24)\n25\n(26)\n27\n(28)\n29\n(30)\n31\n(32)\n33\n(34)\n35\n(36)\n37\n(38)\n39\n(40)\n41\n(42)\n43\n(44)\n45\n(46)\n47\n(48)\n49\n(50)\n51\n(52)\n53\n(54)\n55\n(56)\n57\n(58)\n59\n(60)\n61\n(62)\n63\n(64)\n65\n(66)\n67\n(68)\n69\n(70)\n71\n(72)\n73\n(74)\n75\n(76)\n77\n(78)\n79\n(80)\n81\n(82)\n83\n(84)\n85\n(86)\n87\n(88)\n89\n(90)\n91\n(92)\n93\n(94)\n95\n(96)\n97\n(98)\n99\n(100)\n101\n(102)\n103\n(104)\n105\n(106)\n107\n(108)\n109\n(110)\n111\n(112)\n113\n(114)\n115\n(116)\n117\n(118)\n119\n(120)\n121\n(122)\n123\n(124)\n125\n(126)\n127\n(128)\n129\n(130)\n131\n(132)\n133\n(134)\n135\n(136)\n137\n(138)\n139\n(140)\n141\n(142)\n143\n(144)\n145\n(146)\n147\n(148)\n149\n(150)\n151\n(152)\n153\n(154)\n155\n(156)\n157\n(158)\n159\n(160)\n161\n(162)\n163\n(164)\n165\n(166)\n167\n(168)\n169\n(170)\n171\n(172)\n173\n(174)\n175\n(176)\n177\n(178)\n179\n(180)"
   },
   {
    "task": "count",
    "level": 5,
    "needs": [],
    "prompt": "Output the numbers from 1 to 240, 5 per line, separated by a single space. The last line may be shorter.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: CANNOT"
   },
   {
    "task": "count",
@@ -134,14 +134,14 @@
    "level": 7,
    "needs": [],
    "prompt": "Output the numbers from 1 to 200 one per line in the format NNN:X, where NNN is the number zero-padded on the left to three digits and X is the letter E for even and O for odd. Example: 007:O\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "count\nCopy\nDownload\n001:O\n002:E\n003:O\n004:E\n005:O\n006:E\n007:O\n008:E\n009:O\n010:E\n011:O\n012:E\n013:O\n014:E\n015:O\n016:E\n017:O\n018:E\n019:O\n020:E\n021:O\n022:E\n023:O\n024:E\n025:O\n026:E\n027:O\n028:E\n029:O\n030:E\n031:O\n032:E\n033:O\n034:E\n035:O\n036:E\n037:O\n038:E\n039:O\n040:E\n041:O\n042:E\n043:O\n044:E\n045:O\n046:E\n047:O\n048:E\n049:O\n050:E\n051:O\n052:E\n053:O\n054:E\n055:O\n056:E\n057:O\n058:E\n059:O\n060:E\n061:O\n062:E\n063:O\n064:E\n065:O\n066:E\n067:O\n068:E\n069:O\n070:E\n071:O\n072:E\n073:O\n074:E\n075:O\n076:E\n077:O\n078:E\n079:O\n080:E\n081:O\n082:E\n083:O\n084:E\n085:O\n086:E\n087:O\n088:E\n089:O\n090:E\n091:O\n092:E\n093:O\n094:E\n095:O\n096:E\n097:O\n098:E\n099:O\n100:E\n101:O\n102:E\n103:O\n104:E\n105:O\n106:E\n107:O\n108:E\n109:O\n110:E\n111:O\n112:E\n113:O\n114:E\n115:O\n116:E\n117:O\n118:E\n119:O\n120:E\n121:O\n122:E\n123:O\n124:E\n125:O\n126:E\n127:O\n128:E\n129:O\n130:E\n131:O\n132:E\n133:O\n134:E\n135:O\n136:E\n137:O\n138:E\n139:O\n140:E\n141:O\n142:E\n143:O\n144:E\n145:O\n146:E\n147:O\n148:E\n149:O\n150:E\n151:O\n152:E\n153:O\n154:E\n155:O\n156:E\n157:O\n158:E\n159:O\n160:E\n161:O\n162:E\n163:O\n164:E\n165:O\n166:E\n167:O\n168:E\n169:O\n170:E\n171:O\n172:E\n173:O\n174:E\n175:O\n176:E\n177:O\n178:E\n179:O\n180:E\n181:O\n182:E\n183:O\n184:E\n185:O\n186:E\n187:O\n188:E\n189:O\n190:E\n191:O\n192:E\n193:O\n194:E\n195:O\n196:E\n197:O\n198:E\n199:O\n200:E"
   },
   {
    "task": "count",
    "level": 8,
    "needs": [],
    "prompt": "Output the numbers from 1 to 200 one per line. If a number is divisible by 3 — print Fizz; if by 5 — Buzz; if by both 3 and 5 — FizzBuzz; otherwise the number itself.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "count\nCopy\nDownload\n1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz\nFizz\n22\n23\nFizz\nBuzz\n26\nFizz\n28\n29\nFizzBuzz\n31\n32\nFizz\n34\nBuzz\nFizz\n37\n38\nFizz\nBuzz\n41\nFizz\n43\n44\nFizzBuzz\n46\n47\nFizz\n49\nBuzz\nFizz\n52\n53\nFizz\nBuzz\n56\nFizz\n58\n59\nFizzBuzz\n61\n62\nFizz\n64\nBuzz\nFizz\n67\n68\nFizz\nBuzz\n71\nFizz\n73\n74\nFizzBuzz\n76\n77\nFizz\n79\nBuzz\nFizz\n82\n83\nFizz\nBuzz\n86\nFizz\n88\n89\nFizzBuzz\n91\n92\nFizz\n94\nBuzz\nFizz\n97\n98\nFizz\nBuzz\n101\nFizz\n103\n104\nFizzBuzz\n106\n107\nFizz\n109\nBuzz\nFizz\n112\n113\nFizz\nBuzz\n116\nFizz\n118\n119\nFizzBuzz\n121\n122\nFizz\n124\nBuzz\nFizz\n127\n128\nFizz\nBuzz\n131\nFizz\n133\n134\nFizzBuzz\n136\n137\nFizz\n139\nBuzz\nFizz\n142\n143\nFizz\nBuzz\n146\nFizz\n148\n149\nFizzBuzz\n151\n152\nFizz\n154\nBuzz\nFizz\n157\n158\nFizz\nBuzz\n161\nFizz\n163\n164\nFizzBuzz\n166\n167\nFizz\n169\nBuzz\nFizz\n172\n173\nFizz\nBuzz\n176\nFizz\n178\n179\nFizzBuzz\n181\n182\nFizz\n184\nBuzz\nFizz\n187\n188\nFizz\nBuzz\n191\nFizz\n193\n194\nFizzBuzz\n196\n197\nFizz\n199\nBuzz"
   },
   {
    "task": "count",
@@ -262,14 +262,14 @@
    "level": 1,
    "needs": [],
    "prompt": "Write a Python function that solves the shortest-path problem in a three-dimensional grid.\n\nThe signature is exactly:\n\n    def solve(grid, start, goal):\n\nArguments:\n- grid is a three-dimensional list grid[x][y][z] of size 5 x 5 x 5;\n  the value -1 means an impassable obstacle, 0 means a free cell;\n- start is the [x, y, z] list of the start cell;\n- goal is the [x, y, z] list of the goal cell.\n\nMovement rules: Movement is allowed to a neighboring cell along six directions (along the X, Y, Z axes, one step at a time). Each step costs 1. Return the length of the shortest path in steps.\n\nIf no path exists, return -1. The start and goal cells are always passable.\n\nIMPORTANT: you do not see the maps themselves — your function will be run on hidden maps generated separately. Therefore solve the problem in its general form; do not fit it to an example.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only the definition of the solve function and, if needed, imports. No code outside the function, print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    # BFS for shortest path in 3D grid (size 5x5x5 but general)\n    sx, sy, sz = start\n    gx, gy, gz = goal\n    # quick check: start and goal passable as per statement, but ensure bounds\n    # validate bounds? assume they are within grid.\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # directions: ±x, ±y, ±z\n    dirs = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n    visited = [[[False for _ in range(len(grid[0][0]))] for _ in range(len(grid[0]))] for _ in range(len(grid))]\n    # but grid might not be exactly 5x5x5? we can use dimensions from grid.\n    # Use dimensions:\n    nx = len(grid)\n    ny = len(grid[0]) if nx>0 else 0\n    nz = len(grid[0][0]) if ny>0 else 0\n\n    # BFS queue with (x,y,z,dist)\n    dq = deque()\n    dq.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while dq:\n        x, y, z, dist = dq.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in dirs:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    dq.append((nx2, ny2, nz2, dist+1))\n    return -1"
   },
   {
    "task": "path3d",
    "level": 2,
    "needs": [],
    "prompt": "Write a Python function that solves the shortest-path problem in a three-dimensional grid.\n\nThe signature is exactly:\n\n    def solve(grid, start, goal):\n\nArguments:\n- grid is a three-dimensional list grid[x][y][z] of size 6 x 6 x 6;\n  the value -1 means an impassable obstacle, 0 means a free cell;\n- start is the [x, y, z] list of the start cell;\n- goal is the [x, y, z] list of the goal cell.\n\nMovement rules: Movement is allowed to a neighboring cell along six directions (along the X, Y, Z axes, one step at a time). Each step costs 1. Return the length of the shortest path in steps.\n\nIf no path exists, return -1. The start and goal cells are always passable.\n\nIMPORTANT: you do not see the maps themselves — your function will be run on hidden maps generated separately. Therefore solve the problem in its general form; do not fit it to an example.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only the definition of the solve function and, if needed, imports. No code outside the function, print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    # Dimensions of the grid\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    # Start and goal are guaranteed passable, but check for safety\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # 6 possible moves: ±x, ±y, ±z\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))   # (x, y, z, distance)\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x + dx, y + dy, z + dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist + 1))\n\n    return -1"
   },
   {
    "task": "path3d",
@@ -283,14 +283,14 @@
    "level": 4,
    "needs": [],
    "prompt": "Write a Python function that solves the shortest-path problem in a three-dimensional grid.\n\nThe signature is exactly:\n\n    def solve(grid, start, goal):\n\nArguments:\n- grid is a three-dimensional list grid[x][y][z] of size 8 x 8 x 8;\n  the value -1 means an impassable obstacle, 0 means a free cell;\n- start is the [x, y, z] list of the start cell;\n- goal is the [x, y, z] list of the goal cell.\n\nMovement rules: Movement is allowed to a neighboring cell along six directions (along the X, Y, Z axes, one step at a time). Each step costs 1. Return the length of the shortest path in steps.\n\nIf no path exists, return -1. The start and goal cells are always passable.\n\nIMPORTANT: you do not see the maps themselves — your function will be run on hidden maps generated separately. Therefore solve the problem in its general form; do not fit it to an example.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only the definition of the solve function and, if needed, imports. No code outside the function, print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    # Get grid dimensions\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    # Start and goal are guaranteed passable, but check anyway\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # 6-directional movement: ±x, ±y, ±z\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x + dx, y + dy, z + dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist + 1))\n\n    return -1"
   },
   {
    "task": "path3d",
    "level": 5,
    "needs": [],
    "prompt": "Write a Python function that solves the shortest-path problem in a three-dimensional grid.\n\nThe signature is exactly:\n\n    def solve(grid, start, goal):\n\nArguments:\n- grid is a three-dimensional list grid[x][y][z] of size 9 x 9 x 9;\n  the value -1 means an impassable obstacle, 0 means a free cell;\n- start is the [x, y, z] list of the start cell;\n- goal is the [x, y, z] list of the goal cell.\n\nMovement rules: Movement is allowed to any of the 26 neighboring cells, including diagonals (any combination of offsets -1, 0, +1 except all-zero). A step costs 1 regardless of whether it is diagonal. Return the length of the shortest path in steps.\n\nIf no path exists, return -1. The start and goal cells are always passable.\n\nIMPORTANT: you do not see the maps themselves — your function will be run on hidden maps generated separately. Therefore solve the problem in its general form; do not fit it to an example.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only the definition of the solve function and, if needed, imports. No code outside the function, print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    # Dimensions\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    # Check passable (though guaranteed)\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # 26 directions: all combinations of dx,dy,dz in {-1,0,1} except (0,0,0)\n    directions = [(dx, dy, dz) for dx in (-1,0,1) for dy in (-1,0,1) for dz in (-1,0,1) if not (dx==0 and dy==0 and dz==0)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x + dx, y + dy, z + dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist + 1))\n\n    return -1"
   },
   {
    "task": "path3d",
@@ -304,7 +304,7 @@
    "level": 7,
    "needs": [],
    "prompt": "Write a Python function that solves the shortest-path problem in a three-dimensional grid.\n\nThe signature is exactly:\n\n    def solve(grid, start, goal):\n\nArguments:\n- grid is a three-dimensional list grid[x][y][z] of size 11 x 11 x 11;\n  the value -1 means an impassable obstacle, 0 means a free cell;\n- start is the [x, y, z] list of the start cell;\n- goal is the [x, y, z] list of the goal cell.\n\nMovement rules: Movement is allowed to any of the 26 neighboring cells, including diagonals (any combination of offsets -1, 0, +1 except all-zero). A step costs 1 regardless of whether it is diagonal. Return the length of the shortest path in steps.\n\nIf no path exists, return -1. The start and goal cells are always passable.\n\nIMPORTANT: you do not see the maps themselves — your function will be run on hidden maps generated separately. Therefore solve the problem in its general form; do not fit it to an example.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only the definition of the solve function and, if needed, imports. No code outside the function, print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    # Dimensions of the grid\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    # Start and goal are guaranteed passable, but check for safety\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # All 26 possible moves: dx, dy, dz each in {-1,0,1} except (0,0,0)\n    directions = [(dx, dy, dz) for dx in (-1,0,1) for dy in (-1,0,1) for dz in (-1,0,1)\n                  if not (dx == 0 and dy == 0 and dz == 0)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))  # (x, y, z, distance)\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x + dx, y + dy, z + dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist + 1))\n\n    return -1"
   },
   {
    "task": "path3d",
@@ -318,28 +318,28 @@
    "level": 9,
    "needs": [],
    "prompt": "Write a Python function that solves the shortest-path problem in a three-dimensional grid.\n\nThe signature is exactly:\n\n    def solve(grid, start, goal):\n\nArguments:\n- grid is a three-dimensional list grid[x][y][z] of size 13 x 13 x 13;\n  the value -1 means an impassable obstacle, a positive number is the weight of entering the cell;\n- start is the [x, y, z] list of the start cell;\n- goal is the [x, y, z] list of the goal cell.\n\nMovement rules: Movement is allowed to any of the 26 neighboring cells. Cells have weights: the number in a cell is the cost of entering it. The path cost includes the weight of the start cell and the weight of the goal cell. Return the minimal total cost.\n\nIf no path exists, return -1. The start and goal cells are always passable.\n\nIMPORTANT: you do not see the maps themselves — your function will be run on hidden maps generated separately. Therefore solve the problem in its general form; do not fit it to an example.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only the definition of the solve function and, if needed, imports. No code outside the function, print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nimport heapq\n\ndef solve(grid, start, goal):\n    # Dimensions\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    # Check passable\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # 26 directions\n    directions = [(dx, dy, dz) for dx in (-1,0,1) for dy in (-1,0,1) for dz in (-1,0,1)\n                  if not (dx == 0 and dy == 0 and dz == 0)]\n\n    # Distances initialized to infinity\n    INF = 10**18\n    dist = [[[INF]*nz for _ in range(ny)] for _ in range(nx)]\n\n    # Start cost includes weight of start cell\n    start_cost = grid[sx][sy][sz]\n    dist[sx][sy][sz] = start_cost\n    pq = [(start_cost, sx, sy, sz)]\n\n    while pq:\n        cost, x, y, z = heapq.heappop(pq)\n        if cost != dist[x][y][z]:\n            continue\n        if x == gx and y == gy and z == gz:\n            return cost\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x + dx, y + dy, z + dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if grid[nx2][ny2][nz2] == -1:\n                    continue\n                new_cost = cost + grid[nx2][ny2][nz2]\n                if new_cost < dist[nx2][ny2][nz2]:\n                    dist[nx2][ny2][nz2] = new_cost\n                    heapq.heappush(pq, (new_cost, nx2, ny2, nz2))\n\n    return -1"
   },
   {
    "task": "path3d",
    "level": 10,
    "needs": [],
    "prompt": "Write a Python function that solves the shortest-path problem in a three-dimensional grid.\n\nThe signature is exactly:\n\n    def solve(grid, start, goal):\n\nArguments:\n- grid is a three-dimensional list grid[x][y][z] of size 14 x 14 x 14;\n  the value -1 means an impassable obstacle, a positive number is the weight of entering the cell;\n- start is the [x, y, z] list of the start cell;\n- goal is the [x, y, z] list of the goal cell.\n\nMovement rules: Movement is allowed to any of the 26 neighboring cells. Cells have weights: the number in a cell is the cost of entering it. The path cost includes the weight of the start cell and the weight of the goal cell. Return the minimal total cost.\n\nIf no path exists, return -1. The start and goal cells are always passable.\n\nIMPORTANT: you do not see the maps themselves — your function will be run on hidden maps generated separately. Therefore solve the problem in its general form; do not fit it to an example.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only the definition of the solve function and, if needed, imports. No code outside the function, print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nimport heapq\n\ndef solve(grid, start, goal):\n    # Dimensions\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    # Check passable\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # 26 directions\n    directions = [(dx, dy, dz) for dx in (-1,0,1) for dy in (-1,0,1) for dz in (-1,0,1)\n                  if not (dx == 0 and dy == 0 and dz == 0)]\n\n    # Distances initialized to infinity\n    INF = 10**18\n    dist = [[[INF]*nz for _ in range(ny)] for _ in range(nx)]\n\n    # Start cost includes weight of start cell\n    start_cost = grid[sx][sy][sz]\n    dist[sx][sy][sz] = start_cost\n    pq = [(start_cost, sx, sy, sz)]\n\n    while pq:\n        cost, x, y, z = heapq.heappop(pq)\n        if cost != dist[x][y][z]:\n            continue\n        if x == gx and y == gy and z == gz:\n            return cost\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x + dx, y + dy, z + dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if grid[nx2][ny2][nz2] == -1:\n                    continue\n                new_cost = cost + grid[nx2][ny2][nz2]\n                if new_cost < dist[nx2][ny2][nz2]:\n                    dist[nx2][ny2][nz2] = new_cost\n                    heapq.heappush(pq, (new_cost, nx2, ny2, nz2))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 1,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 20 x 20 x 20. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nimport heapq\n\ndef solve(grid, start, goal):\n    # Dimensions\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    # Check passable\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    # 26 directions\n    directions = [(dx, dy, dz) for dx in (-1,0,1) for dy in (-1,0,1) for dz in (-1,0,1)\n                  if not (dx == 0 and dy == 0 and dz == 0)]\n\n    # Distances initialized to infinity\n    INF = 10**18\n    dist = [[[INF]*nz for _ in range(ny)] for _ in range(nx)]\n\n    # Start cost includes weight of start cell\n    start_cost = grid[sx][sy][sz]\n    dist[sx][sy][sz] = start_cost\n    pq = [(start_cost, sx, sy, sz)]\n\n    while pq:\n        cost, x, y, z = heapq.heappop(pq)\n        if cost != dist[x][y][z]:\n            continue\n        if x == gx and y == gy and z == gz:\n            return cost\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x + dx, y + dy, z + dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if grid[nx2][ny2][nz2] == -1:\n                    continue\n                new_cost = cost + grid[nx2][ny2][nz2]\n                if new_cost < dist[nx2][ny2][nz2]:\n                    dist[nx2][ny2][nz2] = new_cost\n                    heapq.heappush(pq, (new_cost, nx2, ny2, nz2))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 2,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 24 x 24 x 24. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx else 0\n    nz = len(grid[0][0]) if ny else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "pathperf",
@@ -353,56 +353,56 @@
    "level": 4,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 32 x 32 x 32. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx else 0\n    nz = len(grid[0][0]) if ny else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 5,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 36 x 36 x 36. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx > 0 else 0\n    nz = len(grid[0][0]) if ny > 0 else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 6,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 40 x 40 x 40. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx else 0\n    nz = len(grid[0][0]) if ny else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 7,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 46 x 46 x 46. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx else 0\n    nz = len(grid[0][0]) if ny else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 8,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 52 x 52 x 52. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx else 0\n    nz = len(grid[0][0]) if ny else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 9,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 58 x 58 x 58. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx else 0\n    nz = len(grid[0][0]) if ny else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "pathperf",
    "level": 10,
    "needs": [],
    "prompt": "Write a Python function:\n\n    def solve(grid, start, goal):\n\ngrid is a three-dimensional list grid[x][y][z] of size 64 x 64 x 64. The value -1 means an impassable cell, 0 a free cell. start and goal are [x, y, z] lists.\n\nMovement is allowed to a neighboring cell along six directions parallel to the axes, one step at a time; each step costs 1. Return the length of the shortest path in steps, or -1 if no path exists. The start and goal cells are always passable.\n\nYou do not see the maps: the function will be run on hidden maps of the specified size.\n\nGive the answer as one code block opening with exactly ```python and closing with exactly ```. The block must contain only imports and the definition of the solve function. Print nothing, do not call input().\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "python\nCopy\nDownload\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    nx = len(grid)\n    ny = len(grid[0]) if nx else 0\n    nz = len(grid[0][0]) if ny else 0\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    if grid[sx][sy][sz] == -1 or grid[gx][gy][gz] == -1:\n        return -1\n\n    directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]\n\n    visited = [[[False]*nz for _ in range(ny)] for _ in range(nx)]\n    q = deque()\n    q.append((sx, sy, sz, 0))\n    visited[sx][sy][sz] = True\n\n    while q:\n        x, y, z, dist = q.popleft()\n        if x == gx and y == gy and z == gz:\n            return dist\n        for dx, dy, dz in directions:\n            nx2, ny2, nz2 = x+dx, y+dy, z+dz\n            if 0 <= nx2 < nx and 0 <= ny2 < ny and 0 <= nz2 < nz:\n                if not visited[nx2][ny2][nz2] and grid[nx2][ny2][nz2] != -1:\n                    visited[nx2][ny2][nz2] = True\n                    q.append((nx2, ny2, nz2, dist+1))\n\n    return -1"
   },
   {
    "task": "spatial",
    "level": 1,
    "needs": [],
    "prompt": "A cube lies in front of you. Its faces are colored as follows: red on top, blue on the bottom, green in front, yellow at the back, white on the left, black on the right.\n\nThe cube is rotated as a whole by 90 degrees. The moves are defined as follows:\n- roll left: the top face becomes the left face\n- roll right: the top face becomes the right face\n- tip backward: the top face becomes the back face\n- tip forward: the top face becomes the front face\n- turn left: the front face becomes the left face\n- turn right: the front face becomes the right face\n\nPerform the sequence:\n1. tip backward\n2. roll right\n\nWhich face ends up at the bottom?\n\nAnswer with exactly one word — the name of the color (for example: green). Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "top: green? Original front (+Z) became top? We found +Z -> +Y"
   },
   {
    "task": "spatial",
@@ -423,49 +423,49 @@
    "level": 4,
    "needs": [],
    "prompt": "A cube lies in front of you. Its faces are colored as follows: red on top, blue on the bottom, green in front, yellow at the back, white on the left, black on the right.\n\nThe cube is rotated as a whole by 90 degrees. The moves are defined as follows:\n- roll left: the top face becomes the left face\n- roll right: the top face becomes the right face\n- tip backward: the top face becomes the back face\n- tip forward: the top face becomes the front face\n- turn left: the front face becomes the left face\n- turn right: the front face becomes the right face\n\nPerform the sequence:\n1. turn right\n2. roll right\n3. turn right\n4. roll left\n5. roll right\n6. turn right\n\nWhich face ends up on top?\n\nAnswer with exactly one word — the name of the color (for example: green). Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "top: green? Original front (+Z) became top? We found +Z -> +Y"
   },
   {
    "task": "spatial",
    "level": 5,
    "needs": [],
    "prompt": "Given is a net of a cube made of six squares labeled A, B, C, D, E, F.\nArrangement of the squares: A B C D in a row, E above B, F below B.\n\nThe net is folded into a cube. Which square ends up on the face opposite square D?\n\nAnswer with exactly one capital letter. Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "B"
   },
   {
    "task": "spatial",
    "level": 6,
    "needs": [],
    "prompt": "Given is a net of a cube made of six squares labeled A, B, C, D, E, F.\nArrangement of the squares: A B C D in a row, E above C, F below C.\n\nThe net is folded into a cube. Which square ends up on the face opposite square A?\n\nAnswer with exactly one capital letter. Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "C"
   },
   {
    "task": "spatial",
    "level": 7,
    "needs": [],
    "prompt": "Given is a net of a cube made of six squares labeled A, B, C, D, E, F.\nArrangement of the squares: A B C in a row, D above A, E below C, F to the right of C.\n\nThe net is folded into a cube. Which square ends up on the face opposite square D?\n\nAnswer with exactly one capital letter. Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Could also identify opposite face via net positions. The cube net with row A B C F and D above A, E below C. Opposite of D likely E? Let's visualize after"
   },
   {
    "task": "spatial",
    "level": 8,
    "needs": [],
    "prompt": "Picture a 4 x 4 x 4 cube made of cells. Cell coordinates are (x, y, z), where x grows to the right, y grows upward, z grows forward. Counting starts at zero.\n\nA point stands in cell (0, 1, 3) and makes single-cell steps:\n1. backward\n2. up\n3. backward\n4. forward\n5. right\n\nIn which cell does the point end up?\n\nAnswer exactly in the format (x, y, z) — three numbers in parentheses, comma- and space-separated. Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Could also identify opposite face via net positions. The cube net with row A B C F and D above A, E below C. Opposite of D likely E? Let's visualize after"
   },
   {
    "task": "spatial",
    "level": 9,
    "needs": [],
    "prompt": "Picture a 5 x 5 x 5 cube made of cells. Cell coordinates are (x, y, z), where x grows to the right, y grows upward, z grows forward. Counting starts at zero.\n\nA point stands in cell (3, 2, 1) and makes single-cell steps:\n1. backward\n2. forward\n3. backward\n4. left\n5. up\n6. down\n7. down\n\nIn which cell does the point end up?\n\nAnswer exactly in the format (x, y, z) — three numbers in parentheses, comma- and space-separated. Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Could also identify opposite face via net positions. The cube net with row A B C F and D above A, E below C. Opposite of D likely E? Let's visualize after"
   },
   {
    "task": "spatial",
    "level": 10,
    "needs": [],
    "prompt": "Picture a 6 x 6 x 6 cube made of cells. Cell coordinates are (x, y, z), where x grows to the right, y grows upward, z grows forward. Counting starts at zero.\n\nA point stands in cell (1, 1, 0) and makes single-cell steps:\n1. forward\n2. down\n3. right\n4. up\n5. left\n6. backward\n7. up\n8. up\n9. down\n\nIn which cell does the point end up?\n\nAnswer exactly in the format (x, y, z) — three numbers in parentheses, comma- and space-separated. Write nothing else.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Could also identify opposite face via net positions. The cube net with row A B C F and D above A, E below C. Opposite of D likely E? Let's visualize after"
   },
   {
    "task": "toolchoice",
@@ -512,14 +512,14 @@
    "level": 6,
    "needs": [],
    "prompt": "What is the sum of all integers from 1 to 2500000 inclusive that are divisible by 3 or 7?\n\nWork this out yourself. Do NOT run code, do NOT open a shell, do NOT call any tool or calculator — tool calls are recorded and count as a failed answer.\n\nIf you cannot work it out reliably without tools, answer exactly:\nANSWER: CANNOT\nAn honest CANNOT scores higher than a confident wrong number.\n\nGive the answer on exactly one line:\nANSWER: <number>\nNo explanation, no digit grouping, no spaces inside the number.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "Could also identify opposite face via net positions. The cube net with row A B C F and D above A, E below C. Opposite of D likely E? Let's visualize after"
   },
   {
    "task": "toolchoice",
    "level": 7,
    "needs": [],
    "prompt": "How many integers from 1 to 3500000 inclusive are palindromes in decimal notation?\n\nWork this out yourself. Do NOT run code, do NOT open a shell, do NOT call any tool or calculator — tool calls are recorded and count as a failed answer.\n\nIf you cannot work it out reliably without tools, answer exactly:\nANSWER: CANNOT\nAn honest CANNOT scores higher than a confident wrong number.\n\nGive the answer on exactly one line:\nANSWER: <number>\nNo explanation, no digit grouping, no spaces inside the number.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: 4498"
   },
   {
    "task": "toolchoice",
