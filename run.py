@@ -190,6 +190,10 @@ def main():
     ap.add_argument('--progress', action='store_true',
                     help='live view of every run in flight')
     ap.add_argument('--report', action='store_true', help='rebuild the leaderboard')
+    ap.add_argument('--audit', action='store_true',
+                    help='find levels spoiled by the harness rather than the model')
+    ap.add_argument('--fix-suspect', action='store_true',
+                    help='with --audit: rerun those levels')
     ap.add_argument('--rescore', action='store_true',
                     help='re-apply the current scale to stored runs (no model calls)')
     ap.add_argument('--live', action='store_true',
@@ -205,6 +209,36 @@ def main():
     if args.list:
         cmd_list()
         return 0
+
+    if args.audit:
+        import glob as _glob
+        import subprocess as _sp
+        plan = {}
+        for path in sorted(_glob.glob(os.path.join('results', '*.json'))):
+            if os.path.basename(path) == 'index.json':
+                continue
+            with open(path, encoding='utf-8') as fh:
+                run = json.load(fh)
+            bad = runner.audit(run)
+            if not bad:
+                continue
+            print('%s: %d подозрительных уровня(ей)' % (run.get('model'), len(bad)))
+            for t, l, sc, why in bad[:8]:
+                print('    %-10s L%-2d score=%-5s %s' % (t, l, sc, why))
+            plan[run['model']] = sorted({t for t, _, _, _ in bad})
+        if not plan:
+            print('подозрительных уровней нет')
+        elif args.fix_suspect:
+            for model, tasks in plan.items():
+                cmd = [sys.executable, 'run.py', '--model', model,
+                       '--tasks', ','.join(tasks), '--rerun-failed',
+                       '--timeout', str(args.timeout or 900)]
+                print('перезапуск: %s (%s)' % (model, ','.join(tasks)))
+                _sp.run(cmd)
+        else:
+            print('')
+            print('перезапустить их: python run.py --audit --fix-suspect')
+        return
 
     if args.rescore:
         import glob as _glob

@@ -656,6 +656,59 @@ _REFUSAL_DETAILS = (
 )
 
 
+# Следы того, что уровню помешал ХАРНЕСС, а не нехватка умения у модели.
+# Каждый из них найден на живом прогоне и стоил кому-то баллов:
+#   - обрыв связи посреди ответа читался как нарушение формата;
+#   - вкладку закрывала уборка соседнего параллельного прогона;
+#   - движок возвращал пустоту, и это шло в зачёт как неверный ответ.
+_HARNESS_MARKS = (
+    'connection lost mid-response',
+    'the response above may be incomplete',
+    'reconnecting...',
+    'stream disconnected',
+    'unknown_certificate_verification_error',
+    'unable to connect to api',
+    'tab closed automatically',
+    'browser tab closed',
+    'closed the working tab',
+    'closed automatically between actions',
+    'isolated browser session is unavailable',
+    'os error 11001',
+)
+
+
+def suspect_reason(rec):
+    """Почему уровню нельзя верить. None — результат честный.
+
+    Смотрим ТОЛЬКО на неудачные попытки: успешная попытка результат не портит,
+    чем бы модель по дороге ни жаловалась.
+    """
+    if 'unmeasurable' in rec:
+        return None
+    if rec.get('score') == SCORE_FIRST:
+        return None
+    for a in rec.get('attempts') or []:
+        if a.get('ok'):
+            continue
+        head = (a.get('output_head') or '').lower()
+        if not head.strip() and a.get('error'):
+            return 'движок вернул пустоту: %s' % str(a['error'])[:60]
+        for mark in _HARNESS_MARKS:
+            if mark in head:
+                return 'помеха харнесса: %s' % mark
+    return None
+
+
+def audit(run):
+    """Список уровней, чей результат испорчен харнессом."""
+    out = []
+    for rec in run.get('levels') or []:
+        why = suspect_reason(rec)
+        if why:
+            out.append((rec['task'], rec['level'], rec.get('score'), why))
+    return out
+
+
 def rescore(run):
     """Пересчитывает баллы прогона по текущим правилам. Возвращает, что изменилось.
 
