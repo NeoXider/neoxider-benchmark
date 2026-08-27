@@ -7,9 +7,7 @@ All tasks are **generated procedurally from a seed**. The repository ships a
 generator, not ready-made instances: there is nothing to train on here — the
 concrete mazes, rotations, and equations are new every time.
 
-The canary string `NXB-CANARY-a7f3c1` is embedded in every prompt. If it ever
-shows up in the output of a model that never ran the benchmark, the suite has
-leaked into training data and the levels need to be regenerated with a new seed.
+Prompts carry no marker of any kind. A canary string used to sit at the end of every task, so that its appearance in a model that never ran the suite would prove the tasks had leaked into training data. It was removed: it told the model it was being tested, and a measurement showed one small model copying it into its own answers. Leakage is still detectable from the repository itself, and the prompt-echo problem it also caught is now found by comparing an answer against the prompt that produced it.
 
 ---
 

@@ -24,7 +24,7 @@ MAX_LEVEL = 10
 # браузере пользователя по вкладке на уровень, и через десяток моделей
 # это уже десятки открытых страниц. Убирать за собой — часть агентной
 # работы, а не придирка.
-VERSION = 3
+VERSION = 4
 CATEGORIES = {'agentic': 1.0}
 NEEDS = ['browser', 'network']
 
@@ -171,7 +171,7 @@ def generate(level, rng):
         'When you are done, close every tab you opened. Detaching from a tab is '
         'not the same as closing it, so check that the tabs are actually gone. '
         "Leaving pages behind in someone else's browser counts against you.\n\n"
-        'NXB-CANARY-a7f3c1'
+        ''
         % (base_url(), level, '\n'.join(lines))
     )
     return prompt, {'level': level, 'fields': fields, 'code': expected_code(level, fields)}

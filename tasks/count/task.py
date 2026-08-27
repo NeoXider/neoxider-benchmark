@@ -16,7 +16,7 @@ TITLE = 'Instruction following'
 MAX_LEVEL = 10
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 1
+VERSION = 2
 CATEGORIES = {'instruction': 1.0}
 NEEDS = []
 
@@ -112,7 +112,7 @@ def generate(level, rng):
         'line ```count and closes with exactly the line ```. Inside the block there '
         'must be nothing but the required lines: no numbering, no comments, no blank '
         'lines. Write nothing before or after the block.\n\n'
-        'NXB-CANARY-a7f3c1' % rule
+        '' % rule
     )
     return prompt, exp
 

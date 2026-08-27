@@ -27,7 +27,7 @@ TITLE = 'Solution efficiency'
 MAX_LEVEL = 10
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 1
+VERSION = 2
 CATEGORIES = {'logic': 0.6, 'agentic': 0.4}
 NEEDS = []
 
@@ -155,7 +155,7 @@ def generate(level, rng):
         'Give the answer as one code block opening with exactly ```python and '
         'closing with exactly ```. The block must contain only imports and the '
         'definition of the solve function. Print nothing, do not call input().\n\n'
-        'NXB-CANARY-a7f3c1'
+        ''
         % (size, size, size)
     )
     return prompt, {'cases': cases, 'size': size}

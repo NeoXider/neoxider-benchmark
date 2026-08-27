@@ -57,14 +57,14 @@
    "level": 8,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nSolve the system of equations:\n\n(-6)*x + (-6)*y = 214/5\n(-5)*x + (-1)*y = 247/15\n\nGive the answer as exactly one line:\nANSWER: x=<value>, y=<value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=-7/3, y=-24/5"
   },
   {
    "task": "calc",
    "level": 9,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nThe task has two parts; answer both.\n\nPart A. Solve the system of equations:\n\n(-11)*x + (5)*y = -170/3\n(-3)*x + (5)*y = -6\n\nPart B. Compute the exact value of the expression:\n\n(((17 ** 3 - (8 * 5/2)) - ((9/6 + 9) * (25/8 + 21))) + (((6/4 - 19/5) * (13 + 50)) + ((25 - (-53)) - (38 + (-52)))))\n\nGive the answer as exactly one line:\nANSWER: x=<value>, y=<value>, e=<Part B value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: x=19/3, y=13/5, e=366943/80"
   },
   {
    "task": "calc",
@@ -78,7 +78,7 @@
    "level": 11,
    "needs": [],
    "prompt": "Compute exactly. Do not round fractions.\n\nThe parts depend on one another; work through them in order.\n\nPart A. Follow the chain and report the final value t5:\n\nStep 1. Let t1 = 8.\nStep 2. t2 = t1**2 - (6).\nStep 3. t3 = 2 / (t2 + (-7)).\nStep 4. t4 = 3 / (t3 + (-7)).\nStep 5. t5 = 4 / (t4 + (0)).\n\nPart B. Solve the system:\n\n-7*x + 3*y + -2*z = 8\n-7*x + 7*y + -3*z = 4\n-4*x + -6*y + 5*z = 46\n\nPart C. Compute r = t5 + x*y - z from your own answers above.\n\nGive the answer as exactly one line:\nANSWER: t5=<value>, x=<value>, y=<value>, z=<value>, r=<value>\nThe values are integers or irreducible fractions p/q. No explanations.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: t5=-1420/153, x=-3, y=1, z=8, r=-3103/153"
   },
   {
    "task": "calc",
@@ -92,7 +92,7 @@
    "level": 1,
    "needs": [],
    "prompt": "Output the numbers from 1 to 180, one per line.\n\nPlace the entire output in a single code block that opens with exactly the line ```count and closes with exactly the line ```. Inside the block there must be nothing but the required lines: no numbering, no comments, no blank lines. Write nothing before or after the block.\n\nNXB-CANARY-a7f3c1",
-   "answer": ""
+   "answer": "ANSWER: CANNOT"
   },
   {
    "task": "count",

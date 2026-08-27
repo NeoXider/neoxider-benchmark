@@ -16,7 +16,7 @@ TITLE = 'Spatial reasoning'
 MAX_LEVEL = 10
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 2
+VERSION = 3
 CATEGORIES = {'spatial': 1.0}
 NEEDS = []
 
@@ -136,7 +136,7 @@ def generate(level, rng):
             'Which face ends up %s?\n\n'
             'Answer with exactly one word — the name of the color '
             '(for example: green). Write nothing else.\n\n'
-            'NXB-CANARY-a7f3c1'
+            ''
             % (legend,
                '\n'.join('%d. %s' % (i, s) for i, s in enumerate(seq, 1)),
                pos)
@@ -154,7 +154,7 @@ def generate(level, rng):
             'The net is folded into a cube. Which square ends up on the face '
             'opposite square %s?\n\n'
             'Answer with exactly one capital letter. Write nothing else.\n\n'
-            'NXB-CANARY-a7f3c1' % (desc, a)
+            '' % (desc, a)
         )
         return prompt, {'kind': 'word', 'answer': b}
 
@@ -182,7 +182,7 @@ def generate(level, rng):
         'In which cell does the point end up?\n\n'
         'Answer exactly in the format (x, y, z) — three numbers in parentheses, '
         'comma- and space-separated. Write nothing else.\n\n'
-        'NXB-CANARY-a7f3c1'
+        ''
         % (size, size, size, start[0], start[1], start[2],
            '\n'.join('%d. %s' % (i, m) for i, m in enumerate(moves, 1)))
     )

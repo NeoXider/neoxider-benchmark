@@ -63,18 +63,22 @@ LONG_WAIT = 2400
 LONG_TASKS = ('count', 'path3d', 'pathperf')
 SETTLE = 6           # чаты стримят текст: снимок сразу после остановки обрывочен
 
-# Канарейка стоит в КАЖДОМ промпте, и настоящий ответ её не повторяет: задачи
-# требуют либо число, либо блок кода. Значит её присутствие в «ответе» значит
-# ровно одно — мы прочитали сообщение пользователя, а не реплику модели.
+# Эхо промпта распознаём по самому промпту, а не по метке в нём. Раньше в
+# конце каждого задания стояла строка-канарейка, и её присутствие в «ответе»
+# выдавало, что прочитан пузырь пользователя. Метку убрали из заданий — она
+# лишняя для модели, — а проверка стала прямее: сравниваем с текстом, который
+# сами и отправили.
 #
-# Так и было: у Qwen селектор ответа совпадал и с пузырём пользователя, и
-# 28 из 44 «ответов» оказались отражённым промптом. Оценивать такое — значит
-# ставить модели ноль за наше собственное чтение не того узла.
-CANARY = 'NXB-CANARY-a7f3c1'
-
-
-def is_echo(text):
-    return CANARY in (text or '')
+# Нужна она вот зачем: у Qwen селектор ответа совпадал и с сообщением
+# пользователя, и 28 «ответов» из 44 оказались отражённым вопросом. Оценивать
+# такое — значит ставить модели ноль за наше чтение не того узла.
+def is_echo(text, prompt=None):
+    """Похоже ли, что мы прочитали свой же промпт вместо ответа."""
+    body = (text or '').strip()
+    if not body or not prompt:
+        return False
+    head = ' '.join(prompt.split())[:120]
+    return bool(head) and head in ' '.join(body.split())
 
 
 def _js(script, args=None, session='nxb-chat', await_promise=False):
@@ -239,7 +243,7 @@ def ask(cfg, prompt, session='nxb-chat', max_wait=MAX_WAIT):
             r"return (last.innerText||'').replace(/^\s*(Copy|Download)\s*$/gm,'').trim();",
             args=[cfg['answer'], before], session=session)) or ''
         # Эхо промпта ответом не считается: ждём дальше, как будто пусто.
-        if is_echo(text):
+        if is_echo(text, prompt):
             text = ''
         if text and text == last:
             stable += 1
@@ -249,7 +253,7 @@ def ask(cfg, prompt, session='nxb-chat', max_wait=MAX_WAIT):
         else:
             stable = 0
         last = text
-    if is_echo(last):
+    if is_echo(last, prompt):
         return None
     return last or None
 

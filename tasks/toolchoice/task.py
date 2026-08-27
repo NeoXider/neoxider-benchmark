@@ -27,7 +27,7 @@ TITLE = 'Tool choice'
 MAX_LEVEL = 10
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 1
+VERSION = 2
 CATEGORIES = {'agentic': 0.6, 'logic': 0.4}
 NEEDS = []
 WANTS_META = True
@@ -162,7 +162,7 @@ def generate(level, rng):
         'Give the answer on exactly one line:\n'
         'ANSWER: <number>\n'
         'No explanation, no digit grouping, no spaces inside the number.\n\n'
-        'NXB-CANARY-a7f3c1' % (q, rules)
+        '' % (q, rules)
     )
     return prompt, {'answer': ans, 'no_tools': no_tools}
 

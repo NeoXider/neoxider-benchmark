@@ -81,10 +81,60 @@ def export_prompts(model, seed=20260824, tasks=None, levels=None, profile=None,
     return path, len(items)
 
 
+def audit_answers(path):
+    """Что в собранных ответах нельзя оценивать. Пустой список — всё чисто.
+
+    У чат-канала своя порода поломок, и все три встретились живьём:
+      - селектор поля ввода перестал совпадать после переименования сайта, и
+        каждый промпт записался как молчание модели;
+      - оформленный блок кода отдавался без тройных кавычек, и верный ответ
+        читался как нарушение формата;
+      - селектор ответа совпадал с пузырём пользователя, и «ответом»
+        оказывался сам промпт.
+
+    Ни одну из них не видно по баллу — он просто выходит низким. Поэтому
+    проверка отдельная, до оценки.
+    """
+    import json as _json
+    with open(path, encoding='utf-8') as fh:
+        data = _json.load(fh)
+
+    bad = []
+    for it in data.get('items') or []:
+        if it.get('unmeasurable'):
+            continue
+        ans = (it.get('answer') or '').strip()
+        where = '%s L%s' % (it['task'], it['level'])
+        if not ans:
+            continue
+        head = ' '.join((it.get('prompt') or '').split())[:120]
+        if head and head in ' '.join(ans.split()):
+            bad.append((where, 'это эхо промпта, а не ответ'))
+            continue
+        # Задача просит блок кода, а ограждения нет — почти всегда его срезал
+        # интерфейс, а не модель забыла.
+        if it['task'] in _CODE_TASKS and '```' not in ans:
+            bad.append((where, 'блок кода без ограждения — вероятно срезан интерфейсом'))
+    return bad
+
+
+_CODE_TASKS = ('count', 'path3d', 'pathperf')
+
+
 def import_answers(path, results_dir='results'):
     """Оценивает собранные ответы и пишет обычный файл результата."""
     with open(path, encoding='utf-8') as fh:
         data = json.load(fh)
+
+    # Перед оценкой — проверка собранного. Оценивать эхо промпта или ответ с
+    # вырезанным ограждением значит записать нашу поломку в счёт модели.
+    spoiled = audit_answers(path)
+    if spoiled:
+        lines = '\n'.join('  %-14s %s' % w for w in spoiled[:10])
+        raise SystemExit(
+            'в собранных ответах %d записей, которым нельзя верить:\n%s\n'
+            'Это поломка сбора, а не модели. Очистите эти ответы и соберите '
+            'их заново, прежде чем считать балл.' % (len(spoiled), lines))
 
     model = data['model']
     seed = data.get('seed', 20260824)

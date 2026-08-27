@@ -19,7 +19,7 @@ TITLE = 'Pathfinding in 3D'
 MAX_LEVEL = 10
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 1
+VERSION = 2
 CATEGORIES = {'logic': 0.7, 'spatial': 0.3}
 NEEDS = []
 
@@ -221,7 +221,7 @@ def generate(level, rng):
         'closing with exactly ```. The block must contain only the definition of '
         'the solve function and, if needed, imports. No code outside the function, '
         'print nothing, do not call input().\n\n'
-        'NXB-CANARY-a7f3c1'
+        ''
         % (size, size, size,
            ', 0 means a free cell' if mode != 'weighted'
            else ', a positive number is the weight of entering the cell',

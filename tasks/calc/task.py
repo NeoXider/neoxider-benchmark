@@ -19,7 +19,7 @@ TITLE = 'Exact arithmetic'
 MAX_LEVEL = 12
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 3
+VERSION = 4
 CATEGORIES = {'math': 0.8, 'logic': 0.2}
 NEEDS = []
 
@@ -194,7 +194,7 @@ def _chained(rng, links):
 
 
 _HEAD = ('Compute exactly. Do not round fractions.\n\n')
-_TAIL = ('\n\nNXB-CANARY-a7f3c1')
+_TAIL = ''
 
 
 def _easy_expression(level, rng):

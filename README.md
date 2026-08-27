@@ -122,11 +122,9 @@ not a zero: zero would distort the score-versus-cost chart.
 
 ## Protection against leaking into training data
 
-Besides procedural generation, every prompt embeds the canary string
-`NXB-CANARY-a7f3c1`. If it shows up in the output of a model that never ran the
-benchmark, the suite has leaked into training data and the levels need to be
-regenerated with a new seed.
-
+Prompts carry no hidden marker. An earlier version ended every task with a
+canary string to detect the suite leaking into training data; it was
+dropped because it also told the model it was being tested.
 ## What's next
 
 The detailed plan lives in [docs/TODO.md](docs/TODO.md). In short:
