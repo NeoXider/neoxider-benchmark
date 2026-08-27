@@ -275,6 +275,14 @@ _TRANSPORT = (
     'connection lost mid-response',
     'the response above may be incomplete',
     'api error:',
+    # Исчерпанная квота — не ответ модели и не её неумение. Пока этого не было
+    # в списке, десять уровней Terra подряд записались как «CODE: line not
+    # found», хотя движок отвечал «You've hit your usage limit».
+    "you've hit your usage limit",
+    'usage limit',
+    'rate limit',
+    'quota exceeded',
+    'insufficient credits',
 )
 
 
@@ -485,6 +493,18 @@ def run_model(model_id, tasks=None, levels=None, profile=None, seed=20260824,
     # побеждает тот, кто закончил позже. Так и потерялись 72 уровня luna:
     # точечный перепрогон webform стартовал поверх ещё идущего полного прогона
     # и записал сверху свои десять. Молча, без единой ошибки.
+    # Проверка ДО запуска: если движок уже отвечает «квота исчерпана», прогон
+    # запишет эту фразу в каждый уровень как провал модели. Так и потерялись
+    # готовые результаты Sol и Terra — перезапуск лёг поверх кончившихся
+    # кредитов и переписал десять честных уровней на минусы.
+    probe = models.call(model_id, BASELINE_PROMPT, timeout=min(timeout, 120))
+    if looks_like_transport_failure(probe.text) or (
+            probe.error and 'usage limit' in str(probe.error).lower()):
+        raise SystemExit(
+            'движок недоступен, прогон не начат: %s. '
+            'Запуск поверх этого переписал бы уже собранные уровни ошибкой '
+            'канала.' % (str(probe.text or probe.error)[:160]))
+
     busy = _running_elsewhere(model_id, seed)
     if busy is not None:
         raise SystemExit(
@@ -760,6 +780,18 @@ def rescore(run):
         was_refused = bool(rec.get('refused'))
         now_refused = any(d in detail for d in _REFUSAL_DETAILS)
         before = rec.get('score')
+        # Уровень, все попытки которого убил транспорт или кончившаяся квота,
+        # измерен не был. Ставить за него ноль или минус — записывать чужую
+        # неисправность в счёт модели.
+        atts_all = rec.get('attempts') or []
+        if atts_all and all(looks_like_transport_failure(a.get('output_head'))
+                            for a in atts_all):
+            before = rec.get('score')
+            rec['unmeasurable'] = 'все попытки убил сбой канала или исчерпанная квота'
+            rec['score'] = SCORE_FAIL
+            if before != rec['score']:
+                changed.append((rec['task'], rec['level'], before, 'неизмеримо'))
+            continue
         if now_refused:
             rec['refused'] = True
             rec['score'] = SCORE_FAIL

@@ -536,220 +536,6 @@
    "card": "cards/claude_claude-haiku-4-5-20251001.svg"
   },
   {
-   "model": "codex/gpt-5.6-sol",
-   "engine": "codex",
-   "weights": "closed",
-   "local": false,
-   "weights_ref": null,
-   "params_b": null,
-   "tier": "frontier",
-   "tier_source": "vendor positioning",
-   "seed": 20260824,
-   "date": "2026-08-26",
-   "score": 75.5,
-   "max_score": 82.0,
-   "score_pct": 92.1,
-   "level_min": 1,
-   "level_max": 12,
-   "coverage": 1.0,
-   "incomplete": false,
-   "stability_score": 23.5,
-   "stability_max": 24.0,
-   "stability_failed": 0,
-   "unmeasurable": 0,
-   "passed": 78,
-   "first_try": 74,
-   "fixed": 4,
-   "failed": 4,
-   "fabricated": 0,
-   "honesty": 0.75,
-   "violations": 0,
-   "refused": 3,
-   "wrong": 1,
-   "seconds": 8653.8,
-   "tokens_total": 38245804,
-   "tokens_net": 35226034,
-   "baseline_tokens": 40931,
-   "cost": 78.32252,
-   "cost_source": "estimated",
-   "price_ref": "openrouter:openai/gpt-5.6-sol",
-   "per_task": {
-    "calc": {
-     "score": 10.5,
-     "passed": 11,
-     "fixed": 0,
-     "total": 12,
-     "seconds": 255.5
-    },
-    "count": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 262.9
-    },
-    "honesty": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 525.4
-    },
-    "path3d": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 236.4
-    },
-    "pathperf": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 285.0
-    },
-    "spatial": {
-     "score": 9.5,
-     "passed": 10,
-     "fixed": 1,
-     "total": 10,
-     "seconds": 550.0
-    },
-    "toolchoice": {
-     "score": 8.0,
-     "passed": 8,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 309.1
-    },
-    "webform": {
-     "score": 7.5,
-     "passed": 9,
-     "fixed": 3,
-     "total": 10,
-     "seconds": 6229.5
-    }
-   },
-   "per_category": {
-    "math": 0.917,
-    "logic": 0.948,
-    "instruction": 1.0,
-    "honesty": 1.0,
-    "spatial": 0.962,
-    "agentic": 0.815
-   },
-   "levels_done": 82,
-   "card": "cards/codex_gpt-5.6-sol.svg"
-  },
-  {
-   "model": "codex/gpt-5.6-terra",
-   "engine": "codex",
-   "weights": "closed",
-   "local": false,
-   "weights_ref": null,
-   "params_b": null,
-   "tier": "frontier",
-   "tier_source": "vendor positioning",
-   "seed": 20260824,
-   "date": "2026-08-26",
-   "score": 74.5,
-   "max_score": 82.0,
-   "score_pct": 90.9,
-   "level_min": 1,
-   "level_max": 12,
-   "coverage": 1.0,
-   "incomplete": false,
-   "stability_score": 24.0,
-   "stability_max": 24.0,
-   "stability_failed": 0,
-   "unmeasurable": 0,
-   "passed": 76,
-   "first_try": 76,
-   "fixed": 0,
-   "failed": 6,
-   "fabricated": 0,
-   "honesty": 0.5,
-   "violations": 0,
-   "refused": 3,
-   "wrong": 3,
-   "seconds": 4533.8,
-   "tokens_total": 19129826,
-   "tokens_net": 15924841,
-   "baseline_tokens": 40929,
-   "cost": 39.520932,
-   "cost_source": "estimated",
-   "price_ref": "openrouter:openai/gpt-5.6-terra",
-   "per_task": {
-    "calc": {
-     "score": 10.5,
-     "passed": 11,
-     "fixed": 0,
-     "total": 12,
-     "seconds": 243.6
-    },
-    "count": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 267.5
-    },
-    "honesty": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 483.5
-    },
-    "path3d": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 217.7
-    },
-    "pathperf": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 614.4
-    },
-    "spatial": {
-     "score": 10.0,
-     "passed": 10,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 162.3
-    },
-    "toolchoice": {
-     "score": 8.0,
-     "passed": 8,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 439.1
-    },
-    "webform": {
-     "score": 6.0,
-     "passed": 7,
-     "fixed": 0,
-     "total": 10,
-     "seconds": 2105.7
-    }
-   },
-   "per_category": {
-    "math": 0.917,
-    "logic": 0.948,
-    "instruction": 1.0,
-    "honesty": 1.0,
-    "spatial": 1.0,
-    "agentic": 0.79
-   },
-   "levels_done": 82,
-   "card": "cards/codex_gpt-5.6-terra.svg"
-  },
-  {
    "model": "lmstudio-local/qwen3.8-27b-unleashed",
    "engine": "opencode",
    "weights": "open",
@@ -1161,6 +947,206 @@
    },
    "levels_done": 24,
    "card": "cards/lmstudio-local_qwen_qwen3.5-2b.svg"
+  },
+  {
+   "model": "codex/gpt-5.6-terra",
+   "engine": "codex",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "params_b": null,
+   "tier": "frontier",
+   "tier_source": "vendor positioning",
+   "seed": 20260824,
+   "date": "2026-08-26",
+   "score": 68.5,
+   "max_score": 72.0,
+   "score_pct": null,
+   "level_min": 1,
+   "level_max": 12,
+   "coverage": 0.878,
+   "incomplete": true,
+   "stability_score": 21.0,
+   "stability_max": 21.0,
+   "stability_failed": 0,
+   "unmeasurable": 10,
+   "passed": 69,
+   "first_try": 69,
+   "fixed": 0,
+   "failed": 3,
+   "fabricated": 0,
+   "honesty": 0.667,
+   "violations": 0,
+   "refused": 2,
+   "wrong": 1,
+   "seconds": 2428.1,
+   "tokens_total": 5052665,
+   "tokens_net": 2215996,
+   "baseline_tokens": 40929,
+   "cost": 10.60183,
+   "cost_source": "estimated",
+   "price_ref": "openrouter:openai/gpt-5.6-terra",
+   "per_task": {
+    "calc": {
+     "score": 10.5,
+     "passed": 11,
+     "fixed": 0,
+     "total": 12,
+     "seconds": 243.6
+    },
+    "count": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 267.5
+    },
+    "honesty": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 483.5
+    },
+    "path3d": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 217.7
+    },
+    "pathperf": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 614.4
+    },
+    "spatial": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 162.3
+    },
+    "toolchoice": {
+     "score": 8.0,
+     "passed": 8,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 439.1
+    }
+   },
+   "per_category": {
+    "math": 0.917,
+    "logic": 0.948,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 1.0,
+    "agentic": 0.88
+   },
+   "levels_done": 72,
+   "card": "cards/codex_gpt-5.6-terra.svg"
+  },
+  {
+   "model": "codex/gpt-5.6-sol",
+   "engine": "codex",
+   "weights": "closed",
+   "local": false,
+   "weights_ref": null,
+   "params_b": null,
+   "tier": "frontier",
+   "tier_source": "vendor positioning",
+   "seed": 20260824,
+   "date": "2026-08-26",
+   "score": 68.0,
+   "max_score": 72.0,
+   "score_pct": null,
+   "level_min": 1,
+   "level_max": 12,
+   "coverage": 0.878,
+   "incomplete": true,
+   "stability_score": 20.5,
+   "stability_max": 21.0,
+   "stability_failed": 0,
+   "unmeasurable": 10,
+   "passed": 69,
+   "first_try": 68,
+   "fixed": 1,
+   "failed": 3,
+   "fabricated": 0,
+   "honesty": 0.667,
+   "violations": 0,
+   "refused": 2,
+   "wrong": 1,
+   "seconds": 2424.2,
+   "tokens_total": 4646540,
+   "tokens_net": 2036030,
+   "baseline_tokens": 40931,
+   "cost": 9.659552,
+   "cost_source": "estimated",
+   "price_ref": "openrouter:openai/gpt-5.6-sol",
+   "per_task": {
+    "calc": {
+     "score": 10.5,
+     "passed": 11,
+     "fixed": 0,
+     "total": 12,
+     "seconds": 255.5
+    },
+    "count": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 262.9
+    },
+    "honesty": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 525.4
+    },
+    "path3d": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 236.4
+    },
+    "pathperf": {
+     "score": 10.0,
+     "passed": 10,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 285.0
+    },
+    "spatial": {
+     "score": 9.5,
+     "passed": 10,
+     "fixed": 1,
+     "total": 10,
+     "seconds": 550.0
+    },
+    "toolchoice": {
+     "score": 8.0,
+     "passed": 8,
+     "fixed": 0,
+     "total": 10,
+     "seconds": 309.1
+    }
+   },
+   "per_category": {
+    "math": 0.917,
+    "logic": 0.948,
+    "instruction": 1.0,
+    "honesty": 1.0,
+    "spatial": 0.962,
+    "agentic": 0.88
+   },
+   "levels_done": 72,
+   "card": "cards/codex_gpt-5.6-sol.svg"
   },
   {
    "model": "lmstudio-local/ling-3.0-tiny",
