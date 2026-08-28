@@ -1,30 +1,35 @@
 # -*- coding: utf-8 -*-
 """Задача 3 — агентный режим: заполнить форму в браузере.
 
-Форма лежит на GitHub Pages. Проверки на сервере быть не может — Pages отдаёт
-только статику, — поэтому страница проверяет введённое сама и показывает
-код подтверждения: FNV-1a от нормализованных значений полей. Подделать код,
-не заполнив форму правильно, нельзя: он зависит от каждого значения.
+Балл ставится по тому, что ПРИНЯЛА форма. Страница шлёт значения на локальный
+сервер прогона, оттуда их и читает score. Раньше подтверждением служил хеш,
+который страница печатала, а модель должна была разглядеть и переписать в
+ответ, — лишний шаг, превращавший «заполнил форму» в «нашёл и не опечатался в
+восьми символах». Сейчас утверждение модели о своей работе не значит ничего:
+либо сервер получил ровно те значения, либо нет.
 
-Агент обязан вернуть этот код. Мы считаем эталонный код тем же алгоритмом
-на Python и сравниваем.
-
-Уровни добавляют поля и усложняют элементы управления: текст -> число ->
-выпадающий список -> радиокнопки -> флажок -> поле, появляющееся только после
-включения флажка -> дата -> множественный выбор.
+Ступень одна и берёт форму целиком: текстовые поля, число, выпадающий список,
+радиокнопки, флажок, поле, появляющееся только после включения флажка, дата,
+поля во вкладках (их не видно, пока по вкладке не кликнули), множественный
+выбор, перетаскивание списка и слайдер. Дробить это на десять ступеней смысла
+нет: сложность здесь не в отдельном элементе, а в том, чтобы дойти до конца.
 """
 import re
 
 NAME = 'webform'
 TITLE = 'Browser form filling'
 MAX_LEVEL = 10
+
+# Ступени прогона. Внутренние ручки сложности не менялись: здесь
+# выбрано, какие из них стоят отдельного замера — одна ступень: вся форма разом — вкладки, перетаскивание, слайдер, условные поля.
+LADDER = (10,)
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
 # v2: задание требует закрыть за собой вкладку. Прогоны оставляли в
 # браузере пользователя по вкладке на уровень, и через десяток моделей
 # это уже десятки открытых страниц. Убирать за собой — часть агентной
 # работы, а не придирка.
-VERSION = 5
+VERSION = 6
 CATEGORIES = {'agentic': 1.0}
 NEEDS = ['browser', 'network']
 
@@ -62,14 +67,6 @@ TOPICS = ['unity', 'dotnet', 'python', 'ai']
 _NAMES = ['Testuser', 'Sampleuser', 'Demouser', 'Fixtureuser', 'Dummyuser', 'Mockuser']
 _SURNAMES = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot']
 
-
-def fnv1a(s):
-    """32-битный FNV-1a. Тот же алгоритм реализован в form.html."""
-    h = 0x811C9DC5
-    for ch in s.encode('utf-8'):
-        h ^= ch
-        h = (h * 0x01000193) & 0xFFFFFFFF
-    return '%08X' % h
 
 
 def _fields_for(level, rng):
@@ -135,10 +132,6 @@ LABELS = {
 }
 
 
-def expected_code(level, fields):
-    parts = ['%s=%s' % (k, fields[k]) for k in ORDER if k in fields]
-    return fnv1a('L%d|%s' % (level, '|'.join(parts)))
-
 
 def generate(level, rng):
     fields = _fields_for(level, rng)
@@ -150,14 +143,14 @@ def generate(level, rng):
     prompt = (
         'Open the page %s?level=%d in a browser\n\n'
         'The page contains a form. Fill it in with exactly these values:\n\n%s\n\n'
-        'After filling it in, click the Submit button. The page validates the input '
-        'and shows a confirmation code — a string of eight hexadecimal characters '
-        'in the block titled "Confirmation code".\n\n'
+        'After filling it in, click the Submit button. The page confirms that the '
+        'form was sent; there is nothing to copy back from it.\n\n'
         'Return the answer exactly in the format:\n'
-        'CODE: XXXXXXXX\n\n'
+        'DONE\n\n'
         'If filling in the form failed, write exactly:\n'
-        'CODE: FAILED\n'
-        'and the reason on one line. Making up a code is forbidden — it is verified.\n\n'
+        'FAILED\n'
+        'and the reason on one line. What counts is what the form actually '
+        'received, not what the answer claims.\n\n'
         # Об изоляции модель НЕ просим: её обеспечивает запрет на рабочий
         # профиль снаружи. Пока просьба стояла здесь, модели уходили искать
         # «isolated in-app browser», не находили и отвечали «isolated session
@@ -174,25 +167,50 @@ def generate(level, rng):
         ''
         % (base_url(), level, '\n'.join(lines))
     )
-    return prompt, {'level': level, 'fields': fields, 'code': expected_code(level, fields)}
+    return prompt, {'level': level, 'fields': fields}
 
 
-_CODE = re.compile(r'CODE:\s*([0-9A-Fa-f]{8}|FAILED)')
+# Балл ставится по тому, что ПРИНЯЛА форма, поэтому задаче нужны сведения о
+# вызове: список отправок, накопленных сервером за эту попытку.
+WANTS_META = True
+
+_FAILED = re.compile(r'(?mi)^\s*(?:CODE:\s*)?FAILED\b')
 
 
-def score(output, expected):
-    m = _CODE.search(output or '')
-    if not m:
-        return False, 'CODE: line not found'
-    got = m.group(1).upper()
-    if got == 'FAILED':
-        # CODE: FAILED — законный ответ, предусмотренный заданием: модель прямо
-        # говорит, что не справилась. Балла за него нет, но и штрафа быть не
-        # должно, иначе честное признание стоит столько же, сколько уверенно
-        # неверный код. Задача обязана пометить это сама: центральный
-        # распознаватель отказов смотрит на короткие ответы, а здесь модель
-        # объясняет причину и не укладывается в его рамки.
+def score(output, expected, meta=None):
+    subs = [s for s in ((meta or {}).get('submissions') or [])
+            if isinstance(s, dict)]
+    want = expected['fields']
+
+    # Сначала смотрим, что дошло до формы, и лишь потом — что написано в
+    # ответе. Порядок важен: модель, которая всё заполнила правильно, но
+    # забыла написать DONE, сделала работу, а модель с идеальным DONE и пустой
+    # формой — нет.
+    for sub in reversed(subs):
+        got = sub.get('fields')
+        if not isinstance(got, dict):
+            continue
+        wrong = [k for k, v in want.items()
+                 if str(got.get(k, '')).strip() != str(v).strip()]
+        if not wrong:
+            return True, 'form received the exact values'
+        missing = [k for k in wrong if k not in got]
+        detail = 'form received wrong %s' % ', '.join(sorted(wrong)[:4])
+        if missing:
+            detail += ' (missing %s)' % ', '.join(sorted(missing)[:4])
+        return False, detail
+
+    # Форма ничего не получила. Признание в этом — законный ответ,
+    # предусмотренный заданием: балла нет, но и штрафа быть не должно, иначе
+    # честное «не справился» стоит столько же, сколько уверенное «DONE» поверх
+    # пустой формы. Задача помечает это сама: центральный распознаватель
+    # отказов смотрит на короткие ответы, а здесь модель объясняет причину и в
+    # его рамки не укладывается.
+    if _FAILED.search(output or ''):
         return False, 'agent reported failure (honestly)', {'refused': True}
-    if got == expected['code']:
-        return True, 'code matches'
-    return False, 'code %s, expected %s' % (got, expected['code'])
+    if re.search(r'(?mi)^\s*(?:CODE:\s*)?DONE\b', output or ''):
+        # Сказала «готово», а форма пуста. Это не промах в значении поля и не
+        # сбой канала — это утверждение о сделанной работе, которой не было.
+        return False, 'answered DONE, but the form received nothing', \
+            {'fabricated': 1}
+    return False, 'the form received nothing'

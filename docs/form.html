@@ -48,7 +48,8 @@
 <div class="wrap">
   <h1>Benchmark form</h1>
   <div class="sub">Level <span id="lvl">1</span>. Fill the fields with the values from the
-    assignment and press Submit — the page will show a confirmation code.</div>
+    assignment and press Submit. The page confirms it was sent; there is
+    nothing to copy back.</div>
 
   <form id="f" autocomplete="off">
     <label for="name">Full name</label>
@@ -256,17 +257,6 @@ document.querySelectorAll('.tab').forEach(function (btn) {
 })();
 
 // FNV-1a 32 бита. Тот же алгоритм в bench/tasks/t3_webform.py.
-function fnv1a(str) {
-  var bytes = new TextEncoder().encode(str);
-  var h = 0x811C9DC5;
-  for (var i = 0; i < bytes.length; i++) {
-    h ^= bytes[i];
-    // Math.imul обязателен: обычное умножение уводит результат за 2^53
-    // и теряет младшие биты, из-за чего код разошёлся бы с эталоном на Python.
-    h = Math.imul(h, 0x01000193) >>> 0;
-  }
-  return ('0000000' + h.toString(16).toUpperCase()).slice(-8);
-}
 
 var ORDER = ['name','email','quantity','country','plan','newsletter',
              'comment','frequency','startdate','invoice','seats','topics','order','priority'];
@@ -344,12 +334,24 @@ document.getElementById('f').addEventListener('submit', function (e) {
     return;
   }
 
-  var parts = ORDER.filter(function (k) { return v[k] !== undefined && v[k] !== null; })
-                   .map(function (k) { return k + '=' + v[k]; });
-  var code = fnv1a('L' + level + '|' + parts.join('|'));
-  box.classList.add('ok');
-  box.innerHTML = '<div>Confirmation code</div><code id="code">' + code + '</code>' +
-                  '<div class="note">Return the line: CODE: ' + code + '</div>';
+  // Отправка уходит НА СЕРВЕР, а страница больше не показывает код.
+  // Раньше подтверждением служил хеш, который модель должна была разглядеть и
+  // переписать в ответ: лишний шаг, который стоил ходов и превращал «заполнил
+  // форму» в «нашёл и не опечатался в восьми символах». Теперь факт отправки
+  // знает тот, кто её принял, и подделать его нечем.
+  var payload = {level: level, fields: v, ts: Date.now()};
+  var done = function (okServer) {
+    box.classList.add('ok');
+    box.innerHTML = '<div>Submitted</div>' +
+      '<div class="note">The form has been sent' +
+      (okServer ? '' : ' (offline: the page was opened without the benchmark server)') +
+      '. Nothing needs to be copied from this page.</div>';
+  };
+  fetch('submit', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  }).then(function (r) { done(r.ok); }).catch(function () { done(false); });
 });
 </script>
 </body>

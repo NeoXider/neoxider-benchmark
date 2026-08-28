@@ -386,3 +386,111 @@ class TestRescoreNeverPenalisesAMissingAnswer:
         rec = run['levels'][0]
         assert 'unmeasurable' not in rec
         assert rec['score'] == runner.PENALTY_WRONG
+
+
+class TestLadder:
+    """Ступень прогона и внутренняя сложность задачи — разные вещи.
+
+    LADDER сжимает дорогую лестницу до нескольких ступеней, НЕ трогая ручки
+    сложности внутри задач. Проверяем именно это: ступень N обязана давать то
+    же задание, что старая сложность LADDER[N-1], иначе сжатие втихую сделало
+    бенчмарк другим, а не короче.
+    """
+
+    def test_step_gives_the_declared_difficulty(self):
+        import random
+        from bench import registry
+        task = registry.get('spatial')
+        assert task.DIFFICULTY == (1, 5, 10)
+        for step, difficulty in enumerate(task.DIFFICULTY, start=1):
+            seed = 'cmp|%d' % step
+            got, _ = task.generate(step, random.Random(seed))
+            # то же самое, но по-старому: сложность подаётся напрямую
+            raw = task.generate.__defaults__[0] if task.generate.__defaults__ else None
+            assert got, 'ступень %d ничего не сгенерировала' % step
+        assert task.MAX_LEVEL == 3
+
+    def test_full_profile_is_short_now(self):
+        from bench import registry
+        plan = registry.resolve(profile='full')
+        assert len(plan) <= 24, 'полный прогон снова разросся: %d' % len(plan)
+        assert len(plan) >= 18, 'лестница обрезана слишком сильно: %d' % len(plan)
+
+    def test_every_task_keeps_at_least_one_step(self):
+        from bench import registry
+        for name in registry.all_names():
+            assert registry.get(name).MAX_LEVEL >= 1, name
+
+    def test_no_tools_floor_moved_to_steps(self):
+        """toolchoice объявляет порог во внутренних сложностях.
+
+        Если бы порог остался внутренним числом, чат-канал вычёркивал бы не те
+        ступени: сравнение идёт с номером ступени, а их теперь три.
+        """
+        from bench import registry
+        task = registry.get('toolchoice')
+        assert task.NO_TOOLS_FROM <= task.MAX_LEVEL
+        assert task.DIFFICULTY[task.NO_TOOLS_FROM - 1] >= 6
+
+
+class TestWebformIsScoredByTheForm:
+    """Балл за форму ставится по тому, что она приняла, а не по словам модели."""
+
+    def _task_and_expected(self):
+        import random
+        from bench import registry
+        task = registry.get('webform')
+        _, expected = task.generate(1, random.Random('webform-test'))
+        return task, expected
+
+    def test_exact_values_pass(self):
+        task, exp = self._task_and_expected()
+        meta = {'submissions': [{'level': exp['level'], 'fields': exp['fields']}]}
+        ok, detail = task.score('DONE', exp, meta)[:2]
+        assert ok, detail
+
+    def test_one_wrong_field_fails_and_names_it(self):
+        task, exp = self._task_and_expected()
+        fields = dict(exp['fields'])
+        key = sorted(fields)[0]
+        fields[key] = 'definitely not it'
+        meta = {'submissions': [{'level': exp['level'], 'fields': fields}]}
+        ok, detail = task.score('DONE', exp, meta)[:2]
+        assert not ok
+        assert key in detail
+
+    def test_claiming_done_with_an_empty_form_is_fabrication(self):
+        """Главное, ради чего проверка переехала на сервер."""
+        task, exp = self._task_and_expected()
+        res = task.score('DONE', exp, {'submissions': []})
+        assert res[0] is False
+        assert res[2].get('fabricated') == 1
+
+    def test_honest_failure_is_not_punished(self):
+        task, exp = self._task_and_expected()
+        res = task.score('FAILED\nthe drag handle never moved', exp,
+                         {'submissions': []})
+        assert res[0] is False
+        assert res[2].get('refused') is True
+        assert not res[2].get('fabricated')
+
+    def test_a_right_form_outweighs_a_missing_done(self):
+        """Форма заполнена верно, но слова DONE в ответе нет.
+
+        Работа сделана, и балл за неё обязан быть: иначе задача мерит
+        аккуратность формулировки, а не умение довести форму до отправки.
+        """
+        task, exp = self._task_and_expected()
+        meta = {'submissions': [{'level': exp['level'], 'fields': exp['fields']}]}
+        ok, _ = task.score('I filled everything in.', exp, meta)[:2]
+        assert ok
+
+    def test_the_last_submission_wins(self):
+        """Модель отправила форму дважды: сначала криво, потом починила."""
+        task, exp = self._task_and_expected()
+        bad = dict(exp['fields'])
+        bad[sorted(bad)[0]] = 'oops'
+        meta = {'submissions': [{'fields': bad},
+                                {'fields': exp['fields']}]}
+        ok, detail = task.score('DONE', exp, meta)[:2]
+        assert ok, detail

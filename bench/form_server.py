@@ -9,6 +9,7 @@
 
 Сервер поднимается один на прогон и живёт в фоновом потоке.
 """
+import json
 import os
 import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -19,6 +20,25 @@ DOCS = os.path.join(HERE, 'docs')
 _server = None
 _lock = threading.Lock()
 
+# Что форма приняла с момента последнего take(). Подтверждением отправки служит
+# именно эта запись, а не строка в ответе модели: страница больше не печатает
+# код, переписывать нечего, и выдумать «я отправил» невозможно — либо сервер
+# принял значения, либо нет.
+_submissions = []
+_sub_lock = threading.Lock()
+
+
+def take():
+    """Забирает накопленные отправки и очищает список.
+
+    Забирает, а не читает: у каждой попытки должны быть СВОИ отправки. Иначе
+    вторая попытка засчитает форму, которую отправила первая, и уровень,
+    проваленный дважды, выглядел бы пройденным.
+    """
+    with _sub_lock:
+        got, _submissions[:] = list(_submissions), []
+    return got
+
 
 class _Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
@@ -27,6 +47,25 @@ class _Handler(SimpleHTTPRequestHandler):
     def log_message(self, *args):
         # Каждое обращение модели иначе печатается поверх лога прогона.
         pass
+
+    def do_POST(self):
+        if self.path.rstrip('/').rsplit('/', 1)[-1] != 'submit':
+            self.send_error(404)
+            return
+        try:
+            n = int(self.headers.get('Content-Length') or 0)
+            body = json.loads(self.rfile.read(n).decode('utf-8')) if n else {}
+        except (ValueError, UnicodeDecodeError):
+            self.send_error(400)
+            return
+        with _sub_lock:
+            _submissions.append(body)
+        payload = b'{"ok":true}'
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
 
 
 def start(port=0):

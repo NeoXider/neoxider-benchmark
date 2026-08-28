@@ -365,8 +365,13 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline, heartbeat=None
     attempt = 0
     transient = 0
     while attempt < 2:
+        # Чистим накопитель формы ПЕРЕД вызовом: иначе вторая попытка засчитает
+        # отправку, сделанную первой, и уровень, проваленный дважды, выглядел бы
+        # пройденным. По той же причине сбор идёт сразу после вызова.
+        form_server.take()
         res = models.call(model_id, prompt, timeout=timeout, cwd=workspace,
                           on_output=heartbeat)
+        submissions = form_server.take()
         rec['seconds'] += res.seconds
 
         # Сбой движка — не ответ модели. Раньше пустой ответ после обрыва сети
@@ -406,7 +411,8 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline, heartbeat=None
         if getattr(task, 'WANTS_META', False):
             scored = task.score(res.text, expected,
                                 {'tools': res.tools, 'seconds': res.seconds,
-                                 'tokens': res.tokens})
+                                 'tokens': res.tokens,
+                                 'submissions': submissions})
         else:
             scored = task.score(res.text, expected)
         ok, detail = scored[0], scored[1]

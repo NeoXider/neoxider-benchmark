@@ -52,12 +52,11 @@ _REQUIRED = ('NAME', 'TITLE', 'MAX_LEVEL', 'CATEGORIES', 'generate', 'score')
 #             верхние уровни держат потолок недостижимым, чтобы шкала
 #             оставалась живой по мере роста моделей.
 PROFILES = {
-    'minimal': {'levels': [1, 2, 3], 'tasks': None},
-    'quick':   {'levels': [1, 3, 5, 7], 'tasks': None},
-    # До 12: потолок поднят там, где задача это поддерживает. Уровни 1-10
-    # не изменились и остаются сравнимыми со старыми прогонами, а resolve
-    # отсекает лишнее по MAX_LEVEL каждой задачи — так что допрогон просто
-    # дописывает новые уровни, ничего не пересчитывая.
+    'minimal': {'levels': [1], 'tasks': None},
+    'quick':   {'levels': [1, 2], 'tasks': None},
+    # Ступеней теперь мало и они редкие (см. LADDER в задачах), поэтому full —
+    # это буквально «всё, что есть»: resolve сам отсечёт лишнее по MAX_LEVEL
+    # каждой задачи. Верхняя ступень по-прежнему не берётся целиком никем.
     'full':    {'levels': list(range(1, 13)), 'tasks': None},
     'offline': {'levels': list(range(1, 13)), 'tasks': None, 'exclude_needs': ['browser']},
 }
@@ -82,7 +81,50 @@ def _load_module(folder):
     mod.FOLDER = folder
     if not hasattr(mod, 'NEEDS'):
         mod.NEEDS = []          # например ['browser'] или ['network']
+    _apply_ladder(mod)
     return mod
+
+
+def _apply_ladder(mod):
+    """Разводит ДВА разных понятия уровня, которые раньше были одним.
+
+    Внутри задачи уровень — это ручка сложности: сколько скобок в выражении,
+    сколько полей в форме, есть ли давление в вопросе. Снаружи уровень — это
+    ступень прогона, за которую платят временем и токенами. Пока они совпадали,
+    прогон стоил столько ступеней, сколько задача умела различать: 82 уровня,
+    из которых соседние почти неотличимы по результату.
+
+    LADDER разрывает эту связь. Задача объявляет, какие её внутренние сложности
+    достойны отдельного замера, а generate снаружи получает обычный 1..N.
+    Ручки сложности внутри задач при этом не трогаются вовсе — а значит, старый
+    уровень остаётся тем же самым заданием, и сравнивать прогоны можно по тому,
+    какая ВНУТРЕННЯЯ сложность взята, а не по порядковому номеру ступени.
+
+    Задача без LADDER работает как раньше: ступень равна сложности.
+    """
+    ladder = getattr(mod, 'LADDER', None)
+    if not ladder:
+        return
+    ladder = tuple(ladder)
+    if sorted(ladder) != list(ladder) or len(set(ladder)) != len(ladder):
+        raise ImportError('tasks/%s/task.py: LADDER must increase strictly'
+                          % mod.FOLDER)
+    if ladder[-1] > mod.MAX_LEVEL:
+        raise ImportError('tasks/%s/task.py: LADDER goes past MAX_LEVEL %d'
+                          % (mod.FOLDER, mod.MAX_LEVEL))
+
+    raw_generate = mod.generate
+    mod.generate = lambda level, rng, _g=raw_generate, _l=ladder: _g(_l[level - 1], rng)
+    mod.DIFFICULTY = ladder            # ступень -> внутренняя сложность
+    mod.MAX_LEVEL = len(ladder)
+
+    # Порог «здесь инструменты уже запрещены» задан во внутренних сложностях.
+    # После сжатия он обязан переехать на ступени, иначе чат-канал вычеркнет не
+    # те уровни: у toolchoice это решает, считать ли уровень измеримым вообще.
+    floor = getattr(mod, 'NO_TOOLS_FROM', None)
+    if floor is not None:
+        steps = [i + 1 for i, d in enumerate(ladder) if d >= floor]
+        mod.NO_TOOLS_FROM = steps[0] if steps else len(ladder) + 1
 
 
 def discover(force=False):
