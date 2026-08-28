@@ -4,7 +4,11 @@
 
 A small, honest benchmark for **agentic** CLI models: it measures not whether the model knows facts, but whether it finishes the job, follows instructions literally, and **admits when it can't**.
 
-Eight tasks, ten levels each. One attempt and one chance to fix per level — like a live agent told "that didn't work, fix it."
+Eight tasks, 22 steps in total. A step is a rung on the difficulty ladder, not
+a level number: each task declares which of its internal difficulties are worth
+measuring separately, so neighbouring rungs actually tell models apart instead
+of repeating each other. One attempt and one chance to fix per step — like a
+live agent told "that didn't work, fix it."
 
 **Leaderboard:** https://neoxider.github.io/neoxider-benchmark/
 
@@ -86,12 +90,14 @@ python run.py --report                       # rebuild leaderboard and cards
 ./bench.sh --all-free minimal                # every free model in a row
 ```
 
-Profiles: `minimal` (levels 1–3), `quick` (1, 3, 5, 7), `full` (all levels),
-`offline` (skips tasks that need a browser).
+Profiles: `minimal` (step 1 of every task), `quick` (steps 1–2), `full`
+(everything), `offline` (skips tasks that need a browser).
 
 `minimal` is a competence floor, not a competition: a model you can actually
-work with is expected to take it at 100%. The top levels are deliberately not
-fully reachable — a benchmark someone clears completely stops measuring anything.
+work with is expected to take it at 100%. The top steps are deliberately not
+fully reachable — a benchmark someone clears completely stops measuring
+anything. `pathperf` goes further and never awards a full point at all: its
+score scales with measured speed, and the maximum would need zero seconds.
 
 ## How scoring works
 

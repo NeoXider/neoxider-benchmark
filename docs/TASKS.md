@@ -1,7 +1,17 @@
 # Tasks
 
-Eight tasks, ten levels each. Levels run from easy to hard and are grouped in
-threes per subtheme within a task, so you can see exactly where a model breaks.
+Eight tasks, 22 steps in total. A step is a rung on the difficulty ladder, not a
+level number: every task keeps its internal difficulty knobs untouched and
+declares which of them deserve their own measurement, so neighbouring rungs
+actually separate models instead of repeating each other. `count` has two rungs,
+one easy and one hard; `webform` has one, the whole form at once; the rest have
+three or four.
+
+The per-task tables below describe each task's **internal difficulty**, which is
+unchanged and still numbered 1–10 (1–12 for `calc`). A run does not walk all of
+them: it takes the rungs the task declares. `toolchoice`, for instance, keeps
+three — internal 1 and 5 where tools are allowed, and internal 10 where they are
+forbidden.
 
 All tasks are **generated procedurally from a seed**. The repository ships a
 generator, not ready-made instances: there is nothing to train on here — the
@@ -51,35 +61,39 @@ the reference algorithm finds a path.
 
 **Categories:** agentic 1.0 · **Needs:** browser, network
 
-Open a page, fill in a form with given values, hit Submit, and return the
-confirmation code shown afterwards.
+Open a page, fill in a form with given values and hit Submit. There is nothing
+to copy back: the page posts what it received to the run's own local server, and
+the score is decided by what the form actually got.
 
-There can be no server-side check — GitHub Pages serves static files only — so
-the page computes the code itself: FNV-1a over the normalized values of all
-fields.
+That is the whole point of the design. The page used to print an FNV-1a hash of
+the field values for the model to find and retype, which turned "filled the form
+in" into "spotted and did not mistype eight hex characters" — and, worse, the
+algorithm is public in this repository and every required value is already in the
+prompt, so a model could compute the code without opening a browser at all.
+Server-side receipt closes that: a claim of DONE over a form that received
+nothing is not a wrong answer, it is a statement about work that did not happen,
+and it is scored as fabrication.
 
-Be honest about what that does and does not prove. The FNV-1a algorithm is
-public in this repository, and every required value is already in the prompt, so
-a model that wanted to could compute the code without opening a browser at all.
-Closing that needs a server-side receipt, which Pages cannot provide. What the
-page *does* enforce is the interaction: fields behind tabs are `disabled` until
-the tab is clicked and are read as empty otherwise, and the drag list only
-reports an order if real pointer events happened — rearranging the DOM directly
-yields `NOT-DRAGGED`. Both were verified by trying the shortcut.
+Interaction is enforced by the page itself, and both shortcuts were tried before
+being ruled out: fields behind tabs are `disabled` until the tab is clicked and
+read as empty otherwise, and the drag list only reports an order if real pointer
+events happened — rearranging the DOM directly yields `NOT-DRAGGED`.
 
-| Levels | What gets added |
+The run uses one step, and it is the whole form at once. Splitting it into ten
+made little sense: the difficulty here is not any single control, it is getting
+to the end without losing one of them.
+
+| In the one step | What has to be filled |
 |---|---|
-| 1–3 | text fields, a number, a dropdown |
-| 4–6 | radio buttons, a checkbox, a multiline field |
-| 7 | a field that **appears only after the checkbox is toggled** |
-| 8 | a date, plus two fields hidden behind **tabs** that must be clicked open |
-| 9 | multiple checkboxes, and a **drag-and-drop** list to reorder |
-| 10 | a slider on top of everything above |
+| text | full name, e-mail, a multiline comment |
+| pickers | a number, a dropdown, radio buttons, a date |
+| conditional | a checkbox, plus a field that **appears only once it is ticked** |
+| hidden | two fields behind **tabs** that must be clicked open |
+| multi | several checkboxes, and a **drag-and-drop** list to reorder |
+| analog | a slider |
 
-Level 7 and up verifies that the agent actually interacts with the page rather
-than submitting values blindly. Tabs hide fields until clicked, and the
-drag-and-drop list starts in an order that is never the required one, so it
-cannot be passed by leaving it alone.
+The drag list starts in an order that is never the required one, so it cannot be
+passed by leaving it alone.
 
 Reordering runs on pointer events rather than the HTML5 drag-and-drop API:
 synthetic HTML5 drags usually fail in browser automation, while
@@ -166,12 +180,22 @@ if the solution fits a time budget. The prompt says **nothing** about speed,
 optimisation or complexity — the model has to work out on its own that brute
 force will not survive a 64×64×64 grid.
 
+Correctness is a **gate**, not a weight: a solution that does not return the
+shortest path on every map has not done the task, and no amount of speed makes
+up for it. Among solutions that are fully correct, the score **scales
+continuously with measured time** — `1/(1 + ratio/2)`, so zero seconds would be
+the unreachable 1.0, matching the reference gives about 0.67, twice as slow 0.5,
+eight times 0.2, and beating the reference is rewarded. There are no tiers on
+purpose: while the check was pass/fail, a solution 1.1× the reference and one
+7.9× scored exactly the same, and the whole difference in engineering quality
+vanished.
+
 Efficiency is measured as a **ratio to a reference implementation**, not in
 absolute seconds: the ratio barely depends on the machine, absolute seconds
-depend on it entirely. The reference is timed right next to the solution and the
-best of several passes is taken — random load can slow a pass down but cannot
-speed it up. The result is reported as `optimal`, `good`, `acceptable` or
-`inefficient`.
+depend on it entirely. The reference is timed **through the same sandbox** as
+the candidate, and the best of several passes is taken. Timing it in-process
+instead billed every model for the sandbox's own start-up: an identical
+breadth-first search reported itself 1.9× slower than itself.
 
 Two bypasses were found and closed here, both of which looked like brilliant
 optimisation: hoisting the computation into module-level code that ran before
