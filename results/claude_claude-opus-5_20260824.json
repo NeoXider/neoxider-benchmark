@@ -2684,30 +2684,30 @@
      "n": 1,
      "ok": true,
      "detail": "code matches",
-     "seconds": 117.15,
+     "seconds": 89.96,
      "error": null,
-     "output_head": "All eleven values were entered through the UI (including clicking the Billing and Access tabs to reach their fields), and the form validated and returned the code.\n\nOne thing worth flagging about the fixture: the tab handler disables and hides the fields of every non-active panel, and the page's `collect()` reads a disabled or hidden-panel field as empty. Since only one tab can be active at a time"
+     "output_head": "Filled the form at level 8, handling its two guards: Frequency only commits after the Newsletter checkbox fires a real `change` event, and Invoice/Seats only commit on an `input` event while their tab is active and enabled — so I clicked the Billing and Access tabs before filling each. Verified every value in the live DOM (including `committed = {invoice: \"INV-1467\", seats: \"30\"}`) before a single"
     }
    ],
-   "task_version": 3,
+   "task_version": 5,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 117.15,
+   "seconds": 89.96,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-26T21:08:49Z",
+   "ts": "2026-08-28T01:11:13Z",
    "tokens_raw": {
-    "input": 38,
-    "output": 6202,
+    "input": 34,
+    "output": 4541,
     "reasoning": 0,
-    "cache_read": 771925,
-    "cache_write": 54596
+    "cache_read": 662091,
+    "cache_write": 47419
    },
-   "tokens_net": 809894,
-   "cost": 1.087162
+   "tokens_net": 691218,
+   "cost": 0.91893
   },
   {
    "task": "webform",
@@ -2717,30 +2717,33 @@
      "n": 1,
      "ok": true,
      "detail": "code matches",
-     "seconds": 209.76,
+     "seconds": 147.99,
      "error": null,
-     "output_head": "Done. The form is filled and submitted, and my browser session is closed (`sessions_open: 0`; it ran in a temporary headless profile, and no `form.html` tab remains in Chrome — the tabs still listed are pre-existing ones belonging to another process).\n\nValues confirmed live in the DOM before the single submit: name, email, quantity 64, Serbia, plan=team, newsletter on, comment, frequency=daily, 20"
+     "output_head": "All values were verified in the live DOM before submitting (including the two tab-gated fields committed via real input on their active tabs, and the drag order reached through actual pointer drags — `__dragCount` = 2).\n\nCODE: 87904FB8\n\nBrowser cleanup: the session ran in a temporary headless profile (no tab in your Chrome); it's closed and `browser_status` now reports 0 of 8 sessions open. The tw"
     }
    ],
-   "task_version": 3,
+   "task_version": 5,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 209.76,
+   "seconds": 485.22,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-26T21:10:46Z",
+   "ts": "2026-08-28T01:12:44Z",
+   "transient_errors": [
+    "None"
+   ],
    "tokens_raw": {
-    "input": 38,
-    "output": 10589,
+    "input": 36,
+    "output": 9080,
     "reasoning": 0,
-    "cache_read": 849770,
-    "cache_write": 59159
+    "cache_read": 860327,
+    "cache_write": 42294
    },
-   "tokens_net": 896689,
-   "cost": 1.28139
+   "tokens_net": 888870,
+   "cost": 1.080283
   },
   {
    "task": "webform",
@@ -2750,30 +2753,30 @@
      "n": 1,
      "ok": true,
      "detail": "code matches",
-     "seconds": 248.19,
+     "seconds": 142.64,
      "error": null,
-     "output_head": "CODE: 9A1FFCC7\n\nAll fourteen values were entered through the page and verified from the live DOM before a single submit (`collect()` returned exactly the assigned values, with `__dragCount = 2` from real mouse-event drags, so the order counted as genuinely dragged). I independently recomputed the FNV-1a hash of the expected value string in Python and got the same `9A1FFCC7`.\n\nOne thing worth flagg"
+     "output_head": "All fields filled and verified before submitting (invoice and seats were committed while their tabs were active, and the reorder was done with real mouse press/move/release so `__dragCount` reached 2). Final state read back: `name=Fixtureuser Delta, email=fixtureuser@benchmark.invalid, quantity=91, country=Kazakhstan, plan=team, newsletter=yes, comment=needs review, frequency=weekly, startdate=202"
     }
    ],
-   "task_version": 3,
+   "task_version": 5,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 248.19,
+   "seconds": 142.64,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-26T21:14:16Z",
+   "ts": "2026-08-28T01:20:53Z",
    "tokens_raw": {
     "input": 44,
-    "output": 9566,
+    "output": 8255,
     "reasoning": 0,
-    "cache_read": 985977,
-    "cache_write": 45660
+    "cache_read": 960616,
+    "cache_write": 43718
    },
-   "tokens_net": 1018380,
-   "cost": 1.188959
+   "tokens_net": 989766,
+   "cost": 1.124083
   }
  ],
  "summary": {
@@ -2798,19 +2801,19 @@
   "failed": 2,
   "fabricated": 0,
   "peeked": 0,
-  "seconds": 3869.1,
-  "tokens_total": 9195978,
-  "tokens_net": 7320962,
+  "seconds": 4011.8,
+  "tokens_total": 9040869,
+  "tokens_net": 7165853,
   "tokens_breakdown": {
-   "input": 546,
-   "output": 137224,
+   "input": 540,
+   "output": 132743,
    "reasoning": 0,
-   "cache_read": 8021321,
-   "cache_write": 1036887
+   "cache_read": 7896683,
+   "cache_write": 1010903
   },
   "baseline_tokens": 22871,
   "baseline_context": 22867,
-  "cost_reported": 19.894638,
+  "cost_reported": 19.460423,
   "per_task": {
    "calc": {
     "score": 12.0,
@@ -2866,7 +2869,7 @@
     "passed": 10,
     "fixed": 0,
     "total": 10,
-    "seconds": 1128.1
+    "seconds": 1270.8
    }
   },
   "per_category": {
@@ -2878,5 +2881,5 @@
    "agentic": 0.94
   }
  },
- "finished_utc": "2026-08-26T21:18:24Z"
+ "finished_utc": "2026-08-28T01:23:16Z"
 }
