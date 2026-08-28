@@ -155,6 +155,22 @@
     </div>
   </section>
 
+  <section id="chat-section" style="display:none">
+    <h2>Chat channel — a separate scale</h2>
+    <p class="hint">Models with no CLI are driven through their web chat, and
+      that channel cannot run the same benchmark. There are no tools, so every
+      task that needs a browser or the network is excluded rather than failed;
+      there is no second attempt, so a level is worth 1 or 0 with no half
+      credit for a fix; and there is no token telemetry, so cost is a dash
+      instead of a number. Put these rows in the table above and they would
+      read as weaker models, when what differs is the channel. They are ranked
+      only against each other, over the non-agentic tasks alone.</p>
+    <div class="chart-box" id="chart-chat"></div>
+    <div class="table-scroll">
+      <table id="tbl-chat"><thead></thead><tbody></tbody></table>
+    </div>
+  </section>
+
   <section>
     <h2>Run it yourself</h2>
     <p class="hint">Every number on this page is reproducible: tasks are generated from the seed, so a given model gets exactly the task set shown here. Add your own model and it lands in the same table.</p>
@@ -193,7 +209,8 @@ const CAT_LABELS = {instruction:'instruction',logic:'logic',spatial:'spatial',ma
 const WEIGHTS_COLOR = {open:'#22c55e', closed:'#f59e0b', unknown:'#8b93a1'};
 const WEIGHTS_TEXT  = {open:'open', closed:'closed', unknown:'?'};
 const PALETTE = ['#3b82f6','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#e879f9','#84cc16'];
-let RUNS = [];                       // нормализованные строки данных
+let RUNS = [];                       // нормализованные строки данных (CLI)
+let CHAT_RUNS = [];                  // то же, но собранное через веб-чат
 let sortKey = 'score', sortDir = -1; // сортировка таблицы по умолчанию: лучший сверху
 let modelColors = {};                // стабильные цвета моделей
 
@@ -727,6 +744,59 @@ function refresh(){
   renderTable();
 }
 
+
+/* ---------- чат-канал: отдельная шкала ---------- */
+// Своя таблица и свой график. Колонок меньше, и это не экономия места: у
+// канала физически нет токенов, цены, второй попытки и агентских задач, и
+// пустые столбцы читались бы как нули, то есть как плохой результат.
+const CHAT_COLS = [
+  {key:'model',        label:'Model',          num:false},
+  {key:'level_max',    label:'Levels',         num:true },
+  {key:'score',        label:'Score %',        num:true },
+  {key:'first_try',    label:'Solved',         num:true },
+  {key:'failed',       label:'Failures',       num:true },
+  {key:'unmeasurable', label:'Not measurable', num:true },
+  {key:'fabricated',   label:'FABRICATED',     num:true },
+  {key:'seconds',      label:'Time',           num:true },
+  {key:'date',         label:'Date',           num:true },
+  {key:'card',         label:'Card',           num:false},
+];
+
+function renderChat(){
+  const sec = document.querySelector('#chat-section');
+  if (!sec) return;
+  if (!CHAT_RUNS.length){ sec.style.display = 'none'; return; }
+  sec.style.display = '';
+
+  const rows = CHAT_RUNS.slice().sort((a,b)=>
+    (b.score_pct==null?-1:b.score_pct) - (a.score_pct==null?-1:a.score_pct)
+    || a.model.localeCompare(b.model,'ru'));
+
+  document.querySelector('#tbl-chat thead').innerHTML = '<tr>' + CHAT_COLS.map(c =>
+    `<th class="${c.num?'num':''}">${c.label}</th>`).join('') + '</tr>';
+  document.querySelector('#tbl-chat tbody').innerHTML =
+    rows.map(r => '<tr>' + CHAT_COLS.map(c=>cellText(r,c.key)).join('') + '</tr>').join('');
+
+  // Столбики, а не точки: без токенов и без цены рассыпать их по осям не по
+  // чему, и единственная честная ось здесь — сам балл.
+  const W = 640, barH = 26, gap = 10, padL = 190, padR = 60;
+  const H = rows.length * (barH + gap) + 20;
+  const max = Math.max(100, ...rows.map(r => r.score_pct || 0));
+  const bars = rows.map((r,i)=>{
+    const y = 10 + i*(barH+gap);
+    const pct = r.score_pct==null ? 0 : r.score_pct;
+    const w = Math.max(1, (W - padL - padR) * pct / max);
+    const col = r.score_pct==null ? '#8b93a1'
+              : pct >= 75 ? '#22c55e' : pct >= 40 ? '#3b82f6' : '#ef4444';
+    const label = r.score_pct==null ? 'incomplete' : pct.toFixed(1) + '%';
+    return `<text x="${padL-10}" y="${y+barH*0.7}" text-anchor="end" fill="#e6e6e6" font-size="12">${r.model}</text>` +
+           `<rect x="${padL}" y="${y}" width="${w}" height="${barH}" rx="4" fill="${col}"/>` +
+           `<text x="${padL+w+8}" y="${y+barH*0.7}" fill="#8b93a1" font-size="12">${label}</text>`;
+  }).join('');
+  document.querySelector('#chart-chat').innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" font-family="system-ui,sans-serif">${bars}</svg>`;
+}
+
 /* ---------- загрузка данных ---------- */
 async function load(){
   try {
@@ -745,8 +815,14 @@ async function load(){
       return;
     }
   }
+  // Чат-канал уезжает в собственный список. Смешивать его с CLI нельзя: там
+  // нет инструментов, нет второй попытки и нет счётчика токенов — то есть
+  // другие условия, а не другое качество. Пока они лежали в одной таблице,
+  // чат-модель читалась как слабая ровно за то, чего у канала нет.
+  CHAT_RUNS = RUNS.filter(r => r.channel === 'chat');
+  RUNS = RUNS.filter(r => r.channel !== 'chat');
   // нормализация полей, чтобы страница не падала на неполных данных
-  RUNS.forEach(r=>{
+  CHAT_RUNS.concat(RUNS).forEach(r=>{
     r.weights = ['open','closed'].includes(r.weights) ? r.weights : 'unknown';
     r.tier = ['small','medium','frontier'].includes(r.tier) ? r.tier : 'unknown';
     r.local = !!r.local;
@@ -759,6 +835,7 @@ async function load(){
   });
   initControls();
   renderAll();
+  renderChat();
 }
 load();
 </script>

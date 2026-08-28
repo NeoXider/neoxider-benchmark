@@ -31,7 +31,7 @@ MAX_LEVEL = 10
 LADDER = (1, 5, 10)
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 3
+VERSION = 4
 CATEGORIES = {'logic': 0.6, 'agentic': 0.4}
 NEEDS = []
 
@@ -171,21 +171,62 @@ _BLOCK = re.compile(r'```(?:python|py)?[ \t]*\r?\n(.*?)```', re.S)
 REPEATS = 3          # повторов замера, чтобы шум машины не решал исход
 
 
+# Эталон в том виде, в каком его увидит песочница. Тот же обход в ширину, что
+# и _reference, но исходником: измерять эталон надо ТЕМ ЖЕ способом, каким
+# измеряется решение.
+_REFERENCE_SOURCE = '''
+from collections import deque
+
+DIRS6 = [(1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1)]
+
+
+def solve(grid, start, goal):
+    size = len(grid)
+    sx, sy, sz = start
+    gx, gy, gz = goal
+    seen = [[[False]*size for _ in range(size)] for _ in range(size)]
+    seen[sx][sy][sz] = True
+    dq = deque([(sx, sy, sz, 0)])
+    while dq:
+        x, y, z, d = dq.popleft()
+        if x == gx and y == gy and z == gz:
+            return d
+        for dx, dy, dz in DIRS6:
+            nx, ny, nz = x + dx, y + dy, z + dz
+            if 0 <= nx < size and 0 <= ny < size and 0 <= nz < size \\
+                    and not seen[nx][ny][nz] and grid[nx][ny][nz] != -1:
+                seen[nx][ny][nz] = True
+                dq.append((nx, ny, nz, d + 1))
+    return -1
+'''
+
+
 def _measure_reference(cases, repeats=REPEATS):
-    """Замеряет эталон рядом с решением, а не в момент генерации задания.
+    """Замеряет эталон ЧЕРЕЗ ТУ ЖЕ ПЕСОЧНИЦУ, что и решение модели.
+
+    Раньше эталон считался прямо в процессе бенчмарка, а решение — запуском
+    отдельного процесса с разбором JSON и импортом файла. Разница в накладных
+    расходах записывалась модели в замедление: точно тот же обход в ширину
+    показывал x1.9 «медленнее эталона», хотя это был он сам. Сравнивать надо
+    одинаково измеренное.
 
     Берётся ЛУЧШИЙ из нескольких проходов, а не средний: минимум ближе к
     настоящей стоимости алгоритма, потому что случайная нагрузка на машину
     может замедлить проход, но не может его ускорить.
     """
+    from bench import sandbox
     best_run = None
     for _ in range(max(1, repeats)):
-        t0 = time.perf_counter()
-        for c in cases:
-            got = _reference(c['grid'], c['start'], c['goal'])
-            if got != c['best']:
+        run = sandbox.run_solution(_REFERENCE_SOURCE, cases,
+                                   timeout=HARD_TIMEOUT)
+        if not run['ok']:
+            raise RuntimeError('pathperf reference failed to run: %s'
+                               % run.get('error'))
+        dt = 0.0
+        for got, c in zip(run['results'], cases):
+            if got['error'] or got['value'] != c['best']:
                 raise RuntimeError('pathperf reference changed after generation')
-        dt = time.perf_counter() - t0
+            dt += got['seconds']
         best_run = dt if best_run is None else min(best_run, dt)
     return best_run
 
@@ -235,27 +276,60 @@ def score(output, expected):
     budget = max(MIN_BUDGET, ref_seconds * SLACK)
 
     total = 0.0
+    wrong = []
     for i, (got, c) in enumerate(zip(run['results'], expected['cases']), 1):
         if got['error']:
             return False, 'map %d: %s' % (i, got['error']), {
                 'hint': 'The function crashes with an error on the test data.'}
+        # Неверная карта больше не обрывает проверку. Задание требует НАДЁЖНО
+        # находить кратчайший путь, а «один раз промахнулся» и «промахивается
+        # через раз» — разные вещи, и различить их можно, только досчитав все
+        # карты. Раньше первая же ошибка возвращала общий провал, и точность
+        # была двоичной там, где она измерима долей.
         if got['value'] != c['best']:
-            return False, 'map %d: wrong answer' % i, {
-                'hint': 'The answer is wrong on at least one map.'}
+            wrong.append(i)
         total += got['seconds']
 
+    n = len(expected['cases'])
+    accuracy = (n - len(wrong)) / float(n) if n else 0.0
     ratio = total / max(ref_seconds, 1e-6)
+    # Правильность — ВОРОТА, а не слагаемое. Решение, которое не находит
+    # кратчайший путь на каждой карте, задачу не выполнило, и быстрота тут
+    # ничего не искупает: скорость сравнивается только между теми, кто дошёл
+    # до правильного ответа. Иначе выгодно считать быстро и приблизительно.
+    # Скорость переводится в множитель непрерывно, по ОТНОШЕНИЮ к эталону:
+    # 1/(1 + ratio/2). Ноль времени дал бы 1.0 и недостижим — как и просил
+    # владелец. На уровне эталона выходит 0.67, вдвое медленнее — 0.5, в восемь
+    # раз — 0.2. Быстрее эталона тоже вознаграждается: двунаправленный поиск с
+    # ratio 0.5 получает 0.8. Порогов нет намеренно: с ними решение в 1.1
+    # эталона и в 7.9 получали поровну, и вся разница в качестве пропадала.
+    speed = 1.0 / (1.0 + max(ratio, 0.0) / 2.0)
+    # Качество = только скорость: сюда доходят лишь полностью правильные
+    # решения, у остальных задача не выполнена и ворота закрыты ниже.
+    quality = speed
+
     extra = {'seconds': round(total, 3), 'budget': budget,
              'ref_seconds': round(ref_seconds, 3), 'ratio': round(ratio, 2),
-             'efficiency': _efficiency_grade(ratio)}
+             'efficiency': _efficiency_grade(ratio),
+             'accuracy': round(accuracy, 3), 'speed_factor': round(speed, 3),
+             'quality': round(quality, 4), 'wrong_maps': wrong}
 
+    if wrong:
+        # Ворота. Скорость в ответе называем, но она ни на что не влияет:
+        # задача не выполнена.
+        extra['hint'] = ('The path found is not the shortest one on some maps. '
+                         'It must be the shortest on every map, every time.')
+        extra['quality'] = 0.0
+        return False, ('not the shortest path on %d of %d maps (maps %s)'
+                       % (len(wrong), n,
+                          ', '.join(str(i) for i in wrong[:4]))), extra
     if total > budget:
         extra['slow'] = True
         extra['hint'] = ('The answers are correct, but the solution is too slow for '
                          'maps of this size. A more efficient approach is required.')
         return False, ('correct but slow: %.2f s against a budget of %.2f s (x%.1f of reference)'
                        % (total, budget, ratio)), extra
-
-    extra['hint'] = 'Check passed.'
-    return True, ('correct in %.2f s, x%.1f of reference — %s'
-                  % (total, ratio, extra['efficiency'])), extra
+    extra.setdefault('hint', 'Check passed.')
+    return True, ('shortest on every map in %.2f s, x%.1f of reference — %s '
+                  '(quality %.2f)'
+                  % (total, ratio, extra['efficiency'], quality)), extra

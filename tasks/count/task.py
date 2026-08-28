@@ -20,7 +20,7 @@ MAX_LEVEL = 10
 LADDER = (1, 9)
 # Версию поднимает тот, кто меняет generate или score: иначе допрогон
 # подмешает к новым уровням старые, посчитанные по другим правилам.
-VERSION = 3
+VERSION = 4
 CATEGORIES = {'instruction': 1.0}
 NEEDS = []
 
@@ -137,7 +137,16 @@ def score(output, expected):
     if not m:
         loose = _BLOCK.search(text)
         if loose:
-            return False, 'extra text outside the ```count block'
+            # Блок есть, но вокруг него что-то написано. Балла за это нет —
+            # инструкция «до и после блока ничего не пиши» нарушена, — однако
+            # штрафовать как за неверный ответ можно только если и содержимое
+            # неверное. Иначе модель, выдавшая все строки правильно и
+            # приписавшая «вот результат», встаёт НИЖЕ той, что ошиблась в
+            # самих числах.
+            inner = loose.group(1).strip('\n').split('\n')
+            return False, 'extra text outside the ```count block', {
+                'format_only': inner == expected,
+                'hint': 'Nothing may be written before or after the block.'}
         return False, '```count block not found'
     got = m.group(1).strip('\n').split('\n')
     if got == expected:

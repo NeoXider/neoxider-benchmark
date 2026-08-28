@@ -421,16 +421,17 @@ class TestLadder:
         for name in registry.all_names():
             assert registry.get(name).MAX_LEVEL >= 1, name
 
-    def test_no_tools_floor_moved_to_steps(self):
+    def test_no_tools_floor_published_in_steps(self):
         """toolchoice объявляет порог во внутренних сложностях.
 
-        Если бы порог остался внутренним числом, чат-канал вычёркивал бы не те
-        ступени: сравнение идёт с номером ступени, а их теперь три.
+        Чат-каналу нужен он же, но в номерах ступеней — под ОТДЕЛЬНЫМ именем.
+        Переписать исходное поле нельзя: его читает сама задача (см.
+        TestLadderDoesNotRewriteTaskState).
         """
         from bench import registry
         task = registry.get('toolchoice')
-        assert task.NO_TOOLS_FROM <= task.MAX_LEVEL
-        assert task.DIFFICULTY[task.NO_TOOLS_FROM - 1] >= 6
+        assert task.NO_TOOLS_FROM_STEP <= task.MAX_LEVEL
+        assert task.DIFFICULTY[task.NO_TOOLS_FROM_STEP - 1] >= task.NO_TOOLS_FROM
 
 
 class TestWebformIsScoredByTheForm:
@@ -494,3 +495,178 @@ class TestWebformIsScoredByTheForm:
                                 {'fields': exp['fields']}]}
         ok, detail = task.score('DONE', exp, meta)[:2]
         assert ok, detail
+
+
+class TestLadderDoesNotRewriteTaskState:
+    """Сжатие лестницы обязано быть чисто внешним.
+
+    NO_TOOLS_FROM у toolchoice — порог во ВНУТРЕННИХ сложностях, и задача сама
+    читает его в generate. Одна попытка пересчитать это поле в номера ступеней
+    сделала ступень с внутренней сложностью 5 уровнем без инструментов: моделям
+    предложили посчитать число простых до 1.8 млн в уме. Все сильные модели
+    честно отвечали CANNOT и получали 0, а место в таблице решало то, кто
+    рискнул назвать число. Порядок в лидерборде перевернулся из-за одной
+    переписанной константы.
+    """
+
+    def test_internal_threshold_survives_the_ladder(self):
+        from bench import registry
+        task = registry.get('toolchoice')
+        assert task.NO_TOOLS_FROM == 6, (
+            'порог задачи переписан: generate начнёт запрещать инструменты не '
+            'на тех ступенях')
+
+    def test_step_threshold_is_published_separately(self):
+        from bench import registry
+        task = registry.get('toolchoice')
+        assert task.NO_TOOLS_FROM_STEP == 3
+        assert task.DIFFICULTY[task.NO_TOOLS_FROM_STEP - 1] >= task.NO_TOOLS_FROM
+
+    def test_only_the_top_step_forbids_tools(self):
+        """Задача мерит ВЫБОР инструмента, значит нижние ступени их разрешают.
+
+        Если запрет уезжает вниз, задача перестаёт мерить выбор и начинает
+        мерить устный счёт — причём заведомо непосильный.
+        """
+        import random
+        from bench import registry
+        task = registry.get('toolchoice')
+        modes = []
+        for step in range(1, task.MAX_LEVEL + 1):
+            _, expected = task.generate(step, random.Random('t|%d' % step))
+            modes.append(bool(expected.get('no_tools')))
+        assert modes == [False, False, True], modes
+
+
+class TestFormatViolationIsNotALie:
+    """Верное содержимое в неверной обёртке — не то же, что неверный ответ.
+
+    Отрицательная ступень существует, чтобы уверенная чушь стояла НИЖЕ
+    молчания. Sonnet выдал все 220 строк с перевёрнутыми цифрами правильно и
+    приписал перед блоком «Here's the final output:» — и получил -0.5,
+    оказавшись ниже модели, которая ошиблась в самих числах. Это переворачивает
+    смысл шкалы, поэтому задача обязана отличать одно от другого.
+    """
+
+    def _task_and_expected(self):
+        import random
+        from bench import registry
+        task = registry.get('count')
+        _, expected = task.generate(1, random.Random('fmt-test'))
+        return task, expected
+
+    def test_clean_answer_passes(self):
+        task, exp = self._task_and_expected()
+        ok, _ = task.score('```count\n' + '\n'.join(exp) + '\n```', exp)[:2]
+        assert ok
+
+    def test_right_content_wrong_wrapper_is_format_only(self):
+        task, exp = self._task_and_expected()
+        res = task.score("Here's the final output:\n\n```count\n"
+                         + '\n'.join(exp) + '\n```', exp)
+        assert res[0] is False
+        assert res[2]['format_only'] is True
+
+    def test_wrong_content_wrong_wrapper_is_not_format_only(self):
+        task, exp = self._task_and_expected()
+        res = task.score("Here you go:\n```count\n"
+                         + '\n'.join(['9'] * len(exp)) + '\n```', exp)
+        assert res[0] is False
+        assert res[2]['format_only'] is False
+
+
+class TestCeilingCountsForMoreThanCoverage:
+    """Потерянный потолок — не то же, что потерянная середина.
+
+    Порог полноты считает уровни взаимозаменяемыми. Spark не осилил ровно два
+    самых тяжёлых уровня набора, они вышли из знаменателя, и 19 из 20 стали
+    «95%» — выше тех, кто эти уровни брал. 20/22 = 90.9% порог проходили.
+    """
+
+    def _dir(self, tmp_path, run):
+        import json as _json
+        (tmp_path / 'run.json').write_text(_json.dumps(run), encoding='utf-8')
+        return str(tmp_path)
+
+    def _run(self, top_unmeasurable):
+        levels = []
+        for lvl in (1, 2, 3):
+            rec = {'task': 'calc', 'level': lvl, 'score': 1.0, 'passed': True}
+            if top_unmeasurable and lvl == 3:
+                rec = {'task': 'calc', 'level': 3, 'score': 0.0,
+                       'unmeasurable': 'the engine returned no answer'}
+            levels.append(rec)
+        return {'model': 'test/model', 'seed': 1, 'levels': levels,
+                'summary': {'score': 2.0, 'max_score': 2.0}}
+
+    def test_full_ceiling_keeps_its_percentage(self, tmp_path):
+        from bench import report
+        rows = report.collect(self._dir(tmp_path, self._run(False)))
+        assert rows[0]['ceiling_missing'] == []
+        assert rows[0]['score_pct'] is not None
+
+    def test_missing_ceiling_loses_the_percentage(self, tmp_path):
+        from bench import report
+        rows = report.collect(self._dir(tmp_path, self._run(True)))
+        assert rows[0]['ceiling_missing'] == ['calc']
+        assert rows[0]['incomplete'] is True
+        assert rows[0]['score_pct'] is None, (
+            'балл посчитан по огрызку дистанции без самого трудного уровня')
+
+
+class TestPathperfScoresSpeedContinuously:
+    """Скорость влияет на балл, но ТОЛЬКО среди правильных решений.
+
+    Раньше решение в 1.1 эталона и в 7.9 получали ровно поровну: оценка
+    эффективности считалась и выбрасывалась. Владелец попросил непрерывную
+    шкалу, где ноль секунд — недостижимая единица, и отдельно уточнил
+    приоритет: если задача не выполнена, быстрота не имеет значения.
+    """
+
+    def _speed(self, ratio):
+        return 1.0 / (1.0 + max(ratio, 0.0) / 2.0)
+
+    def test_zero_time_is_the_unreachable_one(self):
+        assert self._speed(0.0) == pytest.approx(1.0)
+
+    def test_faster_always_scores_higher(self):
+        got = [self._speed(r) for r in (0.25, 0.5, 1.0, 2.0, 4.0, 8.0)]
+        assert got == sorted(got, reverse=True), got
+
+    def test_matching_the_reference_is_a_solid_score(self):
+        """Тот же алгоритм, что и эталон, не должен получать половину балла."""
+        assert 0.6 <= self._speed(1.0) <= 0.7
+
+    def test_not_shortest_fails_no_matter_how_fast(self, tmp_path):
+        """Ворота: не нашёл кратчайший — задача не выполнена, скорость не важна.
+
+        Проверяем на самой задаче, а не на формуле: важно, что score вернёт
+        ok=False и обнулит quality, а не просто уменьшит его.
+        """
+        import random
+        from bench import registry
+        task = registry.get('pathperf')
+        _, expected = task.generate(1, random.Random('gate-test'))
+        code = """```python
+from collections import deque
+_calls = [0]
+def solve(grid, start, goal):
+    _calls[0] += 1
+    n = len(grid); sx, sy, sz = start; gx, gy, gz = goal
+    seen = [[[False]*n for _ in range(n)] for _ in range(n)]
+    seen[sx][sy][sz] = True
+    q = deque([(sx, sy, sz, 0)])
+    while q:
+        x, y, z, d = q.popleft()
+        if x == gx and y == gy and z == gz:
+            return d + (2 if _calls[0] == 1 else 0)
+        for dx, dy, dz in ((1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1)):
+            a, b, c = x+dx, y+dy, z+dz
+            if 0 <= a < n and 0 <= b < n and 0 <= c < n and not seen[a][b][c] and grid[a][b][c] != -1:
+                seen[a][b][c] = True; q.append((a, b, c, d+1))
+    return -1
+```"""
+        ok, detail, extra = task.score(code, expected)
+        assert ok is False, detail
+        assert extra['quality'] == 0.0
+        assert 'shortest' in detail

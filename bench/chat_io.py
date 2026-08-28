@@ -40,7 +40,11 @@ def unmeasurable_in_chat(task, level):
     """
     if getattr(task, 'NEEDS', None):
         return 'no tools in the chat channel'
-    floor = getattr(task, 'NO_TOOLS_FROM', None)
+    # Сравнивать номер ступени полагается со ступенчатым порогом. Само
+    # NO_TOOLS_FROM задано во внутренних сложностях задачи и здесь не подходит:
+    # у сжатой лестницы номера ступеней и сложности — разные шкалы.
+    floor = getattr(task, 'NO_TOOLS_FROM_STEP',
+                    getattr(task, 'NO_TOOLS_FROM', None))
     if floor is not None and level < floor:
         return 'this level scores whether the model reaches for a tool'
     return None

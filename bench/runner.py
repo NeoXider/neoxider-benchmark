@@ -423,6 +423,9 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline, heartbeat=None
         # «NOT FOUND» здесь — законный ответ, а не бессвязный текст.
         rec['refused'] = bool(extra.get('honest_cannot') or extra.get('refused')
                               or looks_like_refusal(res.text))
+        # Задача может сказать, что содержимое верное, а нарушена только форма.
+        # Отличать это от неверного ответа умеет только она сама.
+        rec['format_only'] = bool(extra.get('format_only'))
 
         peek = detect_peeking(getattr(res, 'calls', None))
         if peek:
@@ -445,6 +448,14 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline, heartbeat=None
         if ok:
             rec['passed'] = True
             rec['score'] = SCORE_FIRST if attempt == 1 else SCORE_FIXED
+            # Задача может оценивать не «сдал/не сдал», а качество сдачи —
+            # например скорость решения. Тогда она возвращает долю от 0 до 1, и
+            # эта доля умножает балл ступени. Штраф за вторую попытку остаётся:
+            # быстрое решение со второго раза всё ещё дешевле, чем с первого.
+            quality = extra.get('quality')
+            if quality is not None:
+                rec['quality'] = round(float(quality), 4)
+                rec['score'] = round(rec['score'] * max(0.0, min(1.0, float(quality))), 4)
             rec['fixed'] = (attempt == 2)
             break
 
@@ -467,6 +478,15 @@ def run_level(model_id, task, level, rng, timeout, cwd, baseline, heartbeat=None
             rec['score'] = PENALTY_FABRICATION
         elif rec['refused']:
             # Честное «не могу» — ноль: балла нет, но и штрафа нет.
+            rec['score'] = SCORE_FAIL
+        elif rec.get('format_only'):
+            # Содержимое верное, нарушена только форма подачи. Балла нет —
+            # инструкцию не выполнили, — но и штрафа быть не должно.
+            # Отрицательная ступень существует, чтобы уверенная чушь стояла
+            # НИЖЕ молчания. Sonnet выдал все 220 строк с перевёрнутыми
+            # цифрами верно и приписал перед блоком «Here's the final output:»
+            # — за это он получал -0.5 и оказывался ниже модели, которая
+            # ошиблась в самом ответе. Это переворачивает смысл шкалы.
             rec['score'] = SCORE_FAIL
         elif rec['attempts'] and any(a.get('output_head', '').strip()
                                      for a in rec['attempts']):

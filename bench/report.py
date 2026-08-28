@@ -81,6 +81,20 @@ def collect(results_dir=None):
             coverage = round(measured / float(len(levels)), 3)
         incomplete = (s.get('incomplete') if s.get('incomplete') is not None
                       else (coverage is not None and coverage < MIN_COVERAGE))
+        # Потерянный ПОТОЛОК — это не то же самое, что потерянная середина.
+        # Порог полноты считает уровни взаимозаменяемыми, а они не такие:
+        # spark не осилил ровно два самых тяжёлых уровня набора (счёт простых
+        # без инструментов и форму целиком), они вышли из знаменателя, и 19 из
+        # 20 превратились в «95%» — выше моделей, которые эти уровни честно
+        # брали. 20/22 = 90.9% прошли порог, потому что порог смотрит на долю,
+        # а не на то, ЧТО именно пропало.
+        ceiling_missing = sorted({
+            r['task'] for r in levels
+            if 'unmeasurable' in r
+            and r['level'] == max(x['level'] for x in levels
+                                  if x['task'] == r['task'])})
+        if ceiling_missing:
+            incomplete = True
         meta = pricing.get(model, {})
         cost = s.get('cost_reported')
         cost_src = 'reported'
@@ -124,6 +138,9 @@ def collect(results_dir=None):
             'level_max': s.get('level_max') or (max([r['level'] for r in levels]) if levels else None),
             'coverage': coverage,
             'incomplete': bool(incomplete),
+            # Какие задачи остались без своей верхней ступени. Пусто — потолок
+            # взят целиком.
+            'ceiling_missing': ceiling_missing,
             # порог стабильности: минимальный набор, считается отдельно
             'stability_score': s.get('stability_score'),
             'stability_max': s.get('stability_max'),
@@ -148,6 +165,11 @@ def collect(results_dir=None):
             'per_task': s.get('per_task') or {},
             'per_category': s.get('per_category') or {},
             'levels_done': s.get('levels_done'),
+            # Канал прогона. У чата нет ни инструментов, ни второй попытки, ни
+            # телеметрии токенов, поэтому его результат нельзя ставить в одну
+            # таблицу с CLI — это разные условия, а не разное качество. Сайт
+            # разводит их по отдельным спискам именно по этому полю.
+            'channel': run.get('channel') or 'cli',
             'card': 'cards/%s.svg' % model.replace('/', '_').replace(':', '_'),
         })
     # При равном балле порядок решает не алфавит. Sol и Terra набрали ровно
