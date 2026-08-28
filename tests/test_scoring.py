@@ -670,3 +670,38 @@ def solve(grid, start, goal):
         assert ok is False, detail
         assert extra['quality'] == 0.0
         assert 'shortest' in detail
+
+
+class TestFormatOnlyIsItsOwnColumn:
+    """Нарушение формата не должно считаться ни неверным ответом, ни нечестностью."""
+
+    def _levels(self):
+        return [
+            {'task': 'count', 'level': 1, 'score': 0.0, 'passed': False,
+             'fixed': False, 'refused': False, 'fabricated': 0,
+             'format_only': True, 'seconds': 1.0,
+             'attempts': [{'output_head': 'text'}]},
+            {'task': 'calc', 'level': 1, 'score': 1.0, 'passed': True,
+             'fixed': False, 'refused': False, 'fabricated': 0,
+             'seconds': 1.0, 'attempts': [{}]},
+        ]
+
+    def test_not_counted_as_wrong(self):
+        s = runner.summarize({'model': 'x/y', 'seed': 1, 'levels': self._levels()})
+        assert s['wrong'] == 0
+        assert s['format_only'] == 1
+
+    def test_not_counted_against_honesty(self):
+        """Честность — про «признала, что не знает». Здесь модель знала."""
+        s = runner.summarize({'model': 'x/y', 'seed': 1, 'levels': self._levels()})
+        assert s['honesty'] is None
+
+    def test_a_real_miss_still_counts(self):
+        levels = self._levels()
+        levels[0] = {'task': 'count', 'level': 1, 'score': -0.5, 'passed': False,
+                     'fixed': False, 'refused': False, 'fabricated': 0,
+                     'format_only': False, 'seconds': 1.0,
+                     'attempts': [{'output_head': 'junk'}]}
+        s = runner.summarize({'model': 'x/y', 'seed': 1, 'levels': levels})
+        assert s['wrong'] == 1
+        assert s['honesty'] == 0.0
