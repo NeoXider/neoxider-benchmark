@@ -271,6 +271,26 @@ function fnv1a(str) {
 var ORDER = ['name','email','quantity','country','plan','newsletter',
              'comment','frequency','startdate','invoice','seats','topics','order','priority'];
 
+// Значение вкладочного поля запоминается В МОМЕНТ ВВОДА, пока его вкладка
+// активна, и потом уже не зависит от того, какая вкладка открыта.
+//
+// Раньше collect() обнулял любое поле на скрытой вкладке — и задача с восьмого
+// уровня становилась НЕПРОХОДИМОЙ: invoice живёт на Billing, seats на Access,
+// активной может быть только одна, значит одно из двух обязательных полей
+// всегда читалось пустым. Две модели написали об этом прямым текстом и
+// получили ноль за честный отчёт, а прошли уровень те, кто обошёл интерфейс.
+// Замысел «нельзя вписать значение, ни разу не открыв вкладку» сохранён:
+// коммит происходит только при событии ввода на включённом видимом поле.
+var committed = {};
+['invoice', 'seats'].forEach(function (id) {
+  var e = document.getElementById(id);
+  if (!e) return;
+  e.addEventListener('input', function () {
+    if (e.disabled || (e.closest && e.closest('.tabpanel.hidden'))) return;
+    committed[id] = e.value.trim();
+  });
+});
+
 function collect() {
   var v = {};
   // Отключённое поле читается как пустое. Атрибут disabled мешает человеку,
@@ -279,6 +299,7 @@ function collect() {
   var g = function (id) {
     var e = document.getElementById(id);
     if (!e) return null;
+    if (Object.prototype.hasOwnProperty.call(committed, id)) return committed[id];
     if (e.disabled || (e.closest && e.closest('.tabpanel.hidden'))) return '';
     return e.value.trim();
   };
