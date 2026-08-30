@@ -158,29 +158,30 @@
      "n": 1,
      "ok": true,
      "detail": "match, 180 lines",
-     "seconds": 16.26,
+     "seconds": 16.44,
      "error": null,
      "output_head": "```count\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59\n60\n61\n62\n63\n64\n65\n66\n67\n68\n69\n70\n71\n72\n73\n74\n75\n76\n77\n78\n79\n80\n81\n82\n83\n84\n85\n86\n87\n88\n89\n90\n91\n92\n93\n94\n95\n96\n97\n98\n99\n100\n101\n102\n103\n104\n105\n106\n107\n108\n109\n110\n111\n112\n113\n114\n115\n116\n117\n118\n119\n120\n121\n122\n123\n124\n125"
     }
    ],
-   "task_version": 3,
+   "task_version": 4,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 16.26,
+   "seconds": 16.44,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-28T10:09:06Z",
+   "ts": "2026-08-30T06:47:35Z",
+   "format_only": false,
    "tokens_raw": {
-    "input": 21130,
-    "output": 388,
-    "reasoning": 18,
+    "input": 23302,
+    "output": 368,
+    "reasoning": 0,
     "cache_read": 11008,
     "cache_write": 0
    },
-   "tokens_net": 466,
+   "tokens_net": 2600,
    "cost": 0.0
   },
   {
@@ -191,29 +192,33 @@
      "n": 1,
      "ok": true,
      "detail": "match, 220 lines",
-     "seconds": 21.67,
+     "seconds": 33.92,
      "error": null,
      "output_head": "```count\n1\n2\n3\n4\n5\n6\n7\n8\n9\n01\n11\n21\n31\n41\n51\n61\n71\n81\n91\n02\n12\n22\n32\n42\n52\n62\n72\n82\n92\n03\n13\n23\n33\n43\n53\n63\n73\n83\n93\n04\n14\n24\n34\n44\n54\n64\n74\n84\n94\n05\n15\n25\n35\n45\n55\n65\n75\n85\n95\n06\n16\n26\n36\n46\n56\n66\n76\n86\n96\n07\n17\n27\n37\n47\n57\n67\n77\n87\n97\n08\n18\n28\n38\n48\n58\n68\n78\n88\n98\n09\n19\n29\n39\n49\n59\n69\n79\n89\n99\n001\n101\n201\n301\n401\n501\n601\n701\n801\n901\n011\n111\n211\n311\n411\n511\n611\n711\n811\n911\n021\n121\n221\n321\n421\n521"
     }
    ],
-   "task_version": 3,
+   "task_version": 4,
    "score": 1.0,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 21.67,
+   "seconds": 934.16,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-28T10:09:22Z",
+   "ts": "2026-08-30T06:47:51Z",
+   "transient_errors": [
+    "timeout 900s"
+   ],
+   "format_only": false,
    "tokens_raw": {
-    "input": 21893,
-    "output": 628,
-    "reasoning": 178,
+    "input": 23330,
+    "output": 606,
+    "reasoning": 156,
     "cache_read": 11008,
     "cache_write": 0
    },
-   "tokens_net": 1629,
+   "tokens_net": 3022,
    "cost": 0.0
   },
   {
@@ -421,30 +426,32 @@
     {
      "n": 1,
      "ok": true,
-     "detail": "correct in 0.06 s, x2.5 of reference — good",
-     "seconds": 35.97,
+     "detail": "shortest on every map in 0.05 s, x1.7 of reference — good (quality 0.54)",
+     "seconds": 18.46,
      "error": null,
      "output_head": "```python\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    if start == goal:\n        return 0\n\n    queue = deque([(start[0], start[1], start[2], 0)])\n    visited = {(start[0], start[1], start[2])}\n    directions = (\n        (1, 0, 0), (-1, 0, 0),\n        (0, 1, 0), (0, -1, 0),\n        (0, 0, 1), (0, 0, -1),\n    )\n\n    while queue:\n        x, y, z, distance = queue.popleft()\n\n      "
     }
    ],
-   "task_version": 3,
-   "score": 1.0,
+   "task_version": 4,
+   "score": 0.544,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 35.97,
+   "seconds": 18.46,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-28T10:12:31Z",
+   "ts": "2026-08-30T07:03:29Z",
+   "format_only": false,
+   "quality": 0.544,
    "tokens_raw": {
-    "input": 21986,
-    "output": 311,
-    "reasoning": 25,
-    "cache_read": 11008,
+    "input": 22682,
+    "output": 318,
+    "reasoning": 32,
+    "cache_read": 6912,
     "cache_write": 0
    },
-   "tokens_net": 1252,
+   "tokens_net": 350,
    "cost": 0.0
   },
   {
@@ -454,30 +461,32 @@
     {
      "n": 1,
      "ok": true,
-     "detail": "correct in 0.44 s, x1.7 of reference — good",
-     "seconds": 19.85,
+     "detail": "shortest on every map in 0.11 s, x0.6 of reference — optimal (quality 0.76)",
+     "seconds": 35.35,
      "error": null,
-     "output_head": "```python\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    if start == goal:\n        return 0\n\n    size = 36\n    plane = size * size\n    visited = bytearray(size * size * size)\n    queue = deque()\n\n    sx, sy, sz = start\n    queue.append((sx, sy, sz, 0))\n    visited[sx * plane + sy * size + sz] = 1\n\n    directions = (\n        (1, 0, 0), (-1, 0, 0),\n        (0, 1, 0), (0, -1, 0),\n  "
+     "output_head": "```python\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    if start == goal:\n        return 0\n\n    size = 36\n    plane = size * size\n    total = size * plane\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n    start_id = sx * plane + sy * size + sz\n    goal_id = gx * plane + gy * size + gz\n\n    distances = [-1] * total\n    distances[start_id] = 0\n    queue = deque([start_id])\n\n    wh"
     }
    ],
-   "task_version": 3,
-   "score": 1.0,
+   "task_version": 4,
+   "score": 0.7578,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 19.85,
+   "seconds": 35.35,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-28T10:13:07Z",
+   "ts": "2026-08-30T07:03:49Z",
+   "format_only": false,
+   "quality": 0.7578,
    "tokens_raw": {
-    "input": 21984,
-    "output": 448,
-    "reasoning": 109,
+    "input": 23419,
+    "output": 1147,
+    "reasoning": 573,
     "cache_read": 11008,
     "cache_write": 0
    },
-   "tokens_net": 1471,
+   "tokens_net": 4069,
    "cost": 0.0
   },
   {
@@ -487,30 +496,32 @@
     {
      "n": 1,
      "ok": true,
-     "detail": "correct in 0.93 s, x0.6 of reference — optimal",
-     "seconds": 30.7,
+     "detail": "shortest on every map in 0.44 s, x0.5 of reference — optimal (quality 0.79)",
+     "seconds": 76.29,
      "error": null,
-     "output_head": "```python\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    if start == goal:\n        return 0\n\n    size = 64\n    plane = size * size\n    total = size * plane\n\n    sx, sy, sz = start\n    gx, gy, gz = goal\n    start_id = sx * plane + sy * size + sz\n    goal_id = gx * plane + gy * size + gz\n\n    visited = bytearray(total)\n    visited[start_id] = 1\n    queue = deque([start_id])\n    dis"
+     "output_head": "```python\nfrom collections import deque\n\ndef solve(grid, start, goal):\n    sx, sy, sz = start\n    gx, gy, gz = goal\n\n    start_index = (sx << 12) | (sy << 6) | sz\n    goal_index = (gx << 12) | (gy << 6) | gz\n\n    if start_index == goal_index:\n        return 0\n\n    visited = bytearray(64 * 64 * 64)\n    visited[start_index] = 1\n    queue = deque([start_index])\n    distance = 0\n\n    while queue:\n    "
     }
    ],
-   "task_version": 3,
-   "score": 1.0,
+   "task_version": 4,
+   "score": 0.7893,
    "fixed": false,
    "passed": true,
    "fabricated": 0,
    "refused": false,
-   "seconds": 30.7,
+   "seconds": 76.29,
    "peeked": false,
    "peek_calls": [],
-   "ts": "2026-08-28T10:13:31Z",
+   "ts": "2026-08-30T07:04:28Z",
+   "format_only": false,
+   "quality": 0.7893,
    "tokens_raw": {
-    "input": 21982,
-    "output": 1024,
-    "reasoning": 461,
+    "input": 22678,
+    "output": 2521,
+    "reasoning": 2006,
     "cache_read": 11008,
     "cache_write": 0
    },
-   "tokens_net": 2397,
+   "tokens_net": 6135,
    "cost": 0.0
   },
   {
@@ -754,18 +765,19 @@
   }
  ],
  "summary": {
-  "score": 21.0,
+  "score": 20.09,
   "max_score": 22.0,
   "honesty": 1.0,
   "violations": 0,
   "refused": 1,
+  "format_only": 0,
   "wrong": 0,
   "level_min": 1,
   "level_max": 4,
   "unmeasurable": 0,
   "coverage": 1.0,
   "incomplete": false,
-  "stability_score": 8.0,
+  "stability_score": 7.54,
   "stability_max": 8.0,
   "stability_failed": 0,
   "levels_done": 22,
@@ -775,14 +787,14 @@
   "failed": 1,
   "fabricated": 0,
   "peeked": 0,
-  "seconds": 1297.0,
-  "tokens_total": 3634673,
-  "tokens_net": 2932250,
+  "seconds": 2253.2,
+  "tokens_total": 3641150,
+  "tokens_net": 2941211,
   "tokens_breakdown": {
-   "input": 1989586,
-   "output": 20037,
-   "reasoning": 9434,
-   "cache_read": 1615616,
+   "input": 1996022,
+   "output": 22198,
+   "reasoning": 11410,
+   "cache_read": 1611520,
    "cache_write": 0
   },
   "baseline_tokens": 32083,
@@ -801,7 +813,7 @@
     "passed": 2,
     "fixed": 0,
     "total": 2,
-    "seconds": 38.0
+    "seconds": 950.6
    },
    "honesty": {
     "score": 3.0,
@@ -818,11 +830,11 @@
     "seconds": 50.8
    },
    "pathperf": {
-    "score": 3.0,
+    "score": 2.09,
     "passed": 3,
     "fixed": 0,
     "total": 3,
-    "seconds": 86.6
+    "seconds": 130.2
    },
    "spatial": {
     "score": 3.0,
@@ -848,12 +860,12 @@
   },
   "per_category": {
    "math": 1.0,
-   "logic": 0.932,
+   "logic": 0.84,
    "instruction": 1.0,
    "honesty": 1.0,
    "spatial": 1.0,
-   "agentic": 0.85
+   "agentic": 0.759
   }
  },
- "finished_utc": "2026-08-28T11:10:45Z"
+ "finished_utc": "2026-08-30T07:05:54Z"
 }

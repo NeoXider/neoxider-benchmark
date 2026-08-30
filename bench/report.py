@@ -24,6 +24,32 @@ def load_pricing():
         return {}
 
 
+# Локальный прогон стоит не ноль. Он стоит электричество: видеокарта под
+# нагрузкой ест мощность всё время работы, и час счёта на 3090 — это реальные
+# деньги, просто не в виде счёта от провайдера. Пока цены не было, локальные
+# модели уходили в прочерк и читались как бесплатные.
+#
+# Оба числа ниже — ДОПУЩЕНИЯ о конкретной машине, и они вынесены сюда, чтобы их
+# было видно и можно было поправить одной строкой. Замеряется только время;
+# ватты и тариф задаёт владелец железа.
+LOCAL_GPU_WATTS = 350.0       # 3090 под нагрузкой
+LOCAL_KWH_PRICE = 6.0         # ₽ за кВт·ч, бытовой тариф
+RUB_PER_USD = 90.0            # цены в таблице в долларах, приводим к ним
+
+
+def electricity_cost(seconds):
+    """Во сколько обошлось время видеокарты. None — времени нет, считать нечего.
+
+    Считается по ИЗМЕРЕННЫМ секундам прогона, а не по токенам: локальная модель
+    платит за время, а не за объём — медленная модель дороже быстрой при том же
+    ответе, и это ровно то, что здесь надо показать.
+    """
+    if not seconds:
+        return None
+    kwh = LOCAL_GPU_WATTS / 1000.0 * (float(seconds) / 3600.0)
+    return round(kwh * LOCAL_KWH_PRICE / RUB_PER_USD, 6)
+
+
 def estimate_cost(model, tokens_breakdown, pricing):
     """Стоимость из прайса. Нет цены — возвращаем None, а не выдуманное число.
 
@@ -52,6 +78,11 @@ def estimate_cost(model, tokens_breakdown, pricing):
 
 def collect(results_dir=None):
     pricing = load_pricing()
+    # Текущие версии задач — чтобы отличить уровень, посчитанный по нынешним
+    # правилам, от доставшегося от прошлой редакции.
+    from . import registry
+    current_versions = {name: registry.version_of(name)
+                        for name in registry.all_names()}
     rows = []
     for path in sorted(glob.glob(os.path.join(results_dir or RESULTS, '*.json'))):
         if os.path.basename(path) == 'index.json':
@@ -95,6 +126,19 @@ def collect(results_dir=None):
                                   if x['task'] == r['task'])})
         if ceiling_missing:
             incomplete = True
+        # Уровень, посчитанный по СТАРОЙ версии задачи, нельзя складывать с
+        # новыми: это два разных бенчмарка в одной сумме. Сегодня это было
+        # видно живьём — pathperf до правки давал полный балл за любое
+        # решение, уложившееся в бюджет, а после стал делить балл по
+        # измеренной скорости, и hy3 со старыми уровнями стоял выше моделей,
+        # уже пересчитанных по новым правилам. Пока прогон не пересчитан,
+        # процента у него нет.
+        stale = sorted({r['task'] for r in levels
+                        if r.get('task_version') is not None
+                        and r['task'] in current_versions
+                        and r['task_version'] != current_versions[r['task']]})
+        if stale:
+            incomplete = True
         meta = pricing.get(model, {})
         cost = s.get('cost_reported')
         cost_src = 'reported'
@@ -102,6 +146,12 @@ def collect(results_dir=None):
             # cost_reported == 0 у бесплатных тарифов — это не «дёшево», а «нет цены»
             cost = estimate_cost(model, s.get('tokens_breakdown'), pricing)
             cost_src = 'estimated' if cost is not None else None
+        if cost is None and meta.get('local'):
+            # Локальная модель платит не провайдеру, а за электричество, и
+            # считается по времени, а не по токенам. Без этого локальные
+            # прогоны уходили в прочерк и читались как бесплатные.
+            cost = electricity_cost(s.get('seconds'))
+            cost_src = 'electricity' if cost is not None else None
         rows.append({
             'model': model,
             'engine': run.get('engine'),
@@ -141,6 +191,8 @@ def collect(results_dir=None):
             # Какие задачи остались без своей верхней ступени. Пусто — потолок
             # взят целиком.
             'ceiling_missing': ceiling_missing,
+            # Задачи, чьи уровни посчитаны по прошлой редакции правил.
+            'stale_tasks': stale,
             # порог стабильности: минимальный набор, считается отдельно
             'stability_score': s.get('stability_score'),
             'stability_max': s.get('stability_max'),
@@ -160,7 +212,9 @@ def collect(results_dir=None):
             'tokens_net': s.get('tokens_net'),
             'baseline_tokens': s.get('baseline_tokens'),
             'cost': cost,
-            'cost_source': cost_src,          # reported (замерено CLI) | estimated (по прайсу)
+            # reported — счёт от CLI, estimated — по прайсу и токенам,
+            # electricity — время видеокарты по ставке из report.py
+            'cost_source': cost_src,
             'price_ref': meta.get('price_ref'),
             'per_task': s.get('per_task') or {},
             'per_category': s.get('per_category') or {},

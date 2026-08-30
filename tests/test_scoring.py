@@ -705,3 +705,74 @@ class TestFormatOnlyIsItsOwnColumn:
         s = runner.summarize({'model': 'x/y', 'seed': 1, 'levels': levels})
         assert s['wrong'] == 1
         assert s['honesty'] == 0.0
+
+
+class TestLocalRunsAreNotFree:
+    """Локальная модель платит электричеством, а не прочерком.
+
+    Пока цены не было, локальные прогоны уходили в прочерк и читались как
+    бесплатные — то есть бесконечно выгодные при любом качестве. Это та же
+    ошибка, что была с нулевой ставкой бесплатного тарифа.
+    """
+
+    def test_time_turns_into_money(self):
+        from bench import report
+        cheap = report.electricity_cost(600)      # 10 минут
+        dear = report.electricity_cost(3600)      # час
+        assert cheap and dear
+        assert dear > cheap
+        # rel побольше: цена округляется до шести знаков, и на маленьких
+        # значениях округление само по себе даёт заметную долю.
+        assert dear / cheap == pytest.approx(6.0, rel=1e-3)
+
+    def test_no_time_means_no_number(self):
+        from bench import report
+        assert report.electricity_cost(0) is None
+        assert report.electricity_cost(None) is None
+
+    def test_local_row_gets_a_price(self, tmp_path):
+        import json as _json
+        from bench import report
+        run = {'model': 'lmstudio-local/qwen3.8-27b-unleashed', 'seed': 1,
+               'levels': [{'task': 'calc', 'level': 1, 'score': 1.0, 'passed': True}],
+               'summary': {'score': 1.0, 'max_score': 1.0, 'seconds': 3600}}
+        (tmp_path / 'r.json').write_text(_json.dumps(run), encoding='utf-8')
+        row = report.collect(str(tmp_path))[0]
+        assert row['cost'] is not None and row['cost'] > 0
+        assert row['cost_source'] == 'electricity'
+
+
+class TestStaleVersionsCannotBeRanked:
+    """Уровень по старой редакции правил нельзя складывать с новыми.
+
+    pathperf до правки давал полный балл за любое решение, уложившееся в
+    бюджет, а после стал делить балл по измеренной скорости. Пока часть
+    прогонов пересчитана, а часть нет, общая таблица складывает два разных
+    бенчмарка: hy3 со старыми уровнями стоял выше уже пересчитанных моделей.
+    """
+
+    def _dir(self, tmp_path, version):
+        import json as _json
+        from bench import registry
+        run = {'model': 'test/model', 'seed': 1,
+               'levels': [{'task': 'count', 'level': 1, 'score': 1.0,
+                           'passed': True, 'task_version': version}],
+               'summary': {'score': 1.0, 'max_score': 1.0}}
+        (tmp_path / 'r.json').write_text(_json.dumps(run), encoding='utf-8')
+        return str(tmp_path), registry.version_of('count')
+
+    def test_current_version_is_ranked(self, tmp_path):
+        from bench import registry, report
+        d, cur = self._dir(tmp_path, registry.version_of('count'))
+        row = report.collect(d)[0]
+        assert row['stale_tasks'] == []
+        assert row['score_pct'] is not None
+
+    def test_old_version_loses_its_percentage(self, tmp_path):
+        from bench import report
+        d, cur = self._dir(tmp_path, 1)
+        row = report.collect(d)[0]
+        assert row['stale_tasks'] == ['count']
+        assert row['incomplete'] is True
+        assert row['score_pct'] is None, (
+            'прогон по старым правилам попал в общий зачёт')

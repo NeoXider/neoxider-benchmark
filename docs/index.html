@@ -137,7 +137,7 @@
 
   <section>
     <h2>Cost → score</h2>
-    <p class="hint">X axis — run cost, Y axis — percentage of the measurable levels cleared. A free tier is a billing arrangement, not a free model — the same model is metered elsewhere — so cost is computed from the measured tokens at the model's published rate and marked with a <span class="dim">~</span>. Where the CLI reports a real charge it is used as-is. A rate of zero is never treated as a price: it would pin the run to the axis and make any quality look infinitely efficient. Unpriced runs are listed below the chart.</p>
+    <p class="hint">X axis — run cost, Y axis — percentage of the measurable levels cleared. A free tier is a billing arrangement, not a free model — the same model is metered elsewhere — so cost is computed from the measured tokens at the model's published rate and marked with a <span class="dim">~</span>. Where the CLI reports a real charge it is used as-is. A rate of zero is never treated as a price: it would pin the run to the axis and make any quality look infinitely efficient. A local model is not a free one: it bills you in electricity rather than in an invoice, so a local run is priced from its <em>measured wall-clock time</em> at the GPU wattage and kWh rate declared at the top of <code>bench/report.py</code> &mdash; change those two numbers and every local row moves. Each row says which basis it used: <code>reported</code> (the CLI's own charge), <code>estimated</code> (published rate &times; measured tokens) or <code>electricity</code>. Unpriced runs are listed below the chart.</p>
     <div class="chart-box"><div id="chart-cost"></div><div id="nocost"></div></div>
   </section>
 
@@ -211,7 +211,10 @@ const WEIGHTS_TEXT  = {open:'open', closed:'closed', unknown:'?'};
 const PALETTE = ['#3b82f6','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#e879f9','#84cc16'];
 let RUNS = [];                       // нормализованные строки данных (CLI)
 let CHAT_RUNS = [];                  // то же, но собранное через веб-чат
-let sortKey = 'score', sortDir = -1; // сортировка таблицы по умолчанию: лучший сверху
+// Сортировка по ДОЛЕ, а не по сырому баллу. По абсолюту наверх поднимался
+// прогон, которому сервер намеренно не выдал процента: sol с уровнями по
+// отменённым правилам стоял первым, хотя в своей же строке показывал прочерк.
+let sortKey = 'score_pct', sortDir = -1; // сортировка таблицы по умолчанию: лучший сверху
 let modelColors = {};                // стабильные цвета моделей
 
 /* ---------- утилиты ---------- */
@@ -827,7 +830,12 @@ async function load(){
     r.tier = ['small','medium','frontier'].includes(r.tier) ? r.tier : 'unknown';
     r.local = !!r.local;
     r.score = +r.score || 0; r.max_score = +r.max_score || 50;
-    r.score_pct = (r.score_pct==null ? (r.max_score ? 100*r.score/r.max_score : null) : +r.score_pct);
+    // score_pct===null стоит НАМЕРЕННО: сервер отказался считать процент —
+    // прогон неполный или в нём потерян потолок задачи. Пересчитывать его
+    // здесь значит отменять это решение: spark не осилил два самых тяжёлых
+    // уровня, они вышли из знаменателя, и страница рисовала ему 19/20 = 95%
+    // на первом месте графика — выше моделей, которые эти уровни взяли.
+    r.score_pct = (r.score_pct==null ? null : +r.score_pct);
     ['first_try','fixed','failed','fabricated','tokens_total','tokens_net','baseline_tokens','seconds']
       .forEach(k => r[k] = (r[k]==null ? null : +r[k]));
     r.cost = (r.cost==null ? null : +r.cost);

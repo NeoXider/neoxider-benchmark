@@ -39,10 +39,11 @@
   "weights": "closed"
  },
  "chat/qwen3.8-max": {
-  "input_per_mtok": null,
-  "output_per_mtok": null,
+  "input_per_mtok": 2.0,
+  "output_per_mtok": 6.0,
   "params_b": null,
   "price_note": "chat channel reports no tokens, so no cost can be computed",
+  "price_ref": "openrouter:qwen/qwen3.8-max",
   "tier": "frontier",
   "tier_source": "vendor positioning",
   "weights": "closed"
@@ -136,19 +137,21 @@
   "weights": "open"
  },
  "lmstudio-local/qwen3.8-27b-uncensored": {
-  "input_per_mtok": null,
+  "input_per_mtok": 0.425,
   "local": true,
-  "output_per_mtok": null,
+  "output_per_mtok": 2.55,
   "params_b": 27,
+  "price_ref": "openrouter:qwen/qwen3.8-27b",
   "tier": "medium",
   "weights": "open",
   "weights_ref": "hf:Qwen/Qwen3.8-27B"
  },
  "lmstudio-local/qwen3.8-27b-unleashed": {
-  "input_per_mtok": null,
+  "input_per_mtok": 0.425,
   "local": true,
-  "output_per_mtok": null,
+  "output_per_mtok": 2.55,
   "params_b": 27,
+  "price_ref": "openrouter:qwen/qwen3.8-27b",
   "tier": "medium",
   "weights": "open",
   "weights_ref": "hf:outsourc-e/Qwen3.8-27B-Unleashed-GGUF"
@@ -167,17 +170,18 @@
   "weights": "unknown"
  },
  "opencode/hy3-free": {
-  "input_per_mtok": 0.132,
-  "output_per_mtok": 0.528,
+  "input_per_mtok": 0.0825,
+  "output_per_mtok": 0.33,
   "price_date": "2026-08-24",
   "price_ref": "openrouter:tencent/hy3",
   "weights": "open",
   "weights_ref": "hf:tencent/Hy3"
  },
  "opencode/mimo-v2.5-free": {
-  "input_per_mtok": null,
-  "output_per_mtok": null,
+  "input_per_mtok": 0.14,
+  "output_per_mtok": 0.28,
   "price_note": "OpenRouter lists xiaomi/mimo-v2.5 (0.14/0.28) and xiaomi/mimo-v2.5-pro (0.435/0.87); the codename does not say which one is served, and the two differ threefold",
+  "price_ref": "openrouter:xiaomi/mimo-v2.5",
   "weights": "open",
   "weights_ref": "hf:XiaomiMiMo/MiMo-V2.5"
  },
@@ -190,8 +194,8 @@
   "weights_note": "served on a free tier but not downloadable - no Muse Spark weights on Hugging Face. Free access and open weights are different things, and this model is the case that separates them"
  },
  "opencode/nemotron-3-ultra-free": {
-  "input_per_mtok": 0.6,
-  "output_per_mtok": 3.6,
+  "input_per_mtok": 0.5,
+  "output_per_mtok": 2.2,
   "params_b": 550,
   "price_date": "2026-08-24",
   "price_ref": "openrouter:nvidia/nemotron-3-ultra-550b-a55b",
@@ -210,8 +214,8 @@
   "weights_ref": "hf:nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"
  },
  "opencode/qwen/qwen3.8-27b": {
-  "input_per_mtok": 0.4,
-  "output_per_mtok": 3.0,
+  "input_per_mtok": 0.425,
+  "output_per_mtok": 2.55,
   "params_b": 27,
   "price_date": "2026-08-24",
   "price_ref": "openrouter:qwen/qwen3.8-27b",

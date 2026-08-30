@@ -11,3 +11,10 @@ b64.txt
 solve*.py
 form[0-9]*.html
 form_temp.html
+answer.py
+answers.py
+solution.py
+pathfinding.py
+shortest_path.py
+count_primes.py
+run_solution.py
